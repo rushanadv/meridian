@@ -1,13 +1,18 @@
 /**
- * GLSL for the Meridian hero.
+ * GLSL for Meridian.
  * Scene shaders output linear color: the composer's OutputPass applies tone
  * mapping and sRGB conversion once, at the end of the chain.
  */
+
+import { Vector2 } from "three";
 
 export const globeVertexShader = /* glsl */ `
   uniform float uTime;
   uniform float uAssemble;
   uniform float uScale;
+  uniform vec3 uStormDir;
+  uniform float uStormAmp;
+  uniform float uDim;
 
   attribute float aSize;
   attribute vec3 aColor;
@@ -22,8 +27,17 @@ export const globeVertexShader = /* glsl */ `
     float t = clamp(uAssemble, 0.0, 1.0);
     float eased = t * t * (3.0 - 2.0 * t);
 
+    vec3 npos = normalize(position);
+
     vec3 pos = mix(aScatter, position, eased);
-    pos += normalize(position) * sin(uTime * 0.65 + aSeed * 6.28318) * 0.004 * aLand;
+    pos += npos * sin(uTime * 0.65 + aSeed * 6.28318) * 0.004 * aLand;
+
+    float angle = acos(clamp(dot(npos, normalize(uStormDir)), -1.0, 1.0));
+    float ripple = sin(angle * 20.0 - uTime * 2.6) * exp(-angle * 3.4);
+    float swirl = ripple * uStormAmp * eased;
+
+    pos += npos * swirl * 0.055;
+    pos += normalize(cross(npos, vec3(0.0, 1.0, 0.0))) * swirl * 0.03;
 
     vec4 world = modelMatrix * vec4(pos, 1.0);
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
@@ -33,7 +47,7 @@ export const globeVertexShader = /* glsl */ `
     float front = smoothstep(-0.38, 0.72, facing);
 
     vColor = aColor * mix(0.55, 1.0, front);
-    vAlpha = mix(0.10, 0.58, aLand) * mix(0.22, 1.0, front);
+    vAlpha = mix(0.10, 0.58, aLand) * mix(0.22, 1.0, front) * uDim;
 
     gl_PointSize = aSize * uScale / max(0.25, -mvPosition.z);
     gl_Position = projectionMatrix * mvPosition;
@@ -150,7 +164,117 @@ export const starFragmentShader = /* glsl */ `
   }
 `;
 
-import { Vector2 } from "three";
+export const stormVertexShader = /* glsl */ `
+  uniform float uTime;
+  uniform float uScale;
+  uniform float uIntensity;
+  uniform float uHover;
+  uniform vec2 uPointer;
+
+  attribute float aRadius;
+  attribute float aAngle;
+  attribute float aSeed;
+  attribute float aSize;
+
+  varying float vHeat;
+  varying float vAlpha;
+
+  void main() {
+    float r = aRadius;
+    float ang = aAngle
+      + uTime * (0.16 + 0.52 / (r + 0.3))
+      + sin(uTime * 0.6 + aSeed * 6.28318) * 0.06;
+    float lift = sin(aSeed * 9.0 + r * 9.0 - uTime * 1.3) * 0.03 * (1.0 - r * 0.55);
+
+    vec3 pos = vec3(cos(ang) * r, lift, sin(ang) * r);
+
+    vec2 delta = pos.xz - uPointer;
+    float dist = length(delta);
+    float push = uHover * 0.24 * exp(-dist * dist * 5.0);
+    pos.xz += normalize(delta + vec2(0.0001)) * push;
+    pos.y += push * 0.3;
+
+    vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
+    gl_Position = projectionMatrix * mvPosition;
+
+    float atten = uScale / max(0.35, -mvPosition.z);
+    gl_PointSize = aSize * atten * (1.0 + uHover * 0.4);
+
+    vHeat = smoothstep(0.66, 0.08, r);
+    vAlpha = uIntensity
+      * (0.14 + 0.8 * smoothstep(0.0, 0.14, r))
+      * (0.5 + 0.5 * aSeed);
+  }
+`;
+
+export const stormFragmentShader = /* glsl */ `
+  varying float vHeat;
+  varying float vAlpha;
+
+  void main() {
+    vec2 c = gl_PointCoord - 0.5;
+    float d2 = dot(c, c);
+    if (d2 > 0.25) discard;
+
+    float d = sqrt(d2);
+    float alpha = 1.0 - smoothstep(0.04, 0.5, d);
+
+    vec3 cool = vec3(0.2, 0.55, 0.66);
+    vec3 hot = vec3(0.82, 0.97, 1.0);
+    vec3 color = mix(cool, hot, vHeat);
+
+    gl_FragColor = vec4(color, alpha * vAlpha);
+  }
+`;
+
+export const routeVertexShader = /* glsl */ `
+  attribute float aProgress;
+  attribute float aRoute;
+  attribute float aSeed;
+
+  varying float vProgress;
+  varying float vRoute;
+  varying float vSeed;
+
+  void main() {
+    vProgress = aProgress;
+    vRoute = aRoute;
+    vSeed = aSeed;
+
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+export const routeFragmentShader = /* glsl */ `
+  uniform float uTime;
+  uniform float uReveal;
+  uniform float uIntensity;
+
+  varying float vProgress;
+  varying float vRoute;
+  varying float vSeed;
+
+  float head(float phase) {
+    float h = fract(uTime * 0.11 + phase);
+    float d = abs(vProgress - h);
+    d = min(d, 1.0 - d);
+    return 1.0 - smoothstep(0.0, 0.045, d);
+  }
+
+  void main() {
+    float draw = smoothstep(0.0, 0.06, uReveal - vProgress * 0.92 + 0.06);
+    float dash = smoothstep(0.32, 0.5, abs(fract(vProgress * 44.0) - 0.5));
+
+    float pulse = head(vRoute * 0.33 + vSeed) * 1.2
+      + head(vRoute * 0.33 + vSeed + 0.5) * 0.9;
+
+    vec3 baseCol = vec3(0.46, 0.9, 1.0);
+    vec3 hotCol = vec3(0.88, 1.0, 1.0);
+    vec3 color = mix(baseCol, hotCol, clamp(pulse, 0.0, 1.0));
+
+    gl_FragColor = vec4(color, (0.34 + dash * 0.22 + pulse) * draw * uIntensity);
+  }
+`;
 
 export const gradeShader = {
   uniforms: {

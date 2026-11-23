@@ -147,6 +147,9 @@ export class Globe {
         uTime: { value: 0 },
         uAssemble: { value: 0 },
         uScale: { value: 1 },
+        uStormDir: { value: new THREE.Vector3(0, 1, 0) },
+        uStormAmp: { value: 0 },
+        uDim: { value: 1 },
       },
       vertexShader: globeVertexShader,
       fragmentShader: globeFragmentShader,
@@ -442,6 +445,16 @@ export class Globe {
     this.pointsMaterial.uniforms.uAssemble.value = value;
   }
 
+  setStorm(
+    direction: THREE.Vector3,
+    amplitude: number,
+    dim: number,
+  ): void {
+    this.pointsMaterial.uniforms.uStormDir.value.copy(direction);
+    this.pointsMaterial.uniforms.uStormAmp.value = amplitude;
+    this.pointsMaterial.uniforms.uDim.value = dim;
+  }
+
   resize(heightCss: number, pixelRatio: number): void {
     const scale = (heightCss * pixelRatio) / 2;
     this.pointsMaterial.uniforms.uScale.value = scale;
@@ -452,7 +465,7 @@ export class Globe {
     time: number,
     delta: number,
     pointer: { x: number; y: number },
-    scrollProgress: number,
+    storm: number,
     reduced: boolean,
   ): void {
     this.pointsMaterial.uniforms.uTime.value = time;
@@ -465,10 +478,12 @@ export class Globe {
       return;
     }
 
-    this.spin += delta * 0.045;
+    this.spin += delta * 0.045 * (1 - storm * 0.75);
 
-    const targetYaw = 0.52 + this.spin + pointer.x * 0.34 + scrollProgress * 0.85;
-    const targetPitch = -0.08 + pointer.y * 0.22 - scrollProgress * 0.12;
+    const calm = 1 - storm * 0.55;
+    const targetYaw =
+      0.52 + this.spin + pointer.x * 0.34 * calm + storm * 0.05;
+    const targetPitch = -0.08 + pointer.y * 0.22 * calm - storm * 0.04;
 
     this.yaw = THREE.MathUtils.damp(this.yaw, targetYaw, 3.2, delta);
     this.pitch = THREE.MathUtils.damp(this.pitch, targetPitch, 3.0, delta);
