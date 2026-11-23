@@ -138,6 +138,97 @@
   background: var(--bg);
 }
 
+.nav__right {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  justify-self: end;
+}
+
+.nav__menu {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink);
+  font-size: var(--text-micro);
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  transition:
+    border-color 320ms var(--ease-expo),
+    color 320ms var(--ease-expo);
+}
+
+.nav__menu:hover,
+.nav__menu:focus-visible {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.nav__menu-icon {
+  position: relative;
+  width: 16px;
+  height: 10px;
+}
+
+.nav__menu-icon span {
+  position: absolute;
+  right: 0;
+  left: 0;
+  height: 1px;
+  background: currentColor;
+  transition:
+    transform 520ms var(--ease-expo),
+    top 520ms var(--ease-expo);
+}
+
+.nav__menu-icon span:first-child {
+  top: 1px;
+}
+
+.nav__menu-icon span:last-child {
+  top: 9px;
+}
+
+.nav__menu[aria-expanded="true"] .nav__menu-icon span:first-child {
+  top: 5px;
+  transform: rotate(45deg);
+}
+
+.nav__menu[aria-expanded="true"] .nav__menu-icon span:last-child {
+  top: 5px;
+  transform: rotate(-45deg);
+}
+
+body.is-menu {
+  overflow: hidden;
+}
+
+body.is-menu .nav__links,
+body.is-menu .nav__cta {
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.is-menu .nav {
+  border-bottom-color: transparent;
+  background: transparent;
+  backdrop-filter: none;
+}
+
+@media (max-width: 520px) {
+  .nav__menu-label {
+    display: none;
+  }
+
+  .nav__menu {
+    padding: 0.55rem 0.6rem;
+  }
+}
+
 /* PRELOADER */
 
 .preloader {

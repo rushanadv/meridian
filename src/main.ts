@@ -1,7 +1,9 @@
 import { initPointer, pointer } from "./lib/pointer";
 import { initScroll } from "./lib/scroll";
-import { reducedMotion } from "./lib/motion";
+import { choreo } from "./lib/choreography";
+import { reducedMotion, ScrollTrigger } from "./lib/motion";
 import { initCursor } from "./ui/cursor";
+import { initHud } from "./ui/hud";
 import { initNav } from "./ui/nav";
 import { runPreloader } from "./ui/preloader";
 import { revealHero } from "./ui/reveal";
@@ -11,8 +13,8 @@ document.documentElement.classList.remove("no-js");
 document.body.classList.add("is-loading");
 
 initPointer();
-initNav();
-initScroll();
+const scroll = initScroll();
+initNav(scroll);
 
 const canvas = document.getElementById("webgl");
 let scene: MeridianScene | null = null;
@@ -56,6 +58,25 @@ initCursor({
   isOverGlobe: (clientX, clientY) =>
     scene?.isPointerOverGlobe(clientX, clientY) ?? false,
 });
+
+initHud({ scene });
+
+if (import.meta.env.DEV) {
+  (window as Window & { __meridian?: unknown }).__meridian = {
+    choreo,
+    scene,
+    triggers: () =>
+      ScrollTrigger.getAll().map((trigger) => ({
+        target:
+          trigger.trigger instanceof Element
+            ? trigger.trigger.id || trigger.trigger.className
+            : "?",
+        start: Math.round(trigger.start),
+        end: Math.round(trigger.end),
+        progress: Number(trigger.progress.toFixed(3)),
+      })),
+  };
+}
 
 runPreloader({
   onProgress: (value) => {
