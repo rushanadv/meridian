@@ -21,9 +21,10 @@
     <link rel="stylesheet" href="/src/styles/base.css" />
     <link rel="stylesheet" href="/src/styles/hero.css" />
     <link rel="stylesheet" href="/src/styles/ui.css" />
+    <link rel="stylesheet" href="/src/styles/choreo.css" />
   </head>
   <body>
-    <a class="skip-link" href="#manifesto">Skip to manifesto</a>
+    <a class="skip-link" href="#problem">Skip to the problem</a>
 
     <canvas id="webgl" aria-hidden="true"></canvas>
 
@@ -61,25 +62,83 @@
       </a>
 
       <nav class="nav__links" aria-label="Primary">
-        <a class="nav__link mono" href="#manifesto" data-cursor="link">
-          <span>Manifesto</span>
+        <a class="nav__link mono" href="#problem" data-cursor="link">
+          <span>Problem</span>
           <span class="nav__link-index" aria-hidden="true">01</span>
         </a>
-        <a class="nav__link mono" href="#manifesto" data-cursor="link">
-          <span>Signals</span>
+        <a class="nav__link mono" href="#routes" data-cursor="link">
+          <span>Routes</span>
           <span class="nav__link-index" aria-hidden="true">02</span>
         </a>
-        <a class="nav__link mono" href="#access" data-cursor="link">
-          <span>Access</span>
+        <a class="nav__link mono" href="#manifesto" data-cursor="link">
+          <span>Manifesto</span>
           <span class="nav__link-index" aria-hidden="true">03</span>
         </a>
       </nav>
 
-      <a class="nav__cta mono" href="#access" data-cursor="link">
-        <span class="nav__cta-dot" aria-hidden="true"></span>
-        Request access
-      </a>
+      <div class="nav__right">
+        <a class="nav__cta mono" href="#access" data-cursor="link">
+          <span class="nav__cta-dot" aria-hidden="true"></span>
+          Request access
+        </a>
+        <button
+          class="nav__menu mono"
+          id="menu-toggle"
+          type="button"
+          aria-expanded="false"
+          aria-controls="menu"
+        >
+          <span class="nav__menu-label">Index</span>
+          <span class="nav__menu-icon" aria-hidden="true">
+            <span></span>
+            <span></span>
+          </span>
+        </button>
+      </div>
     </header>
+
+    <div class="menu" id="menu" aria-hidden="true">
+      <div class="menu__inner">
+        <div class="menu__head mono">
+          <span>INDEX / MERIDIAN</span>
+          <span>ATMOSPHERIC INTELLIGENCE</span>
+        </div>
+
+        <nav class="menu__nav" aria-label="Site index">
+          <a class="menu__link" href="#problem" data-cursor="link">
+            <span class="menu__num mono">01</span>
+            <span class="menu__text">The Problem</span>
+            <span class="menu__tag mono">Storm</span>
+          </a>
+          <a class="menu__link" href="#routes" data-cursor="link">
+            <span class="menu__num mono">02</span>
+            <span class="menu__text">Lane View</span>
+            <span class="menu__tag mono">Fleet</span>
+          </a>
+          <a class="menu__link" href="#manifesto" data-cursor="link">
+            <span class="menu__num mono">03</span>
+            <span class="menu__text">Manifesto</span>
+            <span class="menu__tag mono">Thesis</span>
+          </a>
+          <a class="menu__link" href="#access" data-cursor="link">
+            <span class="menu__num mono">04</span>
+            <span class="menu__text">Access</span>
+            <span class="menu__tag mono">Portal</span>
+          </a>
+        </nav>
+
+        <aside class="menu__aside mono">
+          <p>14-DAY HORIZON<br />51 ENSEMBLE MEMBERS</p>
+          <p>
+            PRIVATE BETA<br />
+            <a href="mailto:access@meridian.systems" data-cursor="link"
+              >ACCESS@MERIDIAN.SYSTEMS</a
+            >
+          </p>
+          <p class="menu__coords">51.5074°N 0.1278°W</p>
+        </aside>
+      </div>
+    </div>
 
     <main id="top">
       <section class="hero" id="hero" aria-labelledby="hero-wordmark">
@@ -122,6 +181,136 @@
             <span class="live-dot" aria-hidden="true"></span>
             LIVE MODEL · 38,412 ASSETS
           </div>
+        </div>
+      </section>
+
+      <section class="problem" id="problem" aria-labelledby="problem-title">
+        <div class="problem__inner">
+          <p class="problem__index mono">
+            <span class="problem__rule" aria-hidden="true"></span>
+            02 / THE PROBLEM
+          </p>
+
+          <h2 class="problem__statement" id="problem-title">
+            <span class="problem__word">Wind</span>
+            <span class="problem__word">does</span>
+            <span class="problem__word">not</span>
+            <span class="problem__word">care</span>
+            <span class="problem__word">about</span>
+            <span class="problem__word">your</span>
+            <span class="problem__word">schedule.</span>
+            <span class="problem__word">A</span>
+            <span class="problem__word problem__word--key">forty-knot</span>
+            <span class="problem__word">crosswind</span>
+            <span class="problem__word">closes</span>
+            <span class="problem__word">a</span>
+            <span class="problem__word">port.</span>
+            <span class="problem__word">A</span>
+            <span class="problem__word">swell</span>
+            <span class="problem__word problem__word--key">two</span>
+            <span class="problem__word">oceans</span>
+            <span class="problem__word problem__word--key">away</span>
+            <span class="problem__word">rewrites</span>
+            <span class="problem__word">a</span>
+            <span class="problem__word">delivery</span>
+            <span class="problem__word">window.</span>
+            <span class="problem__word">By</span>
+            <span class="problem__word">the</span>
+            <span class="problem__word">time</span>
+            <span class="problem__word">the</span>
+            <span class="problem__word">forecast</span>
+            <span class="problem__word">is</span>
+            <span class="problem__word">obvious,</span>
+            <span class="problem__word">the</span>
+            <span class="problem__word">cost</span>
+            <span class="problem__word">is</span>
+            <span class="problem__word problem__word--key">already</span>
+            <span class="problem__word">booked.</span>
+          </h2>
+
+          <div class="problem__meta mono" aria-label="Storm cell data">
+            <div class="problem__meta-head">
+              <span class="accent">SYSTEM SNAPSHOT</span>
+              <span>34.2°N 38.7°W</span>
+            </div>
+            <div class="problem__meta-row">
+              <span>FORECAST</span>
+              <span>14 DAYS</span>
+            </div>
+            <div class="problem__meta-row">
+              <span>ENSEMBLE</span>
+              <span>51 MEMBERS</span>
+            </div>
+            <div class="problem__meta-row">
+              <span>LANE IMPACT</span>
+              <span>3 ROUTES</span>
+            </div>
+            <div class="problem__meta-row">
+              <span>CONFIDENCE</span>
+              <span class="accent">82%</span>
+            </div>
+          </div>
+
+          <p class="problem__note mono">
+            Forecasts arrive as probabilities. Losses arrive as invoices.
+          </p>
+
+          <ol class="problem__states mono">
+            <li class="is-active" data-hud-state>
+              <span>01</span>
+              Orbit
+            </li>
+            <li data-hud-state>
+              <span>02</span>
+              Storm
+            </li>
+            <li data-hud-state>
+              <span>03</span>
+              Lanes
+            </li>
+          </ol>
+        </div>
+      </section>
+
+      <section class="routes" id="routes" aria-labelledby="routes-title">
+        <div class="routes__grid">
+          <p class="routes__index mono">
+            <span class="routes__rule" aria-hidden="true"></span>
+            03 / LANE VIEW
+          </p>
+
+          <div class="routes__copy">
+            <h2 class="routes__title" id="routes-title">
+              Every lane has a<br />
+              weather price.
+            </h2>
+            <p class="routes__lede">
+              Meridian lays a fourteen-day ensemble over the network itself —
+              lane by lane, leg by leg. When probability moves, the route
+              re-prices before the vessel does.
+            </p>
+            <p class="routes__note mono">
+              RISK SCORES UPDATE EVERY 6 HOURS / ENSEMBLE 51
+            </p>
+          </div>
+
+          <ul class="routes__legend">
+            <li class="routes__row">
+              <span class="mono">R1</span>
+              <span class="routes__ports">Shanghai → Rotterdam</span>
+              <span class="mono routes__risk">Risk 34%</span>
+            </li>
+            <li class="routes__row">
+              <span class="mono">R2</span>
+              <span class="routes__ports">Singapore → Los Angeles</span>
+              <span class="mono routes__risk">Risk 61%</span>
+            </li>
+            <li class="routes__row">
+              <span class="mono">R3</span>
+              <span class="routes__ports">Santos → Shanghai</span>
+              <span class="mono routes__risk">Risk 52%</span>
+            </li>
+          </ul>
         </div>
       </section>
 
@@ -170,6 +359,30 @@
         </div>
       </section>
     </main>
+
+    <aside class="storm-label mono" id="storm-label" aria-hidden="true">
+      <div class="storm-label__head">
+        <span class="accent">CYCLONE / ADA-07</span>
+        <span class="storm-label__cross">+</span>
+      </div>
+      <p class="storm-label__name">North Atlantic cyclone</p>
+      <div class="storm-label__row">
+        <span>Wind</span>
+        <span>142 kt</span>
+      </div>
+      <div class="storm-label__row">
+        <span>Pressure</span>
+        <span>921 hpa</span>
+      </div>
+      <div class="storm-label__row">
+        <span>Route risk</span>
+        <span class="accent">68%</span>
+      </div>
+      <div class="storm-label__bar">
+        <span style="width: 68%"></span>
+      </div>
+      <p class="storm-label__hint">Hover to perturb</p>
+    </aside>
 
     <div class="cursor" id="cursor" aria-hidden="true">
       <span class="cursor__dot" id="cursor-dot"></span>

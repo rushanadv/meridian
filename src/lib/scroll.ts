@@ -1,11 +1,16 @@
 import Lenis from "lenis";
 import { gsap, ScrollTrigger, reducedMotion } from "./motion";
+import { choreo } from "./choreography";
 
-export const scrollState = {
-  progress: 0,
-};
+export interface ScrollController {
+  refresh: () => void;
+  destroy: () => void;
+  stop: () => void;
+  start: () => void;
+  scrollTo: (target: string | number) => void;
+}
 
-export function initScroll(): { refresh: () => void; destroy: () => void } {
+export function initScroll(): ScrollController {
   let lenis: Lenis | null = null;
 
   const raf = (time: number) => {
@@ -41,15 +46,6 @@ export function initScroll(): { refresh: () => void; destroy: () => void } {
   const mm = gsap.matchMedia();
 
   mm.add("(prefers-reduced-motion: no-preference)", () => {
-    ScrollTrigger.create({
-      trigger: "#manifesto",
-      start: "top bottom",
-      end: "top 25%",
-      onUpdate: (self) => {
-        scrollState.progress = self.progress;
-      },
-    });
-
     const heroExit = gsap.timeline({
       scrollTrigger: {
         trigger: "#hero",
@@ -64,8 +60,79 @@ export function initScroll(): { refresh: () => void; destroy: () => void } {
       .to(".wordmark", { yPercent: -10, ease: "none" }, 0)
       .to(".hero__top, .hero__bottom", { autoAlpha: 0, ease: "none" }, 0.15);
 
+    gsap.set(".problem__word", { opacity: 0.2 });
+
+    const words = gsap.timeline({
+      scrollTrigger: {
+        trigger: "#problem",
+        start: "top top",
+        end: "+=110%",
+        pin: true,
+        scrub: 0.7,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    words.to(
+      ".problem__word",
+      {
+        opacity: 1,
+        duration: 0.55,
+        stagger: 0.16,
+        ease: "none",
+      },
+      0.05,
+    );
+
+    const master = gsap.timeline({
+      scrollTrigger: {
+        trigger: "#hero",
+        start: "top top",
+        endTrigger: "#routes",
+        end: "bottom bottom",
+        scrub: 0.9,
+        anticipatePin: 1,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    master
+      .to(choreo, { state: 1, duration: 0.27, ease: "none" }, 0.16)
+      .to(choreo, { state: 2, duration: 0.38, ease: "none" }, 0.62);
+
+    gsap.fromTo(
+      ".routes__copy",
+      { yPercent: 9 },
+      {
+        yPercent: -5,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#routes",
+          start: "top bottom",
+          end: "bottom top",
+          scrub: 0.8,
+        },
+      },
+    );
+
+    gsap.from(".routes__row", {
+      opacity: 0,
+      y: 26,
+      stagger: 0.09,
+      duration: 1.1,
+      ease: "expoOut",
+      scrollTrigger: {
+        trigger: ".routes__legend",
+        start: "top 78%",
+      },
+    });
+
+    requestAnimationFrame(() => ScrollTrigger.refresh());
+
     return () => {
-      scrollState.progress = 0;
+      gsap.set(".problem__word", { clearProps: "opacity" });
+      choreo.state = 0;
     };
   });
 
@@ -89,6 +156,36 @@ export function initScroll(): { refresh: () => void; destroy: () => void } {
       reducedMotion.removeEventListener("change", syncMotionPreference);
       stopLenis();
       mm.revert();
+    },
+    stop: () => {
+      lenis?.stop();
+    },
+    start: () => {
+      lenis?.start();
+    },
+    scrollTo: (target) => {
+      const element =
+        typeof target === "string"
+          ? document.querySelector<HTMLElement>(target)
+          : null;
+      const offset = target === "#problem" ? 0 : -90;
+
+      if (lenis) {
+        lenis.scrollTo(element ?? target, { offset, duration: 1.25 });
+        return;
+      }
+
+      const top =
+        element !== null
+          ? element.getBoundingClientRect().top + window.scrollY + offset
+          : typeof target === "number"
+            ? target
+            : 0;
+
+      window.scrollTo({
+        top,
+        behavior: reducedMotion.matches ? "auto" : "smooth",
+      });
     },
   };
 }
