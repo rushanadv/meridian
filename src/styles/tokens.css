@@ -1,0 +1,26 @@
+:root {
+  --bg: #05070d;
+  --bg-soft: #090d16;
+  --ink: #f2eee6;
+  --ink-dim: #cfd4dd;
+  --muted: #8b93a5;
+  --accent: #7fe7ff;
+  --accent-deep: #2a7d92;
+  --line: rgb(242 238 230 / 0.13);
+  --line-strong: rgb(242 238 230 / 0.24);
+
+  --font-display: "Bricolage Grotesque", "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-power4: cubic-bezier(0.76, 0, 0.24, 1);
+
+  --pad: clamp(1.1rem, 3.4vw, 3.4rem);
+  --nav-h: clamp(60px, 8vh, 84px);
+  --gutter: clamp(0.7rem, 1.5vw, 1.6rem);
+
+  --text-micro: clamp(0.58rem, 0.52rem + 0.2vw, 0.7rem);
+  --text-small: clamp(0.78rem, 0.72rem + 0.25vw, 0.95rem);
+  --text-body: clamp(1rem, 0.95rem + 0.35vw, 1.2rem);
+  --text-lead: clamp(1.35rem, 1.1rem + 1vw, 2rem);
+}
