@@ -34,6 +34,25 @@ export const SECTIONS: SectionMeta[] = [
     navLabel: "Numbers",
     tag: "Stats",
   },
+  {
+    id: "gallery",
+    index: "06",
+    label: "Field Notes",
+    navLabel: "Field",
+    tag: "Plates",
+  },
+  {
+    id: "voices",
+    index: "07",
+    label: "Voices",
+    tag: "Desk",
+  },
+  {
+    id: "pricing",
+    index: "08",
+    label: "Plans",
+    tag: "Access",
+  },
 ];
 
 export function initSections(): void {

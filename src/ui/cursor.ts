@@ -31,10 +31,12 @@ export function initCursor({ isOverGlobe }: CursorOptions): void {
   const moveRingX = gsap.quickTo(ring, "x", { duration: 0.12, ease: "expoOut" });
   const moveRingY = gsap.quickTo(ring, "y", { duration: 0.12, ease: "expoOut" });
 
-  const setMode = (mode: "link" | "explore" | null) => {
+  const setMode = (mode: "link" | "explore" | "drag" | null) => {
     root.classList.toggle("is-link", mode === "link");
     root.classList.toggle("is-explore", mode === "explore");
-    label.textContent = mode === "explore" ? "EXPLORE" : "OPEN";
+    root.classList.toggle("is-drag", mode === "drag");
+    label.textContent =
+      mode === "explore" ? "EXPLORE" : mode === "drag" ? "DRAG" : "";
   };
 
   let frame = 0;
@@ -43,6 +45,7 @@ export function initCursor({ isOverGlobe }: CursorOptions): void {
     frame = 0;
     const element = document.elementFromPoint(mx, my);
     const interactive = element?.closest("a, button, [data-cursor='link']");
+    const dragZone = element?.closest("[data-cursor='drag']");
 
     if (interactive) {
       setMode("link");
@@ -56,6 +59,8 @@ export function initCursor({ isOverGlobe }: CursorOptions): void {
         : interactive.getAttribute("aria-expanded") === "true"
           ? "CLOSE"
           : "OPEN";
+    } else if (dragZone) {
+      setMode("drag");
     } else if (isOverGlobe(mx, my)) {
       setMode("explore");
     } else {

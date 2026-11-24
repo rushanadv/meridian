@@ -23,11 +23,13 @@
     <link rel="stylesheet" href="/src/styles/ui.css" />
     <link rel="stylesheet" href="/src/styles/choreo.css" />
     <link rel="stylesheet" href="/src/styles/content.css" />
+    <link rel="stylesheet" href="/src/styles/phase4.css" />
   </head>
   <body>
     <a class="skip-link" href="#problem">Skip to the problem</a>
 
     <canvas id="webgl" aria-hidden="true"></canvas>
+    <canvas id="dissolve" class="dissolve" aria-hidden="true"></canvas>
 
     <div class="preloader" id="preloader" role="status" aria-label="Loading Meridian planetary model">
       <div class="preloader__head mono">
@@ -583,8 +585,487 @@
         </div>
       </section>
 
+      <section class="gallery" id="gallery" aria-labelledby="gallery-title">
+        <div class="gallery__inner">
+          <p class="gallery__index mono">
+            <span class="gallery__rule" aria-hidden="true"></span>
+            <span data-section-index="gallery">06</span> /
+            <span data-section-label="gallery">Field Notes</span>
+          </p>
+
+          <div class="gallery__head">
+            <h2 class="gallery__title" id="gallery-title">
+              Four ways weather becomes a number.
+            </h2>
+            <p class="gallery__lede">
+              Plates from the model room. Each one turns an atmospheric
+              probability into something a fleet can act on before the weather
+              arrives.
+            </p>
+          </div>
+
+          <div
+            class="gallery__viewport"
+            id="gallery-viewport"
+            role="region"
+            tabindex="0"
+            aria-label="Field notes feature gallery"
+          >
+            <div class="gallery__track" id="gallery-track">
+              <article class="gallery__card" data-tilt>
+                <div class="gallery__plate" aria-hidden="true">
+                  <svg viewBox="0 0 400 300" fill="none">
+                    <g class="gallery__grid" stroke="currentColor">
+                      <line x1="26" y1="66" x2="374" y2="66" />
+                      <line x1="26" y1="134" x2="374" y2="134" />
+                      <line x1="26" y1="202" x2="374" y2="202" />
+                      <line x1="118" y1="30" x2="118" y2="270" />
+                      <line x1="202" y1="30" x2="202" y2="270" />
+                      <line x1="286" y1="30" x2="286" y2="270" />
+                    </g>
+                    <path
+                      d="M22 156 C 88 118 150 198 214 150 S 338 104 378 138"
+                      stroke="#7fe7ff"
+                      stroke-width="1.6"
+                    />
+                    <path
+                      d="M22 170 C 88 132 150 212 214 164 S 338 118 378 152"
+                      stroke="#7fe7ff"
+                      stroke-opacity="0.55"
+                      stroke-width="1"
+                    />
+                    <path
+                      d="M22 184 C 88 146 150 226 214 178 S 338 132 378 166"
+                      stroke="#7fe7ff"
+                      stroke-opacity="0.3"
+                      stroke-width="0.8"
+                    />
+                    <circle
+                      cx="268"
+                      cy="150"
+                      r="46"
+                      stroke="#f2eee6"
+                      stroke-opacity="0.28"
+                      stroke-dasharray="3 6"
+                    />
+                    <path d="M268 150 L268 104" stroke="#7fe7ff" stroke-opacity="0.6" />
+                    <circle cx="268" cy="150" r="5" fill="#7fe7ff" />
+                  </svg>
+                </div>
+                <div class="gallery__body">
+                  <div class="gallery__meta mono">
+                    <span>Plate 01</span>
+                    <span>Storm</span>
+                  </div>
+                  <h3 class="gallery__card-title">The edge, not the eye.</h3>
+                  <p class="gallery__copy">
+                    A cyclone's dangerous quadrant is a moving band. Meridian
+                    prices the edge hour by hour, so a route can widen before
+                    it has to divert.
+                  </p>
+                  <p class="gallery__note mono">North Atlantic / 14 days / 51 members</p>
+                </div>
+                <span class="gallery__glare" aria-hidden="true"></span>
+              </article>
+
+              <article class="gallery__card" data-tilt>
+                <div class="gallery__plate" aria-hidden="true">
+                  <svg viewBox="0 0 400 300" fill="none">
+                    <g class="gallery__grid" stroke="currentColor">
+                      <line x1="26" y1="70" x2="374" y2="70" />
+                      <line x1="26" y1="150" x2="374" y2="150" />
+                      <line x1="26" y1="230" x2="374" y2="230" />
+                    </g>
+                    <path
+                      d="M36 238 A 164 164 0 0 1 364 238"
+                      stroke="#7fe7ff"
+                      stroke-opacity="0.45"
+                    />
+                    <path
+                      d="M78 238 A 122 122 0 0 1 322 238"
+                      stroke="#7fe7ff"
+                      stroke-opacity="0.24"
+                    />
+                    <g stroke="#7fe7ff" stroke-opacity="0.5">
+                      <line x1="76" y1="238" x2="76" y2="184" />
+                      <line x1="112" y1="238" x2="112" y2="158" />
+                      <line x1="148" y1="238" x2="148" y2="196" />
+                      <line x1="184" y1="238" x2="184" y2="128" />
+                      <line x1="220" y1="238" x2="220" y2="104" />
+                      <line x1="256" y1="238" x2="256" y2="142" />
+                      <line x1="292" y1="238" x2="292" y2="170" />
+                      <line x1="328" y1="238" x2="328" y2="198" />
+                    </g>
+                    <path d="M200 238 L200 76" stroke="#f2eee6" stroke-opacity="0.34" stroke-dasharray="2 5" />
+                    <circle cx="200" cy="238" r="5" fill="#7fe7ff" />
+                    <circle cx="184" cy="128" r="3" fill="#7fe7ff" />
+                  </svg>
+                </div>
+                <div class="gallery__body">
+                  <div class="gallery__meta mono">
+                    <span>Plate 02</span>
+                    <span>Ports</span>
+                  </div>
+                  <h3 class="gallery__card-title">Berth queues cast a shadow.</h3>
+                  <p class="gallery__copy">
+                    Port pressure builds days before congestion appears. The
+                    model reads pilot boards, swell and berth depth together,
+                    then puts a number on the wait.
+                  </p>
+                  <p class="gallery__note mono">Rotterdam / pressure 0.81 / 6-hour refresh</p>
+                </div>
+                <span class="gallery__glare" aria-hidden="true"></span>
+              </article>
+
+              <article class="gallery__card" data-tilt>
+                <div class="gallery__plate" aria-hidden="true">
+                  <svg viewBox="0 0 400 300" fill="none">
+                    <g class="gallery__grid" stroke="currentColor">
+                      <line x1="26" y1="84" x2="374" y2="84" />
+                      <line x1="26" y1="216" x2="374" y2="216" />
+                      <line x1="200" y1="30" x2="200" y2="270" />
+                    </g>
+                    <path
+                      d="M24 220 L376 118"
+                      stroke="#f2eee6"
+                      stroke-opacity="0.28"
+                      stroke-dasharray="4 7"
+                    />
+                    <path
+                      d="M24 220 C 120 214 150 112 228 104 S 330 96 376 118"
+                      stroke="#7fe7ff"
+                      stroke-width="1.5"
+                    />
+                    <circle cx="24" cy="220" r="4.5" fill="#7fe7ff" />
+                    <circle cx="376" cy="118" r="4.5" fill="#f2eee6" />
+                    <circle cx="228" cy="104" r="2.5" fill="#7fe7ff" />
+                    <path d="M228 104 L228 84" stroke="#7fe7ff" stroke-opacity="0.55" />
+                  </svg>
+                </div>
+                <div class="gallery__body">
+                  <div class="gallery__meta mono">
+                    <span>Plate 03</span>
+                    <span>Drift</span>
+                  </div>
+                  <h3 class="gallery__card-title">One degree is a delivery window.</h3>
+                  <p class="gallery__copy">
+                    Small course errors compound. A five-degree lane drift can
+                    add two days and a demurrage claim; the model prices both
+                    before the master signs the passage plan.
+                  </p>
+                  <p class="gallery__note mono">North Pacific / drift −4.8° / margin 38 hours</p>
+                </div>
+                <span class="gallery__glare" aria-hidden="true"></span>
+              </article>
+
+              <article class="gallery__card" data-tilt>
+                <div class="gallery__plate" aria-hidden="true">
+                  <svg viewBox="0 0 400 300" fill="none">
+                    <g class="gallery__grid" stroke="currentColor">
+                      <line x1="26" y1="64" x2="374" y2="64" />
+                      <line x1="26" y1="150" x2="374" y2="150" />
+                      <line x1="26" y1="236" x2="374" y2="236" />
+                      <line x1="100" y1="30" x2="100" y2="270" />
+                      <line x1="200" y1="30" x2="200" y2="270" />
+                      <line x1="300" y1="30" x2="300" y2="270" />
+                    </g>
+                    <g fill="#7fe7ff">
+                      <circle cx="76" cy="94" r="1.8" opacity="0.4" />
+                      <circle cx="126" cy="118" r="1.6" opacity="0.7" />
+                      <circle cx="168" cy="82" r="2.2" />
+                      <circle cx="218" cy="128" r="1.7" opacity="0.5" />
+                      <circle cx="264" cy="96" r="2.8" />
+                      <circle cx="318" cy="134" r="1.6" opacity="0.6" />
+                      <circle cx="92" cy="188" r="2.4" />
+                      <circle cx="148" cy="212" r="1.5" opacity="0.5" />
+                      <circle cx="206" cy="184" r="2.1" />
+                      <circle cx="268" cy="206" r="1.8" opacity="0.7" />
+                      <circle cx="332" cy="188" r="2.5" />
+                    </g>
+                    <path d="M52 246 C 144 196 246 216 348 152" stroke="#7fe7ff" stroke-opacity="0.45" />
+                    <path d="M52 256 L348 162" stroke="#f2eee6" stroke-opacity="0.3" stroke-dasharray="2 6" />
+                    <circle cx="264" cy="96" r="10" stroke="#7fe7ff" stroke-opacity="0.4" />
+                  </svg>
+                </div>
+                <div class="gallery__body">
+                  <div class="gallery__meta mono">
+                    <span>Plate 04</span>
+                    <span>Fleet</span>
+                  </div>
+                  <h3 class="gallery__card-title">Every hull on one clock.</h3>
+                  <p class="gallery__copy">
+                    38,412 assets, one weather clock. Re-price an entire fleet
+                    against the same fourteen-day field and see which departures
+                    stop being worth the fuel.
+                  </p>
+                  <p class="gallery__note mono">Global / 38,412 assets / 14-day horizon</p>
+                </div>
+                <span class="gallery__glare" aria-hidden="true"></span>
+              </article>
+            </div>
+          </div>
+
+          <div class="gallery__foot mono">
+            <span>Side to scroll / four plates</span>
+            <span class="gallery__progress">
+              <span class="gallery__progress-fill" id="gallery-progress"></span>
+            </span>
+            <span class="gallery__count" id="gallery-count">01 / 04</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="voices" id="voices" aria-labelledby="voices-title">
+        <div class="voices__inner">
+          <p class="voices__index mono">
+            <span class="voices__rule" aria-hidden="true"></span>
+            <span data-section-index="voices">07</span> /
+            <span data-section-label="voices">Voices</span>
+          </p>
+
+          <div class="voices__head">
+            <h2 class="voices__title" id="voices-title">
+              The desk hears it first.
+            </h2>
+            <p class="voices__lede">
+              Four notes from the people who move cargo through weather for a
+              living. Nothing is promised; everything is priced.
+            </p>
+          </div>
+
+          <div
+            class="voices__viewport"
+            id="voices-viewport"
+            data-cursor="drag"
+            role="group"
+            tabindex="0"
+            aria-roledescription="carousel"
+            aria-label="Notes from the forecast desk"
+          >
+            <div class="voices__track" id="voices-track">
+              <figure class="voices__card">
+                <span class="voices__mark" aria-hidden="true">“</span>
+                <blockquote class="voices__quote">
+                  We stopped arguing about the forecast and started arguing
+                  about the margin. Meridian put a number on the weather and
+                  the meeting got shorter.
+                </blockquote>
+                <figcaption class="voices__by">
+                  <span class="voices__name">Mara Voss</span>
+                  <span class="voices__role mono">Operations director / Northline Shipping</span>
+                </figcaption>
+              </figure>
+
+              <figure class="voices__card">
+                <span class="voices__mark" aria-hidden="true">“</span>
+                <blockquote class="voices__quote">
+                  The ensemble spread is the first thing I open. It tells me
+                  which ports are about to lie to me, and which route can
+                  absorb the lie.
+                </blockquote>
+                <figcaption class="voices__by">
+                  <span class="voices__name">Elias Rook</span>
+                  <span class="voices__role mono">Route planner / Kestrel Freight</span>
+                </figcaption>
+              </figure>
+
+              <figure class="voices__card">
+                <span class="voices__mark" aria-hidden="true">“</span>
+                <blockquote class="voices__quote">
+                  Ten days before a berth closure the lane had already moved.
+                  Our client never saw the scramble — only the revised
+                  delivery window.
+                </blockquote>
+                <figcaption class="voices__by">
+                  <span class="voices__name">Ines Calder</span>
+                  <span class="voices__role mono">Chartering desk / Atlas Air Cargo</span>
+                </figcaption>
+              </figure>
+
+              <figure class="voices__card">
+                <span class="voices__mark" aria-hidden="true">“</span>
+                <blockquote class="voices__quote">
+                  The model does not replace the forecast desk. It gives the
+                  desk a longer memory and a cleaner argument.
+                </blockquote>
+                <figcaption class="voices__by">
+                  <span class="voices__name">Tomas Iyer</span>
+                  <span class="voices__role mono">Chief meteorologist / Harbor &amp; Co.</span>
+                </figcaption>
+              </figure>
+            </div>
+          </div>
+
+          <div class="voices__controls mono">
+            <button class="voices__btn" type="button" data-voice-prev aria-label="Previous note">
+              Prev
+            </button>
+            <span class="voices__count" id="voices-count" aria-hidden="true">01 / 04</span>
+            <button class="voices__btn" type="button" data-voice-next aria-label="Next note">
+              Next
+            </button>
+            <p class="sr-only" id="voices-announce" aria-live="polite"></p>
+          </div>
+        </div>
+      </section>
+
+      <section class="pricing" id="pricing" aria-labelledby="pricing-title">
+        <div class="pricing__inner">
+          <p class="pricing__index mono">
+            <span class="pricing__rule" aria-hidden="true"></span>
+            <span data-section-index="pricing">08</span> /
+            <span data-section-label="pricing">Plans</span>
+          </p>
+
+          <div class="pricing__head">
+            <h2 class="pricing__title" id="pricing-title">
+              Pay for the horizon you need.
+            </h2>
+            <p class="pricing__lede">
+              Every plan reads the same ensemble. The difference is how far the
+              decision reaches — and who answers when the weather changes.
+            </p>
+          </div>
+
+          <div class="pricing__tiers">
+            <article class="pricing__tier" data-pricing-tier>
+              <div class="pricing__tier-head mono">
+                <span>01 / Watch</span>
+                <span>Entry</span>
+              </div>
+              <div class="pricing__price">
+                <span class="pricing__amount">0</span>
+                <span class="pricing__currency mono">USD</span>
+                <span class="pricing__period mono">/ seat / month</span>
+              </div>
+              <p class="pricing__pitch">
+                For a first look at one ocean and three lanes.
+              </p>
+              <ul class="pricing__features mono">
+                <li>14-day risk on three lanes</li>
+                <li>06:00 UTC email digest</li>
+                <li>Shared forecast page</li>
+              </ul>
+              <a
+                class="pricing__cta mono"
+                data-magnetic
+                href="mailto:desk@meridian.systems?subject=Meridian%20Watch"
+              >
+                Start with three lanes
+              </a>
+            </article>
+
+            <article class="pricing__tier pricing__tier--focus" data-pricing-tier>
+              <div class="pricing__tier-head mono">
+                <span>02 / Route</span>
+                <span class="accent">Most used</span>
+              </div>
+              <div class="pricing__price">
+                <span class="pricing__amount">1,900</span>
+                <span class="pricing__currency mono">USD</span>
+                <span class="pricing__period mono">/ fleet / month</span>
+              </div>
+              <p class="pricing__pitch">
+                For fleets that re-price the network every morning.
+              </p>
+              <ul class="pricing__features mono">
+                <li>All 3,842 active lanes</li>
+                <li>Per-leg risk timeline</li>
+                <li>API and webhook push</li>
+                <li>Weather desk on call</li>
+              </ul>
+              <a
+                class="pricing__cta mono"
+                data-magnetic
+                href="mailto:desk@meridian.systems?subject=Meridian%20Route"
+              >
+                Open a route run
+              </a>
+            </article>
+
+            <article class="pricing__tier" data-pricing-tier>
+              <div class="pricing__tier-head mono">
+                <span>03 / Command</span>
+                <span>Custom</span>
+              </div>
+              <div class="pricing__price">
+                <span class="pricing__amount pricing__amount--word">Custom</span>
+                <span class="pricing__period mono">/ annual</span>
+              </div>
+              <p class="pricing__pitch">
+                For operators whose weather is also a regulatory question.
+              </p>
+              <ul class="pricing__features mono">
+                <li>Custom basins and assets</li>
+                <li>On-prem ensemble access</li>
+                <li>Named meteorologist</li>
+                <li>Contractual SLA</li>
+              </ul>
+              <a
+                class="pricing__cta mono"
+                data-magnetic
+                href="mailto:desk@meridian.systems?subject=Meridian%20Command"
+              >
+                Talk to the desk
+              </a>
+            </article>
+          </div>
+
+          <p class="pricing__foot mono">
+            Prices in USD. Every plan includes the 06:00 UTC run and the full
+            51-member ensemble.
+          </p>
+        </div>
+      </section>
+
 
     </main>
+
+    <footer class="footer" id="footer" aria-labelledby="footer-headline">
+      <div class="footer__inner">
+        <p class="footer__index mono">
+          <span class="footer__rule" aria-hidden="true"></span>
+          Meridian / Forecast desk
+        </p>
+
+        <div class="footer__cta">
+          <h2 class="footer__headline" id="footer-headline">
+            Put the next storm on the balance sheet.
+          </h2>
+
+          <div class="footer__action">
+            <a
+              class="footer__button mono"
+              data-magnetic
+              href="mailto:desk@meridian.systems?subject=Meridian%20forecast%20request"
+            >
+              Request a forecast
+            </a>
+            <p class="footer__note mono">
+              A human reads every request within one run cycle.
+            </p>
+          </div>
+        </div>
+
+        <div class="footer__meta mono">
+          <span>51.5074°N 0.1278°W</span>
+          <span>14-day horizon / 51 members</span>
+          <span>© 2026 Meridian Systems</span>
+        </div>
+
+        <nav class="footer__nav mono" aria-label="Footer">
+          <a data-cursor="link" href="#hero">Top</a>
+          <a data-cursor="link" href="#routes">Lanes</a>
+          <a data-cursor="link" href="#method">Method</a>
+          <a data-cursor="link" href="#pricing">Plans</a>
+          <a data-cursor="link" href="mailto:desk@meridian.systems">Forecast desk</a>
+        </nav>
+
+        <div class="footer__wordmark" id="footer-wordmark" aria-hidden="true">
+          <span class="footer__letter">M</span><span class="footer__letter">E</span><span class="footer__letter">R</span><span class="footer__letter">I</span><span class="footer__letter">D</span><span class="footer__letter">I</span><span class="footer__letter">A</span><span class="footer__letter">N</span>
+        </div>
+      </div>
+    </footer>
 
     <aside class="storm-label mono" id="storm-label" aria-hidden="true">
       <div class="storm-label__head">
