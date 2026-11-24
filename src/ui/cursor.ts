@@ -26,10 +26,10 @@ export function initCursor({ isOverGlobe }: CursorOptions): void {
     y: my,
   });
 
-  const moveDotX = gsap.quickTo(dot, "x", { duration: 0.12, ease: "expoOut" });
-  const moveDotY = gsap.quickTo(dot, "y", { duration: 0.12, ease: "expoOut" });
-  const moveRingX = gsap.quickTo(ring, "x", { duration: 0.55, ease: "expoOut" });
-  const moveRingY = gsap.quickTo(ring, "y", { duration: 0.55, ease: "expoOut" });
+  const moveDotX = gsap.quickTo(dot, "x", { duration: 0.07, ease: "expoOut" });
+  const moveDotY = gsap.quickTo(dot, "y", { duration: 0.07, ease: "expoOut" });
+  const moveRingX = gsap.quickTo(ring, "x", { duration: 0.12, ease: "expoOut" });
+  const moveRingY = gsap.quickTo(ring, "y", { duration: 0.12, ease: "expoOut" });
 
   const setMode = (mode: "link" | "explore" | null) => {
     root.classList.toggle("is-link", mode === "link");
@@ -46,6 +46,16 @@ export function initCursor({ isOverGlobe }: CursorOptions): void {
 
     if (interactive) {
       setMode("link");
+
+      const labeledControl =
+        interactive.id === "menu-toggle" ||
+        interactive.hasAttribute("data-magnetic");
+
+      label.textContent = labeledControl
+        ? ""
+        : interactive.getAttribute("aria-expanded") === "true"
+          ? "CLOSE"
+          : "OPEN";
     } else if (isOverGlobe(mx, my)) {
       setMode("explore");
     } else {
