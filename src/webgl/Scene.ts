@@ -8,6 +8,7 @@ import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { Globe } from "./Globe";
+import { Ensemble, ENSEMBLE_ORIGIN } from "./ensemble";
 import { Storm } from "./storm";
 import { Routes } from "./routes";
 import { PricingField } from "./pricing";
@@ -18,7 +19,7 @@ import {
   routesWeightOf,
   stormWeightOf,
 } from "../lib/choreography";
-import { reducedMotion, isCoarsePointer } from "../lib/motion";
+import { gsap, reducedMotion, isCoarsePointer } from "../lib/motion";
 
 interface CameraKey {
   position: Vector3;
@@ -42,10 +43,12 @@ export class MeridianScene {
   private readonly renderPass: RenderPass;
   private readonly output: OutputPass;
   private readonly globe = new Globe();
+  private readonly ensemble = new Ensemble();
   private readonly storm = new Storm();
   private readonly routes = new Routes();
   private readonly pricing = new PricingField();
   private readonly timer = new Timer();
+  private readonly intro = { value: 0 };
 
   private keys!: {
     orbit: CameraKey;
@@ -131,7 +134,7 @@ export class MeridianScene {
     this.scene = new ThreeScene();
     this.scene.background = new Color("#05070d");
 
-    this.globe.group.add(this.routes.group);
+    this.globe.group.add(this.ensemble.group, this.routes.group);
     this.scene.add(this.globe.root, this.storm.root, this.pricing.root);
 
     this.camera = new PerspectiveCamera(
@@ -182,6 +185,22 @@ export class MeridianScene {
 
   setAssemble(value: number): void {
     this.globe.setAssemble(value);
+  }
+
+  playEnsembleIntro(): void {
+    if (this.reduced) {
+      this.ensemble.setIntro(1);
+      this.renderOnce();
+      return;
+    }
+
+    gsap.to(this.intro, {
+      value: 1,
+      duration: 1.6,
+      ease: "power4InOut",
+      overwrite: true,
+      onUpdate: () => this.ensemble.setIntro(this.intro.value),
+    });
   }
 
   setStormHover(active: boolean): void {
@@ -284,7 +303,8 @@ export class MeridianScene {
     window.removeEventListener("resize", this.onResize);
     document.removeEventListener("visibilitychange", this.onVisibility);
     reducedMotion.removeEventListener("change", this.onMotionPreference);
-    this.globe.group.remove(this.routes.group);
+    this.globe.group.remove(this.ensemble.group, this.routes.group);
+    this.ensemble.dispose();
     this.routes.dispose();
     this.storm.dispose();
     this.globe.dispose();
@@ -308,10 +328,21 @@ export class MeridianScene {
     );
 
     const center = this.globe.group.position;
-    const direction = new Vector3(-0.4, 1.0, 1.22).normalize();
+    const latitude = ENSEMBLE_ORIGIN.lat * Math.PI / 180;
+    const longitude = ENSEMBLE_ORIGIN.lon * Math.PI / 180;
+    const genesis = new Vector3(
+      Math.cos(latitude) * Math.cos(longitude),
+      Math.sin(latitude),
+      Math.cos(latitude) * Math.sin(longitude),
+    )
+      .normalize()
+      .multiplyScalar(2.62);
 
-    this.stormWorld.copy(center).addScaledVector(direction, 2.62);
+    this.globe.group.updateMatrixWorld(true);
+    this.stormWorld.copy(genesis).applyMatrix4(this.globe.group.matrixWorld);
     this.storm.root.position.copy(this.stormWorld);
+
+    const direction = this.stormWorld.clone().sub(center).normalize();
 
     const orbit: CameraKey = portrait
       ? {
@@ -419,6 +450,9 @@ export class MeridianScene {
     const routesWeight = routesWeightOf(choreo.state);
     const contentFade = 1 - choreo.veil;
 
+    this.ensemble.setDay(this.reduced ? 0 : choreo.uDay);
+    this.ensemble.update(time, 0, this.reduced);
+
     this.globe.setVeil(choreo.veil);
     this.globe.update(
       time,
@@ -479,6 +513,9 @@ export class MeridianScene {
     this.hover = MathUtils.damp(this.hover, this.hoverTarget, 6, delta);
 
     const time = this.reduced ? 0.8 : this.timer.getElapsed();
+
+    this.ensemble.setDay(this.reduced ? 0 : choreo.uDay);
+    this.ensemble.update(time, delta, this.reduced);
 
     this.globe.setVeil(choreo.veil);
     this.globe.update(

@@ -284,6 +284,78 @@ export const routeFragmentShader = /* glsl */ `
   }
 `;
 
+export const ensembleVertexShader = /* glsl */ `
+  uniform float uSpread;
+
+  attribute vec3 aColor;
+  attribute vec3 aOffset;
+  attribute float aProgress;
+  attribute float aWeight;
+  attribute float aSeed;
+
+  varying vec3 vColor;
+  varying float vProgress;
+  varying float vWeight;
+  varying float vSeed;
+  varying float vFacing;
+
+  void main() {
+    vec3 base = position;
+    vec3 pos = base + aOffset * uSpread;
+
+    vec4 world = modelMatrix * vec4(pos, 1.0);
+    vec3 outward = normalize(mat3(modelMatrix) * normalize(base));
+    float facing = dot(outward, normalize(cameraPosition - world.xyz));
+
+    vColor = aColor;
+    vProgress = aProgress;
+    vWeight = aWeight;
+    vSeed = aSeed;
+    vFacing = smoothstep(-0.32, 0.55, facing);
+
+    gl_Position = projectionMatrix * viewMatrix * world;
+  }
+`;
+
+export const ensembleFragmentShader = /* glsl */ `
+  uniform float uTime;
+  uniform float uDay;
+  uniform float uSpread;
+  uniform float uLength;
+  uniform float uOpacity;
+
+  varying vec3 vColor;
+  varying float vProgress;
+  varying float vWeight;
+  varying float vSeed;
+  varying float vFacing;
+
+  void main() {
+    float draw = 1.0 - smoothstep(uLength - 0.008, uLength + 0.001, vProgress);
+    float head = 1.0 - smoothstep(0.0, 0.045, abs(vProgress - uLength));
+    float realised = step(0.5, vWeight);
+    float ghostFade = mix(smoothstep(0.02, 0.46, uSpread), 1.0, realised);
+    float resolution = smoothstep(0.62, 1.0, uDay);
+
+    float baseAlpha = mix(0.78, 1.0, realised);
+    float pulse = realised
+      * (0.10 * sin(uTime * 1.6 + vProgress * 11.0 + vSeed * 6.28318) + 0.10);
+
+    float alpha = (baseAlpha + pulse) * vFacing * draw * ghostFade;
+    alpha += head * mix(0.08, 0.36, realised) * ghostFade * vFacing;
+    alpha += (1.0 - draw)
+      * mix(0.2, 0.3, realised)
+      * ghostFade
+      * vFacing;
+    alpha *= uOpacity * (1.0 + resolution * realised * 0.35);
+
+    vec3 color = vColor;
+    color += realised * head * vec3(0.16, 0.22, 0.24);
+
+    gl_FragColor = vec4(color, clamp(alpha, 0.0, 1.0));
+  }
+`;
+
 export const gradeShader = {
   uniforms: {
     tDiffuse: { value: null },

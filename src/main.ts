@@ -116,6 +116,7 @@ runPreloader({
   },
   onDone: () => {
     document.body.classList.remove("is-loading");
+    scene?.playEnsembleIntro();
     revealHero();
 
     if (reducedMotion.matches) {

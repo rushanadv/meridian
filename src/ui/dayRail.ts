@@ -1,3 +1,4 @@
+import { choreo, dayToProgress, FORECAST_DAYS } from "../lib/choreography";
 import { SECTIONS, type SectionMeta } from "../lib/sections";
 import { reducedMotion, ScrollTrigger } from "../lib/motion";
 import type { ScrollController } from "../lib/scroll";
@@ -14,7 +15,7 @@ interface DayRailController {
   destroy: () => void;
 }
 
-const MAX_DAYS = 14;
+const MAX_DAYS = FORECAST_DAYS;
 const MOBILE_QUERY = window.matchMedia("(max-width: 720px)");
 
 function formatDay(day: number): string {
@@ -163,6 +164,9 @@ export function initDayRail(
     const { day, index } = resolve();
     const rounded = Math.max(0, Math.min(MAX_DAYS, Math.round(day)));
     const section = timeline[index].meta;
+
+    choreo.day = day;
+    choreo.uDay = dayToProgress(day);
 
     if (rounded !== currentDay) {
       currentDay = rounded;

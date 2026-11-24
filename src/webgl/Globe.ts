@@ -4,6 +4,7 @@ import {
   SphereGeometry, Vector3,
 } from "three";
 import { isCoarsePointer } from "../lib/motion";
+import { ENSEMBLE_ORIGIN } from "./ensemble";
 import { fbm3, maskAt, sampleLand } from "./landmask";
 import {
   atmosphereFragmentShader,
@@ -18,6 +19,8 @@ import {
 
 const RADIUS = 2;
 const DEG = Math.PI / 180;
+const HERO_YAW =
+  ENSEMBLE_ORIGIN.lon * DEG - Math.PI / 2 - 0.55;
 
 const seededRandom = (seed: number) => {
   let value = seed >>> 0;
@@ -47,8 +50,9 @@ export class Globe {
   private readonly atmosphereGeometry: SphereGeometry;
   private readonly atmosphereMaterial: ShaderMaterial;
 
+  private readonly baseYaw = HERO_YAW;
   private spin = 0;
-  private yaw = 0.52;
+  private yaw = HERO_YAW;
   private pitch = -0.08;
 
   constructor() {
@@ -500,7 +504,7 @@ export class Globe {
 
     const calm = 1 - storm * 0.55;
     const targetYaw =
-      0.52 + this.spin + pointer.x * 0.34 * calm + storm * 0.05;
+      this.baseYaw + this.spin + pointer.x * 0.34 * calm + storm * 0.05;
     const targetPitch = -0.08 + pointer.y * 0.22 * calm - storm * 0.04;
 
     this.yaw = MathUtils.damp(this.yaw, targetYaw, 3.2, delta);

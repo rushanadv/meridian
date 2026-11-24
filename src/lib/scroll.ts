@@ -169,6 +169,8 @@ export function initScroll(): ScrollController {
       choreo.state = 0;
       choreo.veil = 0;
       choreo.pricing = 0;
+      choreo.day = 14;
+      choreo.uDay = 0;
     };
   });
 
