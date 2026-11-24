@@ -26,7 +26,7 @@
     <link rel="stylesheet" href="/src/styles/phase4.css" />
   </head>
   <body>
-    <a class="skip-link" href="#problem">Skip to the problem</a>
+    <a class="skip-link" href="#top">Skip to content</a>
 
     <canvas id="webgl" aria-hidden="true"></canvas>
     <canvas id="dissolve" class="dissolve" aria-hidden="true"></canvas>
@@ -73,6 +73,7 @@
           type="button"
           aria-expanded="false"
           aria-controls="menu"
+          aria-label="Open index"
         >
           <span class="nav__menu-label">Index</span>
           <span class="nav__menu-icon" aria-hidden="true">
@@ -83,11 +84,11 @@
       </div>
     </header>
 
-    <div class="menu" id="menu" aria-hidden="true">
+    <div class="menu" id="menu" aria-hidden="true" inert>
       <div class="menu__inner">
         <div class="menu__head mono">
           <span>INDEX / MERIDIAN</span>
-          <span data-section-count>03 Entries</span>
+          <span data-section-count>08 Entries</span>
         </div>
 
         <nav class="menu__nav" aria-label="Site index"></nav>
@@ -99,8 +100,10 @@
       </div>
     </div>
 
-    <main id="top">
-      <section class="hero" id="hero" aria-labelledby="hero-wordmark">
+    <main id="top" tabindex="-1">
+      <h1 class="sr-only">Meridian — weather intelligence for global shipping.</h1>
+
+      <section class="hero" id="hero" aria-labelledby="hero-headline">
         <div class="hero__top mono">
           <span class="hero__section"><span data-section-index="hero">01</span> / <span data-section-label="hero">Hero</span></span>
           <span class="hero__coords" id="coords" aria-live="off">51.5074°N 0.1278°W</span>
@@ -112,7 +115,7 @@
             14-DAY HORIZON / MODEL 0.9
           </p>
 
-          <h2 class="hero__headline">
+          <h2 class="hero__headline" id="hero-headline">
             <span class="line-mask"><span class="line">See the planet's</span></span>
             <span class="line-mask"><span class="line">mood before it</span></span>
             <span class="line-mask"><span class="line">moves your cargo.</span></span>
@@ -124,11 +127,11 @@
           </p>
         </div>
 
-        <h1 class="wordmark" id="hero-wordmark" aria-label="Meridian">
+        <div class="wordmark" aria-hidden="true">
           <span class="wordmark__inner" aria-hidden="true">
             <span class="wm-letter" style="--i: 0">M</span><span class="wm-letter" style="--i: 1">E</span><span class="wm-letter" style="--i: 2">R</span><span class="wm-letter" style="--i: 3">I</span><span class="wm-letter" style="--i: 4">D</span><span class="wm-letter" style="--i: 5">I</span><span class="wm-letter" style="--i: 6">A</span><span class="wm-letter" style="--i: 7">N</span>
           </span>
-        </h1>
+        </div>
 
         <div class="hero__bottom">
           <p class="hero__scroll mono">
@@ -612,7 +615,7 @@
             aria-label="Field notes feature gallery"
           >
             <div class="gallery__track" id="gallery-track">
-              <article class="gallery__card" data-tilt>
+              <article class="gallery__card" data-tilt aria-labelledby="plate-storm">
                 <div class="gallery__plate" aria-hidden="true">
                   <svg viewBox="0 0 400 300" fill="none">
                     <g class="gallery__grid" stroke="currentColor">
@@ -657,7 +660,7 @@
                     <span>Plate 01</span>
                     <span>Storm</span>
                   </div>
-                  <h3 class="gallery__card-title">The edge, not the eye.</h3>
+                  <h3 class="gallery__card-title" id="plate-storm">The edge, not the eye.</h3>
                   <p class="gallery__copy">
                     A cyclone's dangerous quadrant is a moving band. Meridian
                     prices the edge hour by hour, so a route can widen before
@@ -668,7 +671,7 @@
                 <span class="gallery__glare" aria-hidden="true"></span>
               </article>
 
-              <article class="gallery__card" data-tilt>
+              <article class="gallery__card" data-tilt aria-labelledby="plate-ports">
                 <div class="gallery__plate" aria-hidden="true">
                   <svg viewBox="0 0 400 300" fill="none">
                     <g class="gallery__grid" stroke="currentColor">
@@ -706,7 +709,7 @@
                     <span>Plate 02</span>
                     <span>Ports</span>
                   </div>
-                  <h3 class="gallery__card-title">Berth queues cast a shadow.</h3>
+                  <h3 class="gallery__card-title" id="plate-ports">Berth queues cast a shadow.</h3>
                   <p class="gallery__copy">
                     Port pressure builds days before congestion appears. The
                     model reads pilot boards, swell and berth depth together,
@@ -717,7 +720,7 @@
                 <span class="gallery__glare" aria-hidden="true"></span>
               </article>
 
-              <article class="gallery__card" data-tilt>
+              <article class="gallery__card" data-tilt aria-labelledby="plate-drift">
                 <div class="gallery__plate" aria-hidden="true">
                   <svg viewBox="0 0 400 300" fill="none">
                     <g class="gallery__grid" stroke="currentColor">
@@ -747,7 +750,7 @@
                     <span>Plate 03</span>
                     <span>Drift</span>
                   </div>
-                  <h3 class="gallery__card-title">One degree is a delivery window.</h3>
+                  <h3 class="gallery__card-title" id="plate-drift">One degree is a delivery window.</h3>
                   <p class="gallery__copy">
                     Small course errors compound. A five-degree lane drift can
                     add two days and a demurrage claim; the model prices both
@@ -758,7 +761,7 @@
                 <span class="gallery__glare" aria-hidden="true"></span>
               </article>
 
-              <article class="gallery__card" data-tilt>
+              <article class="gallery__card" data-tilt aria-labelledby="plate-fleet">
                 <div class="gallery__plate" aria-hidden="true">
                   <svg viewBox="0 0 400 300" fill="none">
                     <g class="gallery__grid" stroke="currentColor">
@@ -792,7 +795,7 @@
                     <span>Plate 04</span>
                     <span>Fleet</span>
                   </div>
-                  <h3 class="gallery__card-title">Every hull on one clock.</h3>
+                  <h3 class="gallery__card-title" id="plate-fleet">Every hull on one clock.</h3>
                   <p class="gallery__copy">
                     38,412 assets, one weather clock. Re-price an entire fleet
                     against the same fourteen-day field and see which departures
@@ -928,9 +931,9 @@
           </div>
 
           <div class="pricing__tiers">
-            <article class="pricing__tier" data-pricing-tier>
+            <article class="pricing__tier" data-pricing-tier aria-labelledby="plan-watch">
               <div class="pricing__tier-head mono">
-                <span>01 / Watch</span>
+                <h3 class="pricing__tier-name" id="plan-watch">01 / Watch</h3>
                 <span>Entry</span>
               </div>
               <div class="pricing__price">
@@ -955,9 +958,9 @@
               </a>
             </article>
 
-            <article class="pricing__tier pricing__tier--focus" data-pricing-tier>
+            <article class="pricing__tier pricing__tier--focus" data-pricing-tier aria-labelledby="plan-route">
               <div class="pricing__tier-head mono">
-                <span>02 / Route</span>
+                <h3 class="pricing__tier-name" id="plan-route">02 / Route</h3>
                 <span class="accent">Most used</span>
               </div>
               <div class="pricing__price">
@@ -983,9 +986,9 @@
               </a>
             </article>
 
-            <article class="pricing__tier" data-pricing-tier>
+            <article class="pricing__tier" data-pricing-tier aria-labelledby="plan-command">
               <div class="pricing__tier-head mono">
-                <span>03 / Command</span>
+                <h3 class="pricing__tier-name" id="plan-command">03 / Command</h3>
                 <span>Custom</span>
               </div>
               <div class="pricing__price">
@@ -1088,7 +1091,7 @@
       <div class="storm-label__bar">
         <span style="width: 68%"></span>
       </div>
-      <p class="storm-label__hint">Hover to perturb</p>
+      <p class="storm-label__hint">Hover / tap to perturb</p>
     </aside>
 
     <div class="cursor" id="cursor" aria-hidden="true">

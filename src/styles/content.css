@@ -1,17 +1,5 @@
 /* PHASE 3: METHOD, SIGNALS, UTILITIES */
 
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  padding: 0;
-  margin: -1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
-  border: 0;
-}
-
 /* Soft, edge-free scrims keep the surviving planetary view as a backdrop. */
 .method,
 .signals {

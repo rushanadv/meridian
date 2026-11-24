@@ -21,6 +21,7 @@ export function initNav(scroll: ScrollController): void {
 
   const setToggleLabel = (isOpen: boolean) => {
     if (label) label.textContent = isOpen ? "Close" : "Index";
+    toggle.setAttribute("aria-label", isOpen ? "Close index" : "Open index");
   };
 
   const links = Array.from(
@@ -38,6 +39,7 @@ export function initNav(scroll: ScrollController): void {
           defaults: { ease: "expoOut" },
           onReverseComplete: () => {
             menu.setAttribute("aria-hidden", "true");
+            menu.inert = true;
             menu.classList.remove("is-open");
             document.body.classList.remove("is-menu");
             scroll.start();
@@ -84,6 +86,7 @@ export function initNav(scroll: ScrollController): void {
 
     toggle.setAttribute("aria-expanded", "true");
     menu.setAttribute("aria-hidden", "false");
+    menu.inert = false;
     menu.classList.add("is-open");
     document.body.classList.add("is-menu");
     scroll.stop();
@@ -112,6 +115,7 @@ export function initNav(scroll: ScrollController): void {
       timeline.reverse();
     } else {
       menu.setAttribute("aria-hidden", "true");
+      menu.inert = true;
       menu.classList.remove("is-open");
       menu.style.visibility = "hidden";
       menu.style.clipPath = "inset(0 0 100% 0)";

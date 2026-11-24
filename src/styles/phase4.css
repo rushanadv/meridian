@@ -471,6 +471,14 @@
   color: var(--accent);
 }
 
+.pricing__tier-name {
+  margin: 0;
+  font: inherit;
+  letter-spacing: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
 .pricing__price {
   display: flex;
   flex-wrap: wrap;
@@ -723,6 +731,17 @@
   transition:
     color 130ms linear,
     -webkit-text-stroke-color 130ms linear;
+}
+
+@media (hover: none) {
+  .pricing__tier:active {
+    border-color: var(--accent);
+    background: rgb(127 231 255 / 0.09);
+  }
+
+  .gallery__card:active {
+    border-color: var(--accent);
+  }
 }
 
 /* ---------- CURSOR DRAG MODE ---------- */
