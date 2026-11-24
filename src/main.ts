@@ -7,11 +7,16 @@ import { initScramble } from "./lib/scramble";
 import { reducedMotion, ScrollTrigger } from "./lib/motion";
 import { initContent } from "./ui/content";
 import { initCursor } from "./ui/cursor";
+import { initFooter } from "./ui/footer";
+import { initGallery } from "./ui/gallery";
 import { initHud } from "./ui/hud";
 import { initNav } from "./ui/nav";
+import { initPricing } from "./ui/pricing";
 import { runPreloader } from "./ui/preloader";
 import { revealHero } from "./ui/reveal";
 import { initRoutesPanel } from "./ui/routes";
+import { initViewTransition } from "./ui/transition";
+import { initVoices } from "./ui/voices";
 import { MeridianScene } from "./webgl/Scene";
 
 document.documentElement.classList.remove("no-js");
@@ -73,6 +78,18 @@ initRoutesPanel({
 initContent();
 initScramble();
 initMagnetic();
+initGallery();
+initVoices(scroll);
+initPricing({
+  onHover: (active) => scene?.setPricingHover(active),
+});
+initFooter();
+initViewTransition(scroll);
+
+requestAnimationFrame(() => {
+  ScrollTrigger.sort();
+  ScrollTrigger.refresh();
+});
 
 if (import.meta.env.DEV) {
   (window as Window & { __meridian?: unknown }).__meridian = {
