@@ -10,6 +10,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { Globe } from "./Globe";
 import { Storm } from "./storm";
 import { Routes } from "./routes";
+import { PricingField } from "./pricing";
 import { gradeShader } from "./shaders";
 import { pointer } from "../lib/pointer";
 import {
@@ -42,6 +43,7 @@ export class MeridianScene {
   private readonly globe = new Globe();
   private readonly storm = new Storm();
   private readonly routes = new Routes();
+  private readonly pricing = new PricingField();
   private readonly timer = new Timer();
 
   private keys!: {
@@ -75,6 +77,8 @@ export class MeridianScene {
   private rigReady = false;
   private hover = 0;
   private hoverTarget = 0;
+  private pricingHover = 0;
+  private pricingHoverTarget = 0;
   private stormWeight = 0;
 
   private reduced = reducedMotion.matches;
@@ -118,7 +122,7 @@ export class MeridianScene {
     this.scene.background = new Color("#05070d");
 
     this.globe.group.add(this.routes.group);
-    this.scene.add(this.globe.root, this.storm.root);
+    this.scene.add(this.globe.root, this.storm.root, this.pricing.root);
 
     this.camera = new PerspectiveCamera(
       42,
@@ -175,6 +179,12 @@ export class MeridianScene {
 
   setRouteFocus(index: number): void {
     this.routes.setActive(index);
+
+    if (this.reduced) this.renderOnce();
+  }
+
+  setPricingHover(active: boolean): void {
+    this.pricingHoverTarget = active ? 1 : 0;
 
     if (this.reduced) this.renderOnce();
   }
@@ -245,6 +255,8 @@ export class MeridianScene {
   }
 
   isPointerOverGlobe(clientX: number, clientY: number): boolean {
+    if (choreo.veil > 0.35) return false;
+
     this.globe.getWorldCenter(this.globeCenter);
     this.globeCenter.project(this.camera);
 
@@ -264,6 +276,7 @@ export class MeridianScene {
     this.routes.dispose();
     this.storm.dispose();
     this.globe.dispose();
+    this.pricing.dispose();
     this.composer.dispose();
     this.renderer.dispose();
   }
@@ -409,11 +422,19 @@ export class MeridianScene {
       (1 -
         this.stormWeight * (this.portrait ? 0.68 : 0.5) -
         routesWeight * (this.portrait ? 0.1 : 0.15)) *
-        (1 - choreo.veil * 0.92),
+        (1 - choreo.veil),
     );
 
     this.storm.update(time, this.stormWeight, this.hover, this.stormPointer);
     this.routes.update(time, routesWeight * contentFade, 0);
+    this.pricingHover = this.pricingHoverTarget;
+    this.pricing.update(
+      time,
+      choreo.pricing,
+      this.pricingHover,
+      this.smoothPointer,
+      this.camera.aspect,
+    );
     this.updateRig(0);
     this.composer.render();
   }
@@ -462,11 +483,25 @@ export class MeridianScene {
       (1 -
         this.stormWeight * (this.portrait ? 0.68 : 0.5) -
         routesWeight * (this.portrait ? 0.1 : 0.15)) *
-        (1 - choreo.veil * 0.92),
+        (1 - choreo.veil),
     );
 
     this.storm.update(time, this.stormWeight, this.hover, this.stormPointer);
     this.routes.update(time, routesWeight * contentFade, delta);
+
+    this.pricingHover = MathUtils.damp(
+      this.pricingHover,
+      this.pricingHoverTarget,
+      4,
+      delta,
+    );
+    this.pricing.update(
+      time,
+      choreo.pricing,
+      this.pricingHover,
+      this.smoothPointer,
+      this.camera.aspect,
+    );
 
     this.updateRig(delta);
 

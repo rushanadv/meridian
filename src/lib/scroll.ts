@@ -7,7 +7,7 @@ export interface ScrollController {
   destroy: () => void;
   stop: () => void;
   start: () => void;
-  scrollTo: (target: string | number) => void;
+  scrollTo: (target: string | number, immediate?: boolean) => void;
 }
 
 export function initScroll(): ScrollController {
@@ -120,6 +120,21 @@ export function initScroll(): ScrollController {
       },
     );
 
+    const pricingTl = gsap.timeline({
+      scrollTrigger: {
+        trigger: "#pricing",
+        start: "top 90%",
+        end: "bottom 10%",
+        scrub: 0.6,
+        invalidateOnRefresh: true,
+      },
+    });
+
+    pricingTl
+      .to(choreo, { pricing: 1, duration: 0.45, ease: "none" })
+      .to(choreo, { pricing: 1, duration: 0.15 })
+      .to(choreo, { pricing: 0, duration: 0.4, ease: "none" });
+
     gsap.fromTo(
       ".routes__copy",
       { yPercent: 9 },
@@ -153,6 +168,7 @@ export function initScroll(): ScrollController {
       gsap.set(".problem__word", { clearProps: "opacity,color" });
       choreo.state = 0;
       choreo.veil = 0;
+      choreo.pricing = 0;
     };
   });
 
@@ -196,7 +212,7 @@ export function initScroll(): ScrollController {
     start: () => {
       lenis?.start();
     },
-    scrollTo: (target) => {
+    scrollTo: (target, immediate = false) => {
       const element =
         typeof target === "string"
           ? document.querySelector<HTMLElement>(target)
@@ -204,7 +220,14 @@ export function initScroll(): ScrollController {
       const offset = target === "#problem" ? 0 : -90;
 
       if (lenis) {
-        lenis.scrollTo(element ?? target, { offset, duration: 1.25 });
+        lenis.scrollTo(
+          element ?? target,
+          immediate
+            ? { offset, immediate: true }
+            : { offset, duration: 1.25 },
+        );
+
+        if (immediate) ScrollTrigger.update();
         return;
       }
 
@@ -217,8 +240,10 @@ export function initScroll(): ScrollController {
 
       window.scrollTo({
         top,
-        behavior: reducedMotion.matches ? "auto" : "smooth",
+        behavior: immediate || reducedMotion.matches ? "auto" : "smooth",
       });
+
+      if (immediate) ScrollTrigger.update();
     },
   };
 }
