@@ -1,4 +1,7 @@
-import * as THREE from "three";
+import {
+  ACESFilmicToneMapping, Color, MathUtils, PerspectiveCamera, Plane, Raycaster,
+  Scene as ThreeScene, Timer, Vector2, Vector3, WebGLRenderer,
+} from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
@@ -17,8 +20,8 @@ import {
 import { reducedMotion } from "../lib/motion";
 
 interface CameraKey {
-  position: THREE.Vector3;
-  look: THREE.Vector3;
+  position: Vector3;
+  look: Vector3;
   fov: number;
 }
 
@@ -29,9 +32,9 @@ export interface StormHud {
 }
 
 export class MeridianScene {
-  private readonly renderer: THREE.WebGLRenderer;
-  private readonly camera: THREE.PerspectiveCamera;
-  private readonly scene: THREE.Scene;
+  private readonly renderer: WebGLRenderer;
+  private readonly camera: PerspectiveCamera;
+  private readonly scene: ThreeScene;
   private readonly composer: EffectComposer;
   private readonly bloom: UnrealBloomPass;
   private readonly grade: ShaderPass;
@@ -39,7 +42,7 @@ export class MeridianScene {
   private readonly globe = new Globe();
   private readonly storm = new Storm();
   private readonly routes = new Routes();
-  private readonly timer = new THREE.Timer();
+  private readonly timer = new Timer();
 
   private keys!: {
     orbit: CameraKey;
@@ -47,24 +50,24 @@ export class MeridianScene {
     routes: CameraKey;
   };
 
-  private readonly smoothPointer = new THREE.Vector2(0, 0);
-  private readonly globeCenter = new THREE.Vector3();
-  private readonly stormWorld = new THREE.Vector3();
-  private readonly stormLocalDir = new THREE.Vector3();
-  private readonly stormPointer = new THREE.Vector2(1e3, 1e3);
+  private readonly smoothPointer = new Vector2(0, 0);
+  private readonly globeCenter = new Vector3();
+  private readonly stormWorld = new Vector3();
+  private readonly stormLocalDir = new Vector3();
+  private readonly stormPointer = new Vector2(1e3, 1e3);
 
-  private readonly posePos = new THREE.Vector3();
-  private readonly poseLook = new THREE.Vector3();
-  private readonly rigPos = new THREE.Vector3();
-  private readonly rigLook = new THREE.Vector3();
-  private readonly tmpWorld = new THREE.Vector3();
-  private readonly tmpDir = new THREE.Vector3();
-  private readonly tmpLocal = new THREE.Vector3();
-  private readonly hudProjection = new THREE.Vector3();
-  private readonly rayNdc = new THREE.Vector2();
+  private readonly posePos = new Vector3();
+  private readonly poseLook = new Vector3();
+  private readonly rigPos = new Vector3();
+  private readonly rigLook = new Vector3();
+  private readonly tmpWorld = new Vector3();
+  private readonly tmpDir = new Vector3();
+  private readonly tmpLocal = new Vector3();
+  private readonly hudProjection = new Vector3();
+  private readonly rayNdc = new Vector2();
 
-  private readonly raycaster = new THREE.Raycaster();
-  private readonly plane = new THREE.Plane();
+  private readonly raycaster = new Raycaster();
+  private readonly plane = new Plane();
 
   private rigFov = 42;
   private poseFov = 42;
@@ -97,7 +100,7 @@ export class MeridianScene {
     const width = window.innerWidth;
     const height = window.innerHeight;
 
-    this.renderer = new THREE.WebGLRenderer({
+    this.renderer = new WebGLRenderer({
       canvas,
       antialias: false,
       alpha: false,
@@ -107,17 +110,17 @@ export class MeridianScene {
     this.pixelRatio = Math.min(window.devicePixelRatio, 2);
     this.renderer.setPixelRatio(this.pixelRatio);
     this.renderer.setSize(width, height);
-    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMapping = ACESFilmicToneMapping;
     this.renderer.toneMappingExposure = 1.12;
     this.renderer.setClearColor(0x05070d, 1);
 
-    this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color("#05070d");
+    this.scene = new ThreeScene();
+    this.scene.background = new Color("#05070d");
 
     this.globe.group.add(this.routes.group);
     this.scene.add(this.globe.root, this.storm.root);
 
-    this.camera = new THREE.PerspectiveCamera(
+    this.camera = new PerspectiveCamera(
       42,
       width / height,
       0.1,
@@ -131,7 +134,7 @@ export class MeridianScene {
     this.composer.addPass(this.renderPass);
 
     this.bloom = new UnrealBloomPass(
-      new THREE.Vector2(width, height),
+      new Vector2(width, height),
       0.62,
       0.5,
       0.6,
@@ -168,6 +171,12 @@ export class MeridianScene {
 
   setStormHover(active: boolean): void {
     this.hoverTarget = active ? 1 : 0;
+  }
+
+  setRouteFocus(index: number): void {
+    this.routes.setActive(index);
+
+    if (this.reduced) this.renderOnce();
   }
 
   getStormHud(out: StormHud): void {
@@ -270,31 +279,37 @@ export class MeridianScene {
     );
 
     const center = this.globe.group.position;
-    const direction = new THREE.Vector3(-0.4, 1.0, 1.22).normalize();
+    const direction = new Vector3(-0.4, 1.0, 1.22).normalize();
 
     this.stormWorld.copy(center).addScaledVector(direction, 2.62);
     this.storm.root.position.copy(this.stormWorld);
 
     const orbit: CameraKey = portrait
       ? {
-          position: new THREE.Vector3(0, 0.4, 13.2),
-          look: new THREE.Vector3(0, 0.45, 0),
+          position: new Vector3(0, 0.4, 13.2),
+          look: new Vector3(0, 0.45, 0),
           fov: 42,
         }
       : {
-          position: new THREE.Vector3(0, 0.15, 8.5),
-          look: new THREE.Vector3(0, 0.1, 0),
+          position: new Vector3(0, 0.15, 8.5),
+          look: new Vector3(0, 0.1, 0),
           fov: 42,
         };
 
     const storm: CameraKey = {
       position: center
         .clone()
-        .addScaledVector(direction, portrait ? 7.8 : 5.9),
+        .addScaledVector(direction, portrait ? 10 : 9),
       look: this.stormWorld
         .clone()
-        .addScaledVector(direction, portrait ? -0.6 : -0.35)
-        .add(new THREE.Vector3(-0.85, -0.1, 0)),
+        .addScaledVector(direction, portrait ? 0 : -0.3)
+        .add(
+          new Vector3(
+            portrait ? 0 : -1,
+            portrait ? -1.2 : 0.4,
+            0,
+          ),
+        ),
       fov: portrait ? 48 : 42,
     };
 
@@ -302,14 +317,22 @@ export class MeridianScene {
       position: center
         .clone()
         .add(
-          new THREE.Vector3(
-            portrait ? 0.5 : 0.8,
-            portrait ? 6.2 : 3.4,
-            portrait ? 17.5 : 11.2,
+          new Vector3(
+            portrait ? 0.4 : 1.5,
+            portrait ? 2.2 : 2.9,
+            portrait ? 6.9 : 7,
           ),
         ),
-      look: center.clone().add(new THREE.Vector3(0, portrait ? 0 : 0.05, 0)),
-      fov: portrait ? 40 : 38,
+      look: center
+        .clone()
+        .add(
+          new Vector3(
+            portrait ? -0.1 : -0.2,
+            portrait ? 2.4 : 0.05,
+            0,
+          ),
+        ),
+      fov: portrait ? 44 : 42,
     };
 
     this.keys = { orbit, storm, routes };
@@ -325,7 +348,7 @@ export class MeridianScene {
 
     this.posePos.lerpVectors(from.position, to.position, weight);
     this.poseLook.lerpVectors(from.look, to.look, weight);
-    this.poseFov = THREE.MathUtils.lerp(from.fov, to.fov, weight);
+    this.poseFov = MathUtils.lerp(from.fov, to.fov, weight);
 
     if (this.reduced || !this.rigReady) {
       this.rigPos.copy(this.posePos);
@@ -335,7 +358,7 @@ export class MeridianScene {
       const k = 1 - Math.exp(-3.4 * delta);
       this.rigPos.lerp(this.posePos, k);
       this.rigLook.lerp(this.poseLook, k);
-      this.rigFov = THREE.MathUtils.damp(this.rigFov, this.poseFov, 3, delta);
+      this.rigFov = MathUtils.damp(this.rigFov, this.poseFov, 3, delta);
     }
 
     this.camera.position.copy(this.rigPos);
@@ -365,7 +388,9 @@ export class MeridianScene {
     const time = this.reduced ? 0.8 : this.timer.getElapsed();
     this.stormWeight = stormWeightOf(choreo.state);
     const routesWeight = routesWeightOf(choreo.state);
+    const contentFade = 1 - choreo.veil;
 
+    this.globe.setVeil(choreo.veil);
     this.globe.update(
       time,
       0,
@@ -381,13 +406,14 @@ export class MeridianScene {
     this.globe.setStorm(
       this.stormLocalDir,
       this.stormWeight * 0.4,
-      1 -
+      (1 -
         this.stormWeight * (this.portrait ? 0.68 : 0.5) -
-        routesWeight * (this.portrait ? 0.1 : 0.15),
+        routesWeight * (this.portrait ? 0.1 : 0.15)) *
+        (1 - choreo.veil * 0.92),
     );
 
     this.storm.update(time, this.stormWeight, this.hover, this.stormPointer);
-    this.routes.update(time, routesWeight);
+    this.routes.update(time, routesWeight * contentFade, 0);
     this.updateRig(0);
     this.composer.render();
   }
@@ -397,13 +423,13 @@ export class MeridianScene {
 
     const delta = Math.min(this.timer.getDelta(), 0.05);
 
-    this.smoothPointer.x = THREE.MathUtils.damp(
+    this.smoothPointer.x = MathUtils.damp(
       this.smoothPointer.x,
       pointer.tx,
       4,
       delta,
     );
-    this.smoothPointer.y = THREE.MathUtils.damp(
+    this.smoothPointer.y = MathUtils.damp(
       this.smoothPointer.y,
       pointer.ty,
       3.6,
@@ -412,10 +438,12 @@ export class MeridianScene {
 
     this.stormWeight = stormWeightOf(choreo.state);
     const routesWeight = routesWeightOf(choreo.state);
-    this.hover = THREE.MathUtils.damp(this.hover, this.hoverTarget, 6, delta);
+    const contentFade = 1 - choreo.veil;
+    this.hover = MathUtils.damp(this.hover, this.hoverTarget, 6, delta);
 
     const time = this.reduced ? 0.8 : this.timer.getElapsed();
 
+    this.globe.setVeil(choreo.veil);
     this.globe.update(
       time,
       delta,
@@ -431,13 +459,14 @@ export class MeridianScene {
     this.globe.setStorm(
       this.stormLocalDir,
       this.stormWeight * (0.35 + this.hover * 0.9),
-      1 -
+      (1 -
         this.stormWeight * (this.portrait ? 0.68 : 0.5) -
-        routesWeight * (this.portrait ? 0.1 : 0.15),
+        routesWeight * (this.portrait ? 0.1 : 0.15)) *
+        (1 - choreo.veil * 0.92),
     );
 
     this.storm.update(time, this.stormWeight, this.hover, this.stormPointer);
-    this.routes.update(time, routesWeight);
+    this.routes.update(time, routesWeight * contentFade, delta);
 
     this.updateRig(delta);
 

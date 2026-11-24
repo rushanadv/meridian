@@ -249,6 +249,8 @@ export const routeFragmentShader = /* glsl */ `
   uniform float uTime;
   uniform float uReveal;
   uniform float uIntensity;
+  uniform float uActive;
+  uniform float uFocus;
 
   varying float vProgress;
   varying float vRoute;
@@ -265,14 +267,20 @@ export const routeFragmentShader = /* glsl */ `
     float draw = smoothstep(0.0, 0.06, uReveal - vProgress * 0.92 + 0.06);
     float dash = smoothstep(0.32, 0.5, abs(fract(vProgress * 44.0) - 0.5));
 
-    float pulse = head(vRoute * 0.33 + vSeed) * 1.2
-      + head(vRoute * 0.33 + vSeed + 0.5) * 0.9;
+    float pulse = head(vRoute * 0.33 + vSeed) * 1.3
+      + head(vRoute * 0.33 + vSeed + 0.5) * 1.0;
+
+    float isActive = 1.0 - step(0.5, abs(vRoute - uActive));
+    float laneGain = mix(1.0, mix(0.42, 1.7, isActive), uFocus);
 
     vec3 baseCol = vec3(0.46, 0.9, 1.0);
     vec3 hotCol = vec3(0.88, 1.0, 1.0);
-    vec3 color = mix(baseCol, hotCol, clamp(pulse, 0.0, 1.0));
+    vec3 color = mix(baseCol, hotCol, clamp(pulse + isActive * uFocus * 0.35, 0.0, 1.0));
 
-    gl_FragColor = vec4(color, (0.34 + dash * 0.22 + pulse) * draw * uIntensity);
+    gl_FragColor = vec4(
+      color,
+      (0.4 + dash * 0.26 + pulse) * draw * uIntensity * laneGain
+    );
   }
 `;
 

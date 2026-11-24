@@ -60,13 +60,15 @@ export function initScroll(): ScrollController {
       .to(".wordmark", { yPercent: -10, ease: "none" }, 0)
       .to(".hero__top, .hero__bottom", { autoAlpha: 0, ease: "none" }, 0.15);
 
-    gsap.set(".problem__word", { opacity: 0.2 });
+    const words = gsap.utils.toArray<HTMLElement>(".problem__word");
 
-    const words = gsap.timeline({
+    gsap.set(words, { opacity: 0.2, color: "#f2eee6" });
+
+    const wordsTl = gsap.timeline({
       scrollTrigger: {
         trigger: "#problem",
         start: "top top",
-        end: "+=110%",
+        end: "+=100%",
         pin: true,
         scrub: 0.7,
         anticipatePin: 1,
@@ -74,16 +76,17 @@ export function initScroll(): ScrollController {
       },
     });
 
-    words.to(
-      ".problem__word",
-      {
-        opacity: 1,
-        duration: 0.55,
-        stagger: 0.16,
-        ease: "none",
-      },
-      0.05,
-    );
+    words.forEach((word, index) => {
+      wordsTl.to(
+        word,
+        { opacity: 1, duration: 0.5, ease: "none" },
+        index * 0.16,
+      );
+
+      if (word.classList.contains("problem__word--key")) {
+        wordsTl.set(word, { color: "#7fe7ff" }, index * 0.16 + 0.5);
+      }
+    });
 
     const master = gsap.timeline({
       scrollTrigger: {
@@ -100,6 +103,22 @@ export function initScroll(): ScrollController {
     master
       .to(choreo, { state: 1, duration: 0.27, ease: "none" }, 0.16)
       .to(choreo, { state: 2, duration: 0.38, ease: "none" }, 0.62);
+
+    gsap.fromTo(
+      choreo,
+      { veil: 0 },
+      {
+        veil: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: "#method",
+          start: "top 32%",
+          end: "top top",
+          scrub: 0.6,
+          invalidateOnRefresh: true,
+        },
+      },
+    );
 
     gsap.fromTo(
       ".routes__copy",
@@ -131,8 +150,9 @@ export function initScroll(): ScrollController {
     requestAnimationFrame(() => ScrollTrigger.refresh());
 
     return () => {
-      gsap.set(".problem__word", { clearProps: "opacity" });
+      gsap.set(".problem__word", { clearProps: "opacity,color" });
       choreo.state = 0;
+      choreo.veil = 0;
     };
   });
 
@@ -145,6 +165,17 @@ export function initScroll(): ScrollController {
     }
   };
 
+  let refreshFrame = 0;
+  const refreshLayout = () => {
+    if (refreshFrame) return;
+    refreshFrame = requestAnimationFrame(() => {
+      refreshFrame = 0;
+      ScrollTrigger.refresh();
+    });
+  };
+
+  window.addEventListener("resize", refreshLayout, { passive: true });
+  window.addEventListener("orientationchange", refreshLayout, { passive: true });
   reducedMotion.addEventListener("change", syncMotionPreference);
   startLenis();
 
@@ -153,6 +184,8 @@ export function initScroll(): ScrollController {
   return {
     refresh: () => ScrollTrigger.refresh(),
     destroy: () => {
+      window.removeEventListener("resize", refreshLayout);
+      window.removeEventListener("orientationchange", refreshLayout);
       reducedMotion.removeEventListener("change", syncMotionPreference);
       stopLenis();
       mm.revert();

@@ -1,6 +1,10 @@
-import * as THREE from "three";
+import {
+  AdditiveBlending, BackSide, BufferGeometry, Color, Float32BufferAttribute, Group,
+  LineBasicMaterial, LineSegments, MathUtils, Mesh, Points, ShaderMaterial,
+  SphereGeometry, Vector3,
+} from "three";
 import { isCoarsePointer } from "../lib/motion";
-import { fbm3, isLand, sampleLand } from "./landmask";
+import { fbm3, maskAt, sampleLand } from "./landmask";
 import {
   atmosphereFragmentShader,
   atmosphereVertexShader,
@@ -27,21 +31,21 @@ const seededRandom = (seed: number) => {
 };
 
 export class Globe {
-  readonly root = new THREE.Group();
-  readonly group = new THREE.Group();
+  readonly root = new Group();
+  readonly group = new Group();
 
-  private readonly pointsMaterial: THREE.ShaderMaterial;
-  private readonly streamMaterial: THREE.ShaderMaterial;
-  private readonly starMaterial: THREE.ShaderMaterial;
-  private readonly pointsGeometry: THREE.BufferGeometry;
-  private readonly streamGeometry: THREE.BufferGeometry;
-  private readonly starGeometry: THREE.BufferGeometry;
-  private readonly graticuleMaterial: THREE.LineBasicMaterial;
-  private readonly graticuleGeometry: THREE.BufferGeometry;
-  private readonly equatorMaterial: THREE.LineBasicMaterial;
-  private readonly equatorGeometry: THREE.BufferGeometry;
-  private readonly atmosphereGeometry: THREE.SphereGeometry;
-  private readonly atmosphereMaterial: THREE.ShaderMaterial;
+  private readonly pointsMaterial: ShaderMaterial;
+  private readonly streamMaterial: ShaderMaterial;
+  private readonly starMaterial: ShaderMaterial;
+  private readonly pointsGeometry: BufferGeometry;
+  private readonly streamGeometry: BufferGeometry;
+  private readonly starGeometry: BufferGeometry;
+  private readonly graticuleMaterial: LineBasicMaterial;
+  private readonly graticuleGeometry: BufferGeometry;
+  private readonly equatorMaterial: LineBasicMaterial;
+  private readonly equatorGeometry: BufferGeometry;
+  private readonly atmosphereGeometry: SphereGeometry;
+  private readonly atmosphereMaterial: ShaderMaterial;
 
   private spin = 0;
   private yaw = 0.52;
@@ -50,7 +54,7 @@ export class Globe {
   constructor() {
     const random = seededRandom(20260214);
 
-    this.pointsGeometry = new THREE.BufferGeometry();
+    this.pointsGeometry = new BufferGeometry();
     const positions: number[] = [];
     const colors: number[] = [];
     const sizes: number[] = [];
@@ -58,11 +62,11 @@ export class Globe {
     const seeds: number[] = [];
     const lands: number[] = [];
 
-    const landBase = new THREE.Color("#f2eee6");
-    const landHigh = new THREE.Color("#7fe7ff");
-    const oceanBase = new THREE.Color("#1d4354");
+    const landBase = new Color("#f2eee6");
+    const landHigh = new Color("#7fe7ff");
+    const oceanBase = new Color("#1d4354");
 
-    const step = isCoarsePointer ? 1.45 : 1.0;
+    const step = isCoarsePointer ? 1.25 : 0.8;
     const rows = Math.round(180 / step);
 
     for (let row = 1; row < rows; row += 1) {
@@ -80,11 +84,11 @@ export class Globe {
         const z = cosLat * Math.sin(lonRad);
 
         const sample = sampleLand(x, y, z);
-        const land = isLand(sample.score, y);
+        const land = maskAt(lat, lon) > 0.5;
 
         if (!land && column % 3 !== 0) continue;
 
-        const elevation = THREE.MathUtils.clamp((sample.elevation - 0.28) / 0.33, 0, 1);
+        const elevation = MathUtils.clamp((sample.elevation - 0.28) / 0.33, 0, 1);
 
         positions.push(x * RADIUS, y * RADIUS, z * RADIUS);
 
@@ -100,7 +104,7 @@ export class Globe {
             : 0.014 + random() * 0.012,
         );
 
-        const scatterDir = new THREE.Vector3(
+        const scatterDir = new Vector3(
           random() * 2 - 1,
           random() * 2 - 1,
           random() * 2 - 1,
@@ -119,35 +123,35 @@ export class Globe {
 
     this.pointsGeometry.setAttribute(
       "position",
-      new THREE.Float32BufferAttribute(positions, 3),
+      new Float32BufferAttribute(positions, 3),
     );
     this.pointsGeometry.setAttribute(
       "aColor",
-      new THREE.Float32BufferAttribute(colors, 3),
+      new Float32BufferAttribute(colors, 3),
     );
     this.pointsGeometry.setAttribute(
       "aSize",
-      new THREE.Float32BufferAttribute(sizes, 1),
+      new Float32BufferAttribute(sizes, 1),
     );
     this.pointsGeometry.setAttribute(
       "aScatter",
-      new THREE.Float32BufferAttribute(scatters, 3),
+      new Float32BufferAttribute(scatters, 3),
     );
     this.pointsGeometry.setAttribute(
       "aSeed",
-      new THREE.Float32BufferAttribute(seeds, 1),
+      new Float32BufferAttribute(seeds, 1),
     );
     this.pointsGeometry.setAttribute(
       "aLand",
-      new THREE.Float32BufferAttribute(lands, 1),
+      new Float32BufferAttribute(lands, 1),
     );
 
-    this.pointsMaterial = new THREE.ShaderMaterial({
+    this.pointsMaterial = new ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uAssemble: { value: 0 },
         uScale: { value: 1 },
-        uStormDir: { value: new THREE.Vector3(0, 1, 0) },
+        uStormDir: { value: new Vector3(0, 1, 0) },
         uStormAmp: { value: 0 },
         uDim: { value: 1 },
       },
@@ -155,34 +159,34 @@ export class Globe {
       fragmentShader: globeFragmentShader,
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
     });
 
-    const points = new THREE.Points(this.pointsGeometry, this.pointsMaterial);
+    const points = new Points(this.pointsGeometry, this.pointsMaterial);
     points.frustumCulled = false;
     points.renderOrder = 1;
 
-    this.atmosphereGeometry = new THREE.SphereGeometry(RADIUS * 1.055, 48, 32);
-    this.atmosphereMaterial = new THREE.ShaderMaterial({
+    this.atmosphereGeometry = new SphereGeometry(RADIUS * 1.055, 48, 32);
+    this.atmosphereMaterial = new ShaderMaterial({
       uniforms: {
-        uColor: { value: new THREE.Color("#7fe7ff") },
+        uColor: { value: new Color("#7fe7ff") },
         uIntensity: { value: 0.34 },
       },
       vertexShader: atmosphereVertexShader,
       fragmentShader: atmosphereFragmentShader,
       transparent: true,
       depthWrite: false,
-      side: THREE.BackSide,
-      blending: THREE.AdditiveBlending,
+      side: BackSide,
+      blending: AdditiveBlending,
     });
 
-    const atmosphere = new THREE.Mesh(
+    const atmosphere = new Mesh(
       this.atmosphereGeometry,
       this.atmosphereMaterial,
     );
     atmosphere.renderOrder = 0;
 
-    this.graticuleGeometry = new THREE.BufferGeometry();
+    this.graticuleGeometry = new BufferGeometry();
     const graticulePositions: number[] = [];
     const pushArc = (
       axis: "lat" | "lon",
@@ -240,20 +244,20 @@ export class Globe {
 
     this.graticuleGeometry.setAttribute(
       "position",
-      new THREE.Float32BufferAttribute(graticulePositions, 3),
+      new Float32BufferAttribute(graticulePositions, 3),
     );
-    this.graticuleMaterial = new THREE.LineBasicMaterial({
+    this.graticuleMaterial = new LineBasicMaterial({
       color: "#7fe7ff",
       transparent: true,
       opacity: 0.055,
       depthWrite: false,
     });
-    const graticule = new THREE.LineSegments(
+    const graticule = new LineSegments(
       this.graticuleGeometry,
       this.graticuleMaterial,
     );
 
-    this.equatorGeometry = new THREE.BufferGeometry();
+    this.equatorGeometry = new BufferGeometry();
     const equatorPositions: number[] = [];
     pushArc("lat", 0, 128);
     for (const value of graticulePositions.slice(-128 * 6)) {
@@ -261,20 +265,20 @@ export class Globe {
     }
     this.equatorGeometry.setAttribute(
       "position",
-      new THREE.Float32BufferAttribute(equatorPositions, 3),
+      new Float32BufferAttribute(equatorPositions, 3),
     );
-    this.equatorMaterial = new THREE.LineBasicMaterial({
+    this.equatorMaterial = new LineBasicMaterial({
       color: "#7fe7ff",
       transparent: true,
       opacity: 0.16,
       depthWrite: false,
     });
-    const equator = new THREE.LineSegments(
+    const equator = new LineSegments(
       this.equatorGeometry,
       this.equatorMaterial,
     );
 
-    this.streamGeometry = new THREE.BufferGeometry();
+    this.streamGeometry = new BufferGeometry();
     const streamPositions: number[] = [];
     const arcs: number[] = [];
     const streamSeeds: number[] = [];
@@ -289,7 +293,7 @@ export class Globe {
       // Even seed distribution on the sphere.
       const phi = Math.acos(1 - (2 * (s + 0.5)) / streamCount);
       const theta = Math.PI * (1 + Math.sqrt(5)) * s;
-      const dir = new THREE.Vector3(
+      const dir = new Vector3(
         Math.sin(phi) * Math.cos(theta),
         Math.cos(phi),
         Math.sin(phi) * Math.sin(theta),
@@ -311,10 +315,10 @@ export class Globe {
           field(dir.x, dir.y, dir.z + eps) -
           field(dir.x, dir.y, dir.z - eps);
 
-        const tangent = new THREE.Vector3(gx, gy, gz);
+        const tangent = new Vector3(gx, gy, gz);
         tangent.cross(dir).multiplyScalar(direction);
         tangent.addScaledVector(
-          new THREE.Vector3(-dir.z, 0, dir.x),
+          new Vector3(-dir.z, 0, dir.x),
           0.55 * direction,
         );
         tangent.projectOnPlane(dir);
@@ -348,22 +352,22 @@ export class Globe {
 
     this.streamGeometry.setAttribute(
       "position",
-      new THREE.Float32BufferAttribute(streamPositions, 3),
+      new Float32BufferAttribute(streamPositions, 3),
     );
     this.streamGeometry.setAttribute(
       "aArc",
-      new THREE.Float32BufferAttribute(arcs, 1),
+      new Float32BufferAttribute(arcs, 1),
     );
     this.streamGeometry.setAttribute(
       "aSeed",
-      new THREE.Float32BufferAttribute(streamSeeds, 1),
+      new Float32BufferAttribute(streamSeeds, 1),
     );
     this.streamGeometry.setAttribute(
       "aSpeed",
-      new THREE.Float32BufferAttribute(speeds, 1),
+      new Float32BufferAttribute(speeds, 1),
     );
 
-    this.streamMaterial = new THREE.ShaderMaterial({
+    this.streamMaterial = new ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uOpacity: { value: 0.9 },
@@ -372,16 +376,16 @@ export class Globe {
       fragmentShader: streamlineFragmentShader,
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
     });
 
-    const streams = new THREE.LineSegments(
+    const streams = new LineSegments(
       this.streamGeometry,
       this.streamMaterial,
     );
     streams.renderOrder = 2;
 
-    this.starGeometry = new THREE.BufferGeometry();
+    this.starGeometry = new BufferGeometry();
     const starPositions: number[] = [];
     const starSizes: number[] = [];
     const starSeeds: number[] = [];
@@ -402,18 +406,18 @@ export class Globe {
 
     this.starGeometry.setAttribute(
       "position",
-      new THREE.Float32BufferAttribute(starPositions, 3),
+      new Float32BufferAttribute(starPositions, 3),
     );
     this.starGeometry.setAttribute(
       "aSize",
-      new THREE.Float32BufferAttribute(starSizes, 1),
+      new Float32BufferAttribute(starSizes, 1),
     );
     this.starGeometry.setAttribute(
       "aSeed",
-      new THREE.Float32BufferAttribute(starSeeds, 1),
+      new Float32BufferAttribute(starSeeds, 1),
     );
 
-    this.starMaterial = new THREE.ShaderMaterial({
+    this.starMaterial = new ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uScale: { value: 1 },
@@ -422,10 +426,10 @@ export class Globe {
       fragmentShader: starFragmentShader,
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
     });
 
-    const stars = new THREE.Points(this.starGeometry, this.starMaterial);
+    const stars = new Points(this.starGeometry, this.starMaterial);
     stars.frustumCulled = false;
     stars.renderOrder = -1;
 
@@ -446,13 +450,27 @@ export class Globe {
   }
 
   setStorm(
-    direction: THREE.Vector3,
+    direction: Vector3,
     amplitude: number,
     dim: number,
   ): void {
     this.pointsMaterial.uniforms.uStormDir.value.copy(direction);
     this.pointsMaterial.uniforms.uStormAmp.value = amplitude;
     this.pointsMaterial.uniforms.uDim.value = dim;
+  }
+
+  /**
+   * Fades the planet's surface, atmosphere, graticule and wind streaks
+   * without touching the star field. Used when editorial sections need
+   * a quiet backdrop after the lane view.
+   */
+  setVeil(value: number): void {
+    const veil = MathUtils.clamp(value, 0, 1);
+
+    this.atmosphereMaterial.uniforms.uIntensity.value = 0.34 * (1 - veil);
+    this.graticuleMaterial.opacity = 0.055 * (1 - veil);
+    this.equatorMaterial.opacity = 0.16 * (1 - veil);
+    this.streamMaterial.uniforms.uOpacity.value = 0.9 * (1 - veil);
   }
 
   resize(heightCss: number, pixelRatio: number): void {
@@ -485,14 +503,14 @@ export class Globe {
       0.52 + this.spin + pointer.x * 0.34 * calm + storm * 0.05;
     const targetPitch = -0.08 + pointer.y * 0.22 * calm - storm * 0.04;
 
-    this.yaw = THREE.MathUtils.damp(this.yaw, targetYaw, 3.2, delta);
-    this.pitch = THREE.MathUtils.damp(this.pitch, targetPitch, 3.0, delta);
+    this.yaw = MathUtils.damp(this.yaw, targetYaw, 3.2, delta);
+    this.pitch = MathUtils.damp(this.pitch, targetPitch, 3.0, delta);
 
     this.group.rotation.y = this.yaw;
     this.group.rotation.x = this.pitch;
   }
 
-  getWorldCenter(target: THREE.Vector3): THREE.Vector3 {
+  getWorldCenter(target: Vector3): Vector3 {
     return this.group.getWorldPosition(target);
   }
 

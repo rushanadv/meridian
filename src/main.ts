@@ -1,18 +1,24 @@
 import { initPointer, pointer } from "./lib/pointer";
+import { initSections } from "./lib/sections";
 import { initScroll } from "./lib/scroll";
 import { choreo } from "./lib/choreography";
+import { initMagnetic } from "./lib/magnetic";
+import { initScramble } from "./lib/scramble";
 import { reducedMotion, ScrollTrigger } from "./lib/motion";
+import { initContent } from "./ui/content";
 import { initCursor } from "./ui/cursor";
 import { initHud } from "./ui/hud";
 import { initNav } from "./ui/nav";
 import { runPreloader } from "./ui/preloader";
 import { revealHero } from "./ui/reveal";
+import { initRoutesPanel } from "./ui/routes";
 import { MeridianScene } from "./webgl/Scene";
 
 document.documentElement.classList.remove("no-js");
 document.body.classList.add("is-loading");
 
 initPointer();
+initSections();
 const scroll = initScroll();
 initNav(scroll);
 
@@ -60,6 +66,13 @@ initCursor({
 });
 
 initHud({ scene });
+
+initRoutesPanel({
+  onSelect: (index) => scene?.setRouteFocus(index),
+});
+initContent();
+initScramble();
+initMagnetic();
 
 if (import.meta.env.DEV) {
   (window as Window & { __meridian?: unknown }).__meridian = {

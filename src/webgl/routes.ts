@@ -1,4 +1,8 @@
-import * as THREE from "three";
+import {
+  AdditiveBlending, BufferAttribute, BufferGeometry, CanvasTexture,
+  Float32BufferAttribute, Group, LineSegments, MathUtils, Points, PointsMaterial,
+  ShaderMaterial, Vector3,
+} from "three";
 import { routeFragmentShader, routeVertexShader } from "./shaders";
 
 const DEG = Math.PI / 180;
@@ -20,10 +24,10 @@ const LANES: Lane[] = [
   { from: { lat: -23.96, lon: -46.33 }, to: { lat: 31.2, lon: 121.5 } },
 ];
 
-const toVector = (port: Port): THREE.Vector3 => {
+const toVector = (port: Port): Vector3 => {
   const lat = port.lat * DEG;
   const lon = port.lon * DEG;
-  return new THREE.Vector3(
+  return new Vector3(
     Math.cos(lat) * Math.cos(lon),
     Math.sin(lat),
     Math.cos(lat) * Math.sin(lon),
@@ -31,17 +35,20 @@ const toVector = (port: Port): THREE.Vector3 => {
 };
 
 export class Routes {
-  readonly group = new THREE.Group();
+  readonly group = new Group();
 
-  private readonly geometry: THREE.BufferGeometry;
-  private readonly material: THREE.ShaderMaterial;
-  private readonly portGeometry: THREE.BufferGeometry;
-  private readonly portMaterial: THREE.PointsMaterial;
-  private readonly pulseGeometry: THREE.BufferGeometry;
-  private readonly pulseMaterial: THREE.PointsMaterial;
+  private readonly geometry: BufferGeometry;
+  private readonly material: ShaderMaterial;
+  private readonly portGeometry: BufferGeometry;
+  private readonly portMaterial: PointsMaterial;
+  private readonly pulseGeometry: BufferGeometry;
+  private readonly pulseMaterial: PointsMaterial;
   private readonly pulsePositions: Float32Array;
-  private readonly pulseSamples: THREE.Vector3[][];
-  private readonly pulseTexture: THREE.CanvasTexture;
+  private readonly pulseSamples: Vector3[][];
+  private readonly pulseTexture: CanvasTexture;
+  private active = 0;
+  private focus = 0;
+  private focusTarget = 1;
 
   constructor() {
     const positions: number[] = [];
@@ -49,14 +56,14 @@ export class Routes {
     const routes: number[] = [];
     const seeds: number[] = [];
     const steps = 110;
-    const lanesForPulse: THREE.Vector3[][] = [];
+    const lanesForPulse: Vector3[][] = [];
 
     LANES.forEach((lane, routeIndex) => {
       const start = toVector(lane.from);
       const end = toVector(lane.to);
       const seed = 0.17 + routeIndex * 0.31;
 
-      const samples: THREE.Vector3[] = [];
+      const samples: Vector3[] = [];
       for (let i = 0; i <= 64; i += 1) {
         const t = i / 64;
         const dir = start
@@ -65,7 +72,7 @@ export class Routes {
           .addScaledVector(end, t)
           .normalize();
         const radius = RADIUS + 0.06 + Math.sin(Math.PI * t) * 0.22;
-        samples.push(new THREE.Vector3(dir.x * radius, dir.y * radius, dir.z * radius));
+        samples.push(new Vector3(dir.x * radius, dir.y * radius, dir.z * radius));
       }
       lanesForPulse.push(samples);
 
@@ -91,40 +98,47 @@ export class Routes {
       }
     });
 
-    this.geometry = new THREE.BufferGeometry();
+    this.geometry = new BufferGeometry();
     this.geometry.setAttribute(
       "position",
-      new THREE.Float32BufferAttribute(positions, 3),
+      new Float32BufferAttribute(positions, 3),
     );
     this.geometry.setAttribute(
       "aProgress",
-      new THREE.Float32BufferAttribute(progresses, 1),
+      new Float32BufferAttribute(progresses, 1),
     );
     this.geometry.setAttribute(
       "aRoute",
-      new THREE.Float32BufferAttribute(routes, 1),
+      new Float32BufferAttribute(routes, 1),
     );
     this.geometry.setAttribute(
       "aSeed",
-      new THREE.Float32BufferAttribute(seeds, 1),
+      new Float32BufferAttribute(seeds, 1),
     );
 
-    this.material = new THREE.ShaderMaterial({
+    this.material = new ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uReveal: { value: 0 },
         uIntensity: { value: 0 },
+        uActive: { value: 0 },
+        uFocus: { value: 0 },
       },
       vertexShader: routeVertexShader,
       fragmentShader: routeFragmentShader,
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
     });
 
-    const lines = new THREE.LineSegments(this.geometry, this.material);
+    const lines = new LineSegments(this.geometry, this.material);
     lines.frustumCulled = false;
     lines.renderOrder = 3;
+
+    const halo = new LineSegments(this.geometry, this.material);
+    halo.frustumCulled = false;
+    halo.renderOrder = 3;
+    halo.scale.setScalar(1.008);
 
     const portPositions: number[] = [];
 
@@ -136,32 +150,32 @@ export class Routes {
       }
     });
 
-    this.portGeometry = new THREE.BufferGeometry();
+    this.portGeometry = new BufferGeometry();
     this.portGeometry.setAttribute(
       "position",
-      new THREE.Float32BufferAttribute(portPositions, 3),
+      new Float32BufferAttribute(portPositions, 3),
     );
 
-    this.portMaterial = new THREE.PointsMaterial({
+    this.portMaterial = new PointsMaterial({
       color: "#7fe7ff",
-      size: 0.08,
+      size: 0.2,
       sizeAttenuation: true,
       transparent: true,
       opacity: 0,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
     });
 
-    const ports = new THREE.Points(this.portGeometry, this.portMaterial);
+    const ports = new Points(this.portGeometry, this.portMaterial);
     ports.frustumCulled = false;
     ports.renderOrder = 4;
 
     this.pulseSamples = lanesForPulse;
     this.pulsePositions = new Float32Array(LANES.length * 2 * 3);
-    this.pulseGeometry = new THREE.BufferGeometry();
+    this.pulseGeometry = new BufferGeometry();
     this.pulseGeometry.setAttribute(
       "position",
-      new THREE.BufferAttribute(this.pulsePositions, 3),
+      new BufferAttribute(this.pulsePositions, 3),
     );
 
     const textureCanvas = document.createElement("canvas");
@@ -176,29 +190,42 @@ export class Routes {
       context.fillStyle = gradient;
       context.fillRect(0, 0, 64, 64);
     }
-    this.pulseTexture = new THREE.CanvasTexture(textureCanvas);
+    this.pulseTexture = new CanvasTexture(textureCanvas);
     this.pulseTexture.needsUpdate = true;
 
-    this.pulseMaterial = new THREE.PointsMaterial({
+    this.pulseMaterial = new PointsMaterial({
       color: "#c9f7ff",
-      size: 0.12,
+      size: 0.26,
       map: this.pulseTexture,
       transparent: true,
       opacity: 0,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
       sizeAttenuation: true,
     });
 
-    const pulses = new THREE.Points(this.pulseGeometry, this.pulseMaterial);
+    const pulses = new Points(this.pulseGeometry, this.pulseMaterial);
     pulses.frustumCulled = false;
     pulses.renderOrder = 5;
 
-    this.group.add(lines, ports, pulses);
+    this.group.add(lines, halo, ports, pulses);
     this.group.visible = false;
   }
 
-  update(time: number, weight: number): void {
+  setActive(index: number): void {
+    this.active = Math.min(2, Math.max(0, Math.round(index)));
+    this.focusTarget = 1;
+  }
+
+  update(time: number, weight: number, delta = 0): void {
+    this.focus =
+      delta > 0
+        ? MathUtils.damp(this.focus, this.focusTarget, 6, delta)
+        : this.focusTarget;
+
+    this.material.uniforms.uActive.value = this.active;
+    this.material.uniforms.uFocus.value = this.focus;
+
     const visible = weight > 0.004;
 
     this.group.visible = visible;
@@ -206,7 +233,7 @@ export class Routes {
 
     this.material.uniforms.uTime.value = time;
     this.material.uniforms.uReveal.value = Math.min(1, weight * 1.4);
-    this.material.uniforms.uIntensity.value = 1.25;
+    this.material.uniforms.uIntensity.value = 1.35;
     this.portMaterial.opacity = Math.min(1, weight * 1.2);
     this.pulseMaterial.opacity = Math.min(1, weight * 1.3);
 
