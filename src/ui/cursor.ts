@@ -10,9 +10,10 @@ export function initCursor({ isOverGlobe }: CursorOptions): void {
   const root = document.getElementById("cursor");
   const dot = document.getElementById("cursor-dot");
   const ring = document.getElementById("cursor-ring");
-  const label = document.getElementById("cursor-label");
+  const labelMain = document.getElementById("cursor-label-main");
+  const labelSub = document.getElementById("cursor-label-sub");
 
-  if (!root || !dot || !ring || !label) return;
+  if (!root || !dot || !ring || !labelMain || !labelSub) return;
 
   document.documentElement.classList.add("has-cursor");
 
@@ -31,12 +32,17 @@ export function initCursor({ isOverGlobe }: CursorOptions): void {
   const moveRingX = gsap.quickTo(ring, "x", { duration: 0.12, ease: "expoOut" });
   const moveRingY = gsap.quickTo(ring, "y", { duration: 0.12, ease: "expoOut" });
 
-  const setMode = (mode: "link" | "explore" | "drag" | null) => {
+  const setMode = (
+    mode: "link" | "explore" | "drag" | "probe" | null,
+    primary = "",
+    secondary = "",
+  ) => {
     root.classList.toggle("is-link", mode === "link");
     root.classList.toggle("is-explore", mode === "explore");
     root.classList.toggle("is-drag", mode === "drag");
-    label.textContent =
-      mode === "explore" ? "EXPLORE" : mode === "drag" ? "DRAG" : "";
+    root.classList.toggle("is-probe", mode === "probe");
+    labelMain.textContent = primary;
+    labelSub.textContent = secondary;
   };
 
   let frame = 0;
@@ -46,23 +52,26 @@ export function initCursor({ isOverGlobe }: CursorOptions): void {
     const element = document.elementFromPoint(mx, my);
     const interactive = element?.closest("a, button, [data-cursor='link']");
     const dragZone = element?.closest("[data-cursor='drag']");
+    const probeZone = element?.closest<HTMLElement>("[data-cursor-probe]");
 
     if (interactive) {
-      setMode("link");
-
       const labeledControl =
         interactive.id === "menu-toggle" ||
         interactive.hasAttribute("data-magnetic");
-
-      label.textContent = labeledControl
+      const primary = labeledControl
         ? ""
         : interactive.getAttribute("aria-expanded") === "true"
           ? "CLOSE"
           : "OPEN";
+
+      setMode("link", primary);
     } else if (dragZone) {
-      setMode("drag");
+      setMode("drag", "DRAG");
+    } else if (probeZone) {
+      const copy = probeZone.dataset.cursorProbe?.split("|") ?? [];
+      setMode("probe", copy[0] ?? "", copy[1] ?? "");
     } else if (isOverGlobe(mx, my)) {
-      setMode("explore");
+      setMode("explore", "EXPLORE");
     } else {
       setMode(null);
     }

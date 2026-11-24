@@ -333,12 +333,25 @@ html.has-cursor * {
   color: var(--ink);
   font-size: 0.52rem;
   letter-spacing: 0.16em;
+  text-align: center;
   white-space: nowrap;
   opacity: 0;
   transform: scale(0.9);
   transition:
     opacity 240ms var(--ease-expo),
     transform 320ms var(--ease-expo);
+}
+
+.cursor__label-main,
+.cursor__label-sub {
+  display: block;
+}
+
+.cursor__label-sub {
+  margin-top: 0.3em;
+  color: var(--accent);
+  font-size: 0.56em;
+  letter-spacing: 0.18em;
 }
 
 .cursor.is-link .cursor__ring {
@@ -364,6 +377,18 @@ html.has-cursor * {
   opacity: 1;
   transform: scale(1);
   color: var(--accent);
+}
+
+.cursor.is-probe .cursor__ring {
+  width: 120px;
+  height: 120px;
+  border-color: var(--accent);
+  background: rgb(5 7 13 / 0.44);
+}
+
+.cursor.is-probe .cursor__label {
+  opacity: 1;
+  transform: scale(1);
 }
 
 @media (pointer: coarse) {

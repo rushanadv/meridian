@@ -8,6 +8,8 @@ interface HudOptions {
 
 export function initHud({ scene }: HudOptions): void {
   const label = document.getElementById("storm-label");
+  const heroSpread = document.getElementById("ensemble-spread");
+  const stormSpread = document.getElementById("storm-spread");
   const states = Array.from(
     document.querySelectorAll<HTMLElement>("[data-hud-state]"),
   );
@@ -16,6 +18,7 @@ export function initHud({ scene }: HudOptions): void {
 
   const hud: StormHud = { x: 0, y: 0, weight: 0 };
   let lastActive = -1;
+  let lastSpread = -1;
 
   window.addEventListener(
     "pointermove",
@@ -83,6 +86,15 @@ export function initHud({ scene }: HudOptions): void {
       const y = clamp(hud.y, 130, window.innerHeight - 60);
       label.style.setProperty("--sx", `${x}px`);
       label.style.setProperty("--sy", `${y}px`);
+    }
+
+    const spread = Math.pow(1 - choreo.uDay, 1.2);
+
+    if (Math.abs(spread - lastSpread) >= 0.005) {
+      const value = spread.toFixed(2);
+      if (heroSpread) heroSpread.textContent = `Spread ${value}`;
+      if (stormSpread) stormSpread.textContent = value;
+      lastSpread = spread;
     }
 
     const active =

@@ -138,6 +138,7 @@
           </div>
           <p class="hero__horizon-meta mono">
             <span class="accent">51</span> possible futures<br />
+            <span id="ensemble-spread">Spread 1.00</span><br />
             Member 17 at impact
           </p>
         </div>
@@ -295,7 +296,10 @@
               </button>
             </div>
 
-            <div class="routes__chart mono">
+            <div
+              class="routes__chart mono"
+              data-cursor-probe="8 DAYS TO IMPACT|MEMBER 17"
+            >
               <div class="routes__chart-head">
                 <span class="accent">RISK / 14 DAYS</span>
                 <span id="chart-route">Shanghai → Rotterdam</span>
@@ -445,7 +449,11 @@
                   turning one forecast into a field of honest probabilities.
                 </p>
               </div>
-              <figure class="method__viz" aria-hidden="true">
+              <figure
+                class="method__viz"
+                aria-hidden="true"
+                data-cursor-probe="14 DAYS TO IMPACT|51 MEMBERS"
+              >
                 <svg viewBox="0 0 320 200" fill="none" id="viz-fan-svg">
                   <g class="viz-grid" stroke="currentColor">
                     <line x1="24" y1="100" x2="300" y2="100" />
@@ -1054,6 +1062,10 @@
         <span>921 hpa</span>
       </div>
       <div class="storm-label__row">
+        <span>Spread</span>
+        <span id="storm-spread">1.00</span>
+      </div>
+      <div class="storm-label__row">
         <span>Route risk</span>
         <span class="accent">68%</span>
       </div>
@@ -1066,7 +1078,10 @@
     <div class="cursor" id="cursor" aria-hidden="true">
       <span class="cursor__dot" id="cursor-dot"></span>
       <span class="cursor__ring" id="cursor-ring">
-        <span class="cursor__label mono" id="cursor-label">EXPLORE</span>
+        <span class="cursor__label mono" id="cursor-label">
+          <span class="cursor__label-main" id="cursor-label-main">EXPLORE</span>
+          <span class="cursor__label-sub" id="cursor-label-sub"></span>
+        </span>
       </span>
     </div>
 
