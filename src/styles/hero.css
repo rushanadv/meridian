@@ -112,38 +112,6 @@
   transform: translateY(-0.075em) rotate(-2deg);
 }
 
-.wordmark__scan {
-  position: absolute;
-  top: 54%;
-  right: 0;
-  left: 0;
-  height: 1px;
-  overflow: hidden;
-  background: var(--line-strong);
-  pointer-events: none;
-}
-
-.wordmark__scan::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  left: 0;
-  width: 14%;
-  background: var(--accent);
-  box-shadow: 0 0 10px var(--accent);
-  animation: wordmark-scan 7s var(--ease-power4) infinite;
-}
-
-@keyframes wordmark-scan {
-  0% {
-    transform: translateX(-130%);
-  }
-  58%,
-  100% {
-    transform: translateX(860%);
-  }
-}
 
 .hero__bottom {
   position: relative;
@@ -154,7 +122,6 @@
   justify-content: space-between;
   gap: 1rem;
   padding-top: clamp(0.8rem, 1.6vh, 1.2rem);
-  border-top: 1px solid var(--line);
 }
 
 .hero__scroll {
@@ -269,7 +236,6 @@
       rgb(5 7 13 / 0.74) 46%,
       rgb(5 7 13 / 0) 78%
     );
-    filter: blur(7px);
     pointer-events: none;
   }
 
@@ -283,7 +249,7 @@
   }
 
   .wordmark {
-    font-size: clamp(3rem, 13.4vw, 6rem);
+    font-size: clamp(2.8rem, 12.2vw, 5.6rem);
   }
 
   .hero__bottom {
@@ -302,7 +268,6 @@
     transform: none;
   }
 
-  .wordmark__scan::before,
   .hero__scroll-line::after,
   .live-dot {
     animation: none;

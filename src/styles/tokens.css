@@ -3,7 +3,7 @@
   --bg-soft: #090d16;
   --ink: #f2eee6;
   --ink-dim: #cfd4dd;
-  --muted: #8b93a5;
+  --muted: #a6b0c2;
   --accent: #7fe7ff;
   --accent-deep: #2a7d92;
   --line: rgb(242 238 230 / 0.13);
@@ -19,7 +19,7 @@
   --nav-h: clamp(60px, 8vh, 84px);
   --gutter: clamp(0.7rem, 1.5vw, 1.6rem);
 
-  --text-micro: clamp(0.58rem, 0.52rem + 0.2vw, 0.7rem);
+  --text-micro: clamp(0.6875rem, 0.65rem + 0.18vw, 0.78rem);
   --text-small: clamp(0.78rem, 0.72rem + 0.25vw, 0.95rem);
   --text-body: clamp(1rem, 0.95rem + 0.35vw, 1.2rem);
   --text-lead: clamp(1.35rem, 1.1rem + 1vw, 2rem);

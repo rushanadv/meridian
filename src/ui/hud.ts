@@ -42,8 +42,8 @@ export function initHud({ scene }: HudOptions): void {
     label.classList.toggle("is-on", visible);
 
     if (visible) {
-      const marginX = window.innerWidth < 720 ? 100 : 130;
-      const offset = window.innerWidth < 720 ? 0 : 46;
+      const marginX = window.innerWidth < 720 ? 105 : 140;
+      const offset = window.innerWidth < 720 ? 0 : 110;
       const x = clamp(hud.x + offset, marginX, window.innerWidth - marginX);
       const y = clamp(hud.y, 130, window.innerHeight - 60);
       label.style.setProperty("--sx", `${x}px`);

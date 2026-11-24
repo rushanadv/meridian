@@ -95,3 +95,70 @@ export const POLAR_THRESHOLD = 0.95;
 export function isLand(score: number, y: number): boolean {
   return Math.abs(y) > POLAR_THRESHOLD || score > LAND_THRESHOLD;
 }
+
+/**
+ * Baked land mask: 1024 x 512 procedural coverage, bilinearly sampled so
+ * coastlines stay consistent and do not shimmer between dot rows.
+ */
+const MASK_WIDTH = 1024;
+const MASK_HEIGHT = 512;
+let bakedMask: Uint8Array | null = null;
+
+const DEG = Math.PI / 180;
+
+function buildMask(): Uint8Array {
+  const mask = new Uint8Array(MASK_WIDTH * MASK_HEIGHT);
+
+  for (let row = 0; row < MASK_HEIGHT; row += 1) {
+    const lat = 90 - (row / (MASK_HEIGHT - 1)) * 180;
+    const latRad = lat * DEG;
+    const cosLat = Math.cos(latRad);
+    const sinLat = Math.sin(latRad);
+
+    for (let column = 0; column < MASK_WIDTH; column += 1) {
+      const lon = -180 + (column / (MASK_WIDTH - 1)) * 360;
+      const lonRad = lon * DEG;
+
+      const sample = sampleLand(
+        cosLat * Math.cos(lonRad),
+        sinLat,
+        cosLat * Math.sin(lonRad),
+      );
+
+      mask[row * MASK_WIDTH + column] = isLand(sample.score, sinLat)
+        ? 255
+        : 0;
+    }
+  }
+
+  return mask;
+}
+
+export function landMask(): Uint8Array {
+  if (!bakedMask) bakedMask = buildMask();
+  return bakedMask;
+}
+
+export function maskAt(latDeg: number, lonDeg: number): number {
+  const mask = landMask();
+
+  let x = ((lonDeg + 180) / 360) * (MASK_WIDTH - 1);
+  let y = ((90 - latDeg) / 180) * (MASK_HEIGHT - 1);
+
+  x = Math.max(0, Math.min(MASK_WIDTH - 1.001, x));
+  y = Math.max(0, Math.min(MASK_HEIGHT - 1.001, y));
+
+  const x0 = Math.floor(x);
+  const y0 = Math.floor(y);
+  const tx = x - x0;
+  const ty = y - y0;
+  const i = y0 * MASK_WIDTH + x0;
+
+  const a = mask[i];
+  const b = mask[i + 1];
+  const c = mask[i + MASK_WIDTH];
+  const d = mask[i + MASK_WIDTH + 1];
+
+  return (a + (b - a) * tx + (c - a) * ty + (a - b - c + d) * tx * ty) / 255;
+}
+

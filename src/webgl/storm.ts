@@ -1,4 +1,8 @@
-import * as THREE from "three";
+import {
+  AdditiveBlending, BufferAttribute, BufferGeometry, Float32BufferAttribute,
+  Group, LineBasicMaterial, LineLoop, Mesh, PlaneGeometry, Points,
+  ShaderMaterial, Vector2, Vector3,
+} from "three";
 import { isCoarsePointer } from "../lib/motion";
 import { stormFragmentShader, stormVertexShader } from "./shaders";
 
@@ -16,13 +20,13 @@ const seededRandom = (seed: number) => {
 const TAU = Math.PI * 2;
 
 export class Storm {
-  readonly root = new THREE.Group();
+  readonly root = new Group();
 
-  private readonly geometry: THREE.BufferGeometry;
-  private readonly material: THREE.ShaderMaterial;
-  private readonly discGeometry: THREE.PlaneGeometry;
-  private readonly discMaterial: THREE.ShaderMaterial;
-  private readonly rings: { geometry: THREE.BufferGeometry; material: THREE.LineBasicMaterial }[] =
+  private readonly geometry: BufferGeometry;
+  private readonly material: ShaderMaterial;
+  private readonly discGeometry: PlaneGeometry;
+  private readonly discMaterial: ShaderMaterial;
+  private readonly rings: { geometry: BufferGeometry; material: LineBasicMaterial }[] =
     [];
 
   constructor() {
@@ -51,49 +55,49 @@ export class Storm {
       sizes[i] = 0.021 + (1 - radius) * 0.02 + random() * 0.012;
     }
 
-    this.geometry = new THREE.BufferGeometry();
+    this.geometry = new BufferGeometry();
     this.geometry.setAttribute(
       "position",
-      new THREE.BufferAttribute(positions, 3),
+      new BufferAttribute(positions, 3),
     );
     this.geometry.setAttribute(
       "aRadius",
-      new THREE.BufferAttribute(radii, 1),
+      new BufferAttribute(radii, 1),
     );
     this.geometry.setAttribute(
       "aAngle",
-      new THREE.BufferAttribute(angles, 1),
+      new BufferAttribute(angles, 1),
     );
     this.geometry.setAttribute(
       "aSeed",
-      new THREE.BufferAttribute(seeds, 1),
+      new BufferAttribute(seeds, 1),
     );
     this.geometry.setAttribute(
       "aSize",
-      new THREE.BufferAttribute(sizes, 1),
+      new BufferAttribute(sizes, 1),
     );
 
-    this.material = new THREE.ShaderMaterial({
+    this.material = new ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
         uScale: { value: 1 },
         uIntensity: { value: 0 },
         uHover: { value: 0 },
-        uPointer: { value: new THREE.Vector2(1e3, 1e3) },
+        uPointer: { value: new Vector2(1e3, 1e3) },
       },
       vertexShader: stormVertexShader,
       fragmentShader: stormFragmentShader,
       transparent: true,
       depthWrite: false,
-      blending: THREE.AdditiveBlending,
+      blending: AdditiveBlending,
     });
 
-    const points = new THREE.Points(this.geometry, this.material);
+    const points = new Points(this.geometry, this.material);
     points.frustumCulled = false;
     points.renderOrder = 4;
 
-    this.discGeometry = new THREE.PlaneGeometry(2.7, 2.7);
-    this.discMaterial = new THREE.ShaderMaterial({
+    this.discGeometry = new PlaneGeometry(2.7, 2.7);
+    this.discMaterial = new ShaderMaterial({
       uniforms: {
         uIntensity: { value: 0 },
       },
@@ -119,7 +123,7 @@ export class Storm {
       depthWrite: false,
     });
 
-    const disc = new THREE.Mesh(this.discGeometry, this.discMaterial);
+    const disc = new Mesh(this.discGeometry, this.discMaterial);
     disc.rotation.x = -Math.PI / 2;
     disc.renderOrder = 3;
     disc.frustumCulled = false;
@@ -134,21 +138,21 @@ export class Storm {
         values.push(Math.cos(angle) * radius, 0, Math.sin(angle) * radius);
       }
 
-      const geometry = new THREE.BufferGeometry();
+      const geometry = new BufferGeometry();
       geometry.setAttribute(
         "position",
-        new THREE.Float32BufferAttribute(values, 3),
+        new Float32BufferAttribute(values, 3),
       );
 
-      const material = new THREE.LineBasicMaterial({
+      const material = new LineBasicMaterial({
         color: "#7fe7ff",
         transparent: true,
         opacity: 0,
         depthWrite: false,
-        blending: THREE.AdditiveBlending,
+        blending: AdditiveBlending,
       });
 
-      const ring = new THREE.LineLoop(geometry, material);
+      const ring = new LineLoop(geometry, material);
       ring.renderOrder = 4;
       ring.frustumCulled = false;
 
@@ -169,7 +173,7 @@ export class Storm {
     time: number,
     weight: number,
     hover: number,
-    pointerLocal: THREE.Vector2,
+    pointerLocal: Vector2,
   ): void {
     this.root.visible = weight > 0.004;
 
@@ -186,7 +190,7 @@ export class Storm {
     }
   }
 
-  localPoint(world: THREE.Vector3, target: THREE.Vector2): THREE.Vector2 {
+  localPoint(world: Vector3, target: Vector2): Vector2 {
     const local = this.root.worldToLocal(world.clone());
     return target.set(local.x, local.z);
   }

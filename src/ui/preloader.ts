@@ -39,16 +39,15 @@ export function runPreloader({ onProgress, onDone }: PreloaderOptions): void {
         return;
       }
 
+      onDone();
+
       gsap.to(root, {
         clipPath: "inset(0 0 100% 0)",
         duration: 1,
         ease: "expoOut",
-        onComplete: () => {
-          root.remove();
-          onDone();
-        },
+        onComplete: () => root.remove(),
       });
-    }, 260);
+    }, 120);
   };
 
   commit(0);

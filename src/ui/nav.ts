@@ -17,6 +17,12 @@ export function initNav(scroll: ScrollController): void {
 
   if (!toggle || !menu) return;
 
+  const label = toggle.querySelector<HTMLElement>(".nav__menu-label");
+
+  const setToggleLabel = (isOpen: boolean) => {
+    if (label) label.textContent = isOpen ? "Close" : "Index";
+  };
+
   const links = Array.from(
     menu.querySelectorAll<HTMLAnchorElement>(".menu__link"),
   );
@@ -36,6 +42,7 @@ export function initNav(scroll: ScrollController): void {
             document.body.classList.remove("is-menu");
             scroll.start();
             toggle.focus({ preventScroll: true });
+            setToggleLabel(false);
 
             if (pendingHref) {
               const href = pendingHref;
@@ -80,6 +87,7 @@ export function initNav(scroll: ScrollController): void {
     menu.classList.add("is-open");
     document.body.classList.add("is-menu");
     scroll.stop();
+    setToggleLabel(true);
 
     if (timeline) {
       timeline.timeScale(1).play();
@@ -110,6 +118,7 @@ export function initNav(scroll: ScrollController): void {
       document.body.classList.remove("is-menu");
       scroll.start();
       toggle.focus({ preventScroll: true });
+      setToggleLabel(false);
 
       if (pendingHref) {
         const href = pendingHref;

@@ -6,8 +6,30 @@
 
 html {
   background: var(--bg);
+  overflow-x: clip;
   scroll-behavior: auto;
+  scrollbar-width: thin;
+  scrollbar-color: #263246 #05070d;
   -webkit-text-size-adjust: 100%;
+}
+
+::-webkit-scrollbar {
+  width: 9px;
+  height: 9px;
+}
+
+::-webkit-scrollbar-track {
+  background: #05070d;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 2px solid #05070d;
+  border-radius: 999px;
+  background: #263246;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #334056;
 }
 
 html.lenis,
@@ -113,7 +135,7 @@ em {
   letter-spacing: 0.09em;
   line-height: 1.5;
   text-transform: uppercase;
-  color: var(--muted);
+  color: rgb(242 238 230 / 0.78);
 }
 
 .accent {
