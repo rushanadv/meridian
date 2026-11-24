@@ -6,7 +6,7 @@
   position: relative;
   z-index: 1;
   isolation: isolate;
-  padding: calc(var(--nav-h) + clamp(3rem, 7vh, 5.5rem)) var(--pad)
+  padding: calc(var(--chrome-h) + clamp(3rem, 7vh, 5.5rem)) var(--pad)
     clamp(4.5rem, 11vh, 8rem);
 }
 
@@ -416,7 +416,7 @@
 @media (max-width: 720px) {
   .method,
   .signals {
-    padding-top: calc(var(--nav-h) + 2.6vh);
+    padding-top: calc(var(--chrome-h) + 2.6vh);
     padding-bottom: 4.5rem;
   }
 

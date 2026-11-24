@@ -57,7 +57,7 @@ export function initScroll(): ScrollController {
 
     heroExit
       .to(".hero__statement", { yPercent: -14, autoAlpha: 0, ease: "none" }, 0)
-      .to(".wordmark", { yPercent: -10, ease: "none" }, 0)
+      .to(".hero__horizon", { yPercent: -10, ease: "none" }, 0)
       .to(".hero__top, .hero__bottom", { autoAlpha: 0, ease: "none" }, 0.15);
 
     const words = gsap.utils.toArray<HTMLElement>(".problem__word");
@@ -217,7 +217,11 @@ export function initScroll(): ScrollController {
         typeof target === "string"
           ? document.querySelector<HTMLElement>(target)
           : null;
-      const offset = target === "#problem" ? 0 : -90;
+      const offset = typeof target === "string"
+        ? target === "#problem"
+          ? 0
+          : -90
+        : 0;
 
       if (lenis) {
         lenis.scrollTo(

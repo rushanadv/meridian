@@ -6,7 +6,7 @@
   position: relative;
   z-index: 1;
   min-height: 100svh;
-  padding: calc(var(--nav-h) + 2.2vh) var(--pad) var(--pad);
+  padding: calc(var(--chrome-h) + 2.2vh) var(--pad) var(--pad);
 }
 
 .problem__inner {
@@ -14,7 +14,7 @@
   grid-template-columns: repeat(12, minmax(0, 1fr));
   grid-template-rows: auto minmax(0, 1fr);
   gap: var(--gutter);
-  min-height: calc(100svh - var(--nav-h) - 3.2rem);
+  min-height: calc(100svh - var(--chrome-h) - 3.2rem);
 }
 
 .problem__index,
@@ -415,7 +415,7 @@
   inset: 0;
   z-index: 5;
   display: flex;
-  padding: calc(var(--nav-h) + 2.4vh) var(--pad)
+  padding: calc(var(--chrome-h) + 2.4vh) var(--pad)
     clamp(1.4rem, 4vh, 2.6rem);
   background: var(--bg);
   clip-path: inset(0 0 100% 0);
@@ -713,14 +713,14 @@
 
 @media (max-width: 720px) {
   .problem {
-    padding-top: calc(var(--nav-h) + 3.2vh);
+    padding-top: calc(var(--chrome-h) + 3.2vh);
   }
 
   .problem__inner {
     display: flex;
     flex-direction: column;
     gap: 0.9rem;
-    min-height: calc(100svh - var(--nav-h) - 3.4rem);
+    min-height: calc(100svh - var(--chrome-h) - 3.4rem);
   }
 
   .problem__index {
@@ -748,7 +748,7 @@
   }
 
   .routes {
-    padding-top: calc(var(--nav-h) + 4vh);
+    padding-top: calc(var(--chrome-h) + 4vh);
   }
 
   .routes__title {
@@ -769,7 +769,7 @@
   }
 
   .menu {
-    padding-top: calc(var(--nav-h) + 2vh);
+    padding-top: calc(var(--chrome-h) + 2vh);
   }
 
   .menu__head {

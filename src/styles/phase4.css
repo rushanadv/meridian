@@ -15,7 +15,7 @@
   flex-direction: column;
   height: 100svh;
   min-height: 0;
-  padding: calc(var(--nav-h) + clamp(2.4rem, 5vh, 4.2rem)) var(--pad)
+  padding: calc(var(--chrome-h) + clamp(2.4rem, 5vh, 4.2rem)) var(--pad)
     clamp(1.2rem, 3vh, 2.2rem);
   overflow: hidden;
 }
@@ -229,7 +229,7 @@
 
 .voices {
   min-height: 100svh;
-  padding: calc(var(--nav-h) + clamp(4rem, 9vh, 7rem)) var(--pad)
+  padding: calc(var(--chrome-h) + clamp(4rem, 9vh, 7rem)) var(--pad)
     clamp(4rem, 9vh, 7rem);
 }
 
@@ -387,7 +387,7 @@
 
 .pricing {
   min-height: 100svh;
-  padding: calc(var(--nav-h) + clamp(4rem, 9vh, 7rem)) var(--pad)
+  padding: calc(var(--chrome-h) + clamp(4rem, 9vh, 7rem)) var(--pad)
     clamp(4rem, 9vh, 7rem);
 }
 
@@ -572,7 +572,7 @@
   display: flex;
   flex-direction: column;
   min-height: 100svh;
-  padding: calc(var(--nav-h) + clamp(5rem, 12vh, 9rem)) var(--pad) 0;
+  padding: calc(var(--chrome-h) + clamp(5rem, 12vh, 9rem)) var(--pad) 0;
   overflow: hidden;
 }
 
@@ -819,7 +819,7 @@
 
 @media (max-width: 900px) {
   .gallery {
-    padding-top: calc(var(--nav-h) + 2.6vh);
+    padding-top: calc(var(--chrome-h) + 2.6vh);
   }
 
   .gallery__card {
@@ -829,7 +829,7 @@
 
   .voices,
   .pricing {
-    padding-top: calc(var(--nav-h) + 3.2vh);
+    padding-top: calc(var(--chrome-h) + 3.2vh);
     padding-bottom: 4.5rem;
   }
 
@@ -842,7 +842,7 @@
   }
 
   .footer {
-    padding-top: calc(var(--nav-h) + 3.6vh);
+    padding-top: calc(var(--chrome-h) + 3.6vh);
   }
 }
 

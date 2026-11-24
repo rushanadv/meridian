@@ -2,30 +2,38 @@ import { gsap, reducedMotion } from "../lib/motion";
 
 export function revealHero(): void {
   if (reducedMotion.matches) {
-    gsap.set(".nav", { autoAlpha: 1 });
+    gsap.set([".nav", ".day-rail"], { autoAlpha: 1 });
     return;
   }
 
-  gsap.set(".nav", { autoAlpha: 0 });
-  gsap.set(".wm-letter", { yPercent: 135, rotate: 7, opacity: 0 });
+  gsap.set([".nav", ".day-rail"], { autoAlpha: 0 });
   gsap.set(".line", { yPercent: 118 });
   gsap.set(".hero__eyebrow, .hero__lede", { autoAlpha: 0, y: 18 });
   gsap.set(".hero__top, .hero__bottom", { autoAlpha: 0, y: 12 });
+  gsap.set(".hero__horizon", { autoAlpha: 0, yPercent: 9 });
+  gsap.set(".hero__horizon-value", { yPercent: 16, scale: 0.96 });
 
   const timeline = gsap.timeline({ defaults: { ease: "expoOut" } });
 
   timeline
-    .to(".nav", { autoAlpha: 1, duration: 1 }, 0)
+    .to([".nav", ".day-rail"], { autoAlpha: 1, duration: 1 }, 0)
     .to(
-      ".wm-letter",
+      ".hero__horizon",
+      {
+        autoAlpha: 1,
+        yPercent: 0,
+        duration: 1.25,
+      },
+      0.1,
+    )
+    .to(
+      ".hero__horizon-value",
       {
         yPercent: 0,
-        rotate: 0,
-        opacity: 1,
-        duration: 1.5,
-        stagger: 0.055,
+        scale: 1,
+        duration: 1.4,
       },
-      0.05,
+      0.1,
     )
     .to(
       ".line",
@@ -55,6 +63,10 @@ export function revealHero(): void {
       },
       1.1,
     )
-    .set(".wm-letter", { clearProps: "transform,opacity", immediateRender: false }, 1.75)
-    .set(".line", { clearProps: "transform", immediateRender: false }, 1.75);
+    .set(".line", { clearProps: "transform", immediateRender: false }, 1.75)
+    .set(
+      ".hero__horizon-value",
+      { clearProps: "transform", immediateRender: false },
+      1.75,
+    );
 }

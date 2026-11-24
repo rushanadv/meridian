@@ -7,6 +7,7 @@ import { initScramble } from "./lib/scramble";
 import { reducedMotion, ScrollTrigger } from "./lib/motion";
 import { initContent } from "./ui/content";
 import { initCursor } from "./ui/cursor";
+import { initDayRail } from "./ui/dayRail";
 import { initFooter } from "./ui/footer";
 import { initGallery } from "./ui/gallery";
 import { initHud } from "./ui/hud";
@@ -26,6 +27,7 @@ initPointer();
 initSections();
 const scroll = initScroll();
 initNav(scroll);
+const dayRail = initDayRail(scroll);
 
 const canvas = document.getElementById("webgl");
 let scene: MeridianScene | null = null;
@@ -123,6 +125,7 @@ runPreloader({
 });
 
 window.addEventListener("pagehide", () => {
+  dayRail?.destroy();
   scroll.destroy();
   ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
   scene?.dispose();

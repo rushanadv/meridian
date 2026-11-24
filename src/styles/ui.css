@@ -9,8 +9,8 @@
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
-  height: calc(var(--nav-h) + 12px);
-  padding: 0 var(--pad) 12px;
+  height: var(--nav-h);
+  padding: 0 var(--pad);
   background: linear-gradient(
     to bottom,
     rgb(5 7 13 / 0.94) 0%,
@@ -86,16 +86,18 @@
   transform-origin: left;
 }
 
-.nav__link-index {
+.nav__link-day {
   color: var(--accent);
   font-size: 0.55rem;
-  opacity: 0;
+  letter-spacing: 0.08em;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.58;
   transition: opacity 300ms var(--ease-expo);
 }
 
-.nav__link:hover .nav__link-index,
-.nav__link:focus-visible .nav__link-index {
-  opacity: 0.8;
+.nav__link:hover .nav__link-day,
+.nav__link:focus-visible .nav__link-day {
+  opacity: 1;
 }
 
 .nav__right {
@@ -287,7 +289,8 @@ body.is-loading .cursor {
 }
 
 body.is-loading main,
-body.is-loading .nav {
+body.is-loading .nav,
+body.is-loading .day-rail {
   opacity: 0;
 }
 

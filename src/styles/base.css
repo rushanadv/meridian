@@ -8,6 +8,7 @@ html {
   background: var(--bg);
   overflow-x: clip;
   scroll-behavior: auto;
+  scroll-padding-top: calc(var(--chrome-h) + 12px);
   scrollbar-width: thin;
   scrollbar-color: #263246 #05070d;
   -webkit-text-size-adjust: 100%;
@@ -134,9 +135,9 @@ em {
 
 .mono {
   font-family: var(--font-mono);
-  font-size: var(--text-micro);
+  font-size: var(--type-data);
   font-weight: 400;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.06em;
   line-height: 1.5;
   text-transform: uppercase;
   color: rgb(242 238 230 / 0.78);

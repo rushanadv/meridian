@@ -1,11 +1,15 @@
 :root {
   --bg: #05070d;
   --bg-soft: #090d16;
+  --surface: #090d16;
   --ink: #f2eee6;
   --ink-dim: #cfd4dd;
   --muted: #a6b0c2;
   --accent: #7fe7ff;
   --accent-deep: #2a7d92;
+  --caution: #e0bd7a;
+  --alarm: #e57655;
+  --slip: #e7dfcf;
   --line: rgb(242 238 230 / 0.13);
   --line-strong: rgb(242 238 230 / 0.24);
 
@@ -15,12 +19,38 @@
   --ease-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-power4: cubic-bezier(0.76, 0, 0.24, 1);
 
+  --nav-h: clamp(58px, 8vh, 76px);
+  --rail-h: 0px;
+  --chrome-h: var(--nav-h);
+  --rail-w: 32px;
   --pad: clamp(1.1rem, 3.4vw, 3.4rem);
-  --nav-h: clamp(60px, 8vh, 84px);
   --gutter: clamp(0.7rem, 1.5vw, 1.6rem);
 
-  --text-micro: clamp(0.6875rem, 0.65rem + 0.18vw, 0.78rem);
-  --text-small: clamp(0.78rem, 0.72rem + 0.25vw, 0.95rem);
-  --text-body: clamp(1rem, 0.95rem + 0.35vw, 1.2rem);
+  --type-display: clamp(4rem, 10vw, 11.5rem);
+  --type-statement: clamp(2.6rem, 4.8vw, 5.4rem);
+  --type-title: clamp(1.4rem, 2vw, 2.1rem);
+  --type-body: clamp(1rem, 0.95rem + 0.4vw, 1.25rem);
+  --type-data: clamp(0.75rem, 0.72rem + 0.12vw, 0.82rem);
+  --type-day: clamp(0.8rem, 0.75rem + 0.2vw, 0.95rem);
+
+  /* Legacy aliases retained while chapters migrate to the new scale. */
+  --text-micro: var(--type-data);
+  --text-small: clamp(0.84rem, 0.78rem + 0.25vw, 1rem);
+  --text-body: var(--type-body);
   --text-lead: clamp(1.35rem, 1.1rem + 1vw, 2rem);
+}
+
+@media (max-width: 1279px) {
+  :root {
+    --rail-h: 30px;
+    --chrome-h: calc(var(--nav-h) + var(--rail-h));
+  }
+}
+
+@media (max-width: 720px) {
+  :root {
+    --nav-h: 56px;
+    --rail-h: 30px;
+    --chrome-h: calc(var(--nav-h) + var(--rail-h));
+  }
 }

@@ -24,6 +24,7 @@
     <link rel="stylesheet" href="/src/styles/choreo.css" />
     <link rel="stylesheet" href="/src/styles/content.css" />
     <link rel="stylesheet" href="/src/styles/phase4.css" />
+    <link rel="stylesheet" href="/src/styles/time.css" />
   </head>
   <body>
     <a class="skip-link" href="#top">Skip to content</a>
@@ -84,11 +85,13 @@
       </div>
     </header>
 
+    <aside class="day-rail" id="day-rail" aria-label="Days to impact"></aside>
+
     <div class="menu" id="menu" aria-hidden="true" inert>
       <div class="menu__inner">
         <div class="menu__head mono">
-          <span>INDEX / MERIDIAN</span>
-          <span data-section-count>08 Entries</span>
+          <span>FORECAST PROGRAM / MERIDIAN</span>
+          <span data-section-count>09 Chapters</span>
         </div>
 
         <nav class="menu__nav" aria-label="Site index"></nav>
@@ -105,7 +108,7 @@
 
       <section class="hero" id="hero" aria-labelledby="hero-headline">
         <div class="hero__top mono">
-          <span class="hero__section"><span data-section-index="hero">01</span> / <span data-section-label="hero">Hero</span></span>
+          <span class="hero__run">Model run / 06:00 UTC / 51 members</span>
           <span class="hero__coords" id="coords" aria-live="off">51.5074°N 0.1278°W</span>
         </div>
 
@@ -127,16 +130,22 @@
           </p>
         </div>
 
-        <div class="wordmark" aria-hidden="true">
-          <span class="wordmark__inner" aria-hidden="true">
-            <span class="wm-letter" style="--i: 0">M</span><span class="wm-letter" style="--i: 1">E</span><span class="wm-letter" style="--i: 2">R</span><span class="wm-letter" style="--i: 3">I</span><span class="wm-letter" style="--i: 4">D</span><span class="wm-letter" style="--i: 5">I</span><span class="wm-letter" style="--i: 6">A</span><span class="wm-letter" style="--i: 7">N</span>
-          </span>
+        <div class="hero__horizon">
+          <span class="hero__horizon-kicker mono">Days to impact</span>
+          <div class="hero__horizon-figure">
+            <span class="hero__horizon-value">14</span>
+            <span class="hero__horizon-unit mono">Days</span>
+          </div>
+          <p class="hero__horizon-meta mono">
+            <span class="accent">51</span> possible futures<br />
+            Member 17 at impact
+          </p>
         </div>
 
         <div class="hero__bottom">
           <p class="hero__scroll mono">
             <span class="hero__scroll-line" aria-hidden="true"></span>
-            SCROLL TO DESCEND
+            SCROLL TO ADVANCE THE RUN
           </p>
           <div class="hero__live mono">
             <span class="live-dot" aria-hidden="true"></span>
@@ -147,11 +156,6 @@
 
       <section class="problem" id="problem" aria-labelledby="problem-title">
         <div class="problem__inner">
-          <p class="problem__index mono">
-            <span class="problem__rule" aria-hidden="true"></span>
-            <span data-section-index="problem">02</span> / <span data-section-label="problem">The Problem</span>
-          </p>
-
           <div class="problem__lead">
             <h2 class="problem__statement" id="problem-title">
               <span class="problem__word">Wind</span>
@@ -237,11 +241,6 @@
 
       <section class="routes" id="routes" aria-labelledby="routes-title">
         <div class="routes__grid">
-          <p class="routes__index mono">
-            <span class="routes__rule" aria-hidden="true"></span>
-            <span data-section-index="routes">03</span> / <span data-section-label="routes">Lane View</span>
-          </p>
-
           <div class="routes__copy">
             <h2 class="routes__title" id="routes-title">
               Every lane has a<br />
@@ -376,12 +375,6 @@
 
       <section class="method" id="method" aria-labelledby="method-title">
         <div class="method__inner">
-          <p class="method__index mono">
-            <span class="method__rule" aria-hidden="true"></span>
-            <span data-section-index="method">04</span> /
-            <span data-section-label="method">How It Works</span>
-          </p>
-
           <div class="method__head">
             <h2 class="method__title" id="method-title">
               Weather becomes a decision in three moves.
@@ -528,12 +521,6 @@
 
       <section class="signals" id="signals" aria-labelledby="signals-title">
         <div class="signals__inner">
-          <p class="signals__index mono">
-            <span class="signals__rule" aria-hidden="true"></span>
-            <span data-section-index="signals">05</span> /
-            <span data-section-label="signals">Signals</span>
-          </p>
-
           <div class="signals__head">
             <h2 class="signals__title" id="signals-title">
               The model, in four numbers.
@@ -590,12 +577,6 @@
 
       <section class="gallery" id="gallery" aria-labelledby="gallery-title">
         <div class="gallery__inner">
-          <p class="gallery__index mono">
-            <span class="gallery__rule" aria-hidden="true"></span>
-            <span data-section-index="gallery">06</span> /
-            <span data-section-label="gallery">Field Notes</span>
-          </p>
-
           <div class="gallery__head">
             <h2 class="gallery__title" id="gallery-title">
               Four ways weather becomes a number.
@@ -820,12 +801,6 @@
 
       <section class="voices" id="voices" aria-labelledby="voices-title">
         <div class="voices__inner">
-          <p class="voices__index mono">
-            <span class="voices__rule" aria-hidden="true"></span>
-            <span data-section-index="voices">07</span> /
-            <span data-section-label="voices">Voices</span>
-          </p>
-
           <div class="voices__head">
             <h2 class="voices__title" id="voices-title">
               The desk hears it first.
@@ -914,12 +889,6 @@
 
       <section class="pricing" id="pricing" aria-labelledby="pricing-title">
         <div class="pricing__inner">
-          <p class="pricing__index mono">
-            <span class="pricing__rule" aria-hidden="true"></span>
-            <span data-section-index="pricing">08</span> /
-            <span data-section-label="pricing">Plans</span>
-          </p>
-
           <div class="pricing__head">
             <h2 class="pricing__title" id="pricing-title">
               Pay for the horizon you need.
