@@ -1,4 +1,4 @@
-import { gsap } from "../lib/motion";
+import { gsap, isCoarsePointer, reducedMotion } from "../lib/motion";
 import { choreo } from "../lib/choreography";
 import type { MeridianScene, StormHud } from "../webgl/Scene";
 
@@ -20,6 +20,8 @@ export function initHud({ scene }: HudOptions): void {
   window.addEventListener(
     "pointermove",
     (event) => {
+      if (event.pointerType === "touch") return;
+
       const near = scene.isPointerNearStorm(event.clientX, event.clientY);
       scene.setStormHover(near);
       label.classList.toggle("is-hover", near);
@@ -27,10 +29,43 @@ export function initHud({ scene }: HudOptions): void {
     { passive: true },
   );
 
-  document.addEventListener("pointerleave", () => {
+  document.addEventListener("pointerleave", (event) => {
+    if (event.pointerType === "touch") return;
+
     scene.setStormHover(false);
     label.classList.remove("is-hover");
   });
+
+  if (isCoarsePointer && !reducedMotion.matches) {
+    let tapTimer = 0;
+
+    const tap = (clientX: number, clientY: number) => {
+      if (!scene.isPointerNearStorm(clientX, clientY)) return;
+
+      scene.setStormHover(true);
+      label.classList.add("is-hover");
+      window.clearTimeout(tapTimer);
+      tapTimer = window.setTimeout(() => {
+        scene.setStormHover(false);
+        label.classList.remove("is-hover");
+      }, 1600);
+    };
+
+    window.addEventListener(
+      "pointerdown",
+      (event) => tap(event.clientX, event.clientY),
+      { passive: true },
+    );
+
+    window.addEventListener(
+      "touchstart",
+      (event) => {
+        const touch = event.touches[0];
+        if (touch) tap(touch.clientX, touch.clientY);
+      },
+      { passive: true },
+    );
+  }
 
   const clamp = (value: number, min: number, max: number) =>
     Math.min(max, Math.max(min, value));

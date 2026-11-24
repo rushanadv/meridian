@@ -123,5 +123,7 @@ runPreloader({
 });
 
 window.addEventListener("pagehide", () => {
+  scroll.destroy();
+  ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
   scene?.dispose();
 });

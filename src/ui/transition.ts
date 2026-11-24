@@ -119,6 +119,27 @@ export function initViewTransition(scroll: ScrollController): void {
       window.innerWidth / window.innerHeight;
   };
 
+  const dispose = () => {
+    if (frame) cancelAnimationFrame(frame);
+    frame = 0;
+    canvas.style.display = "none";
+
+    scene?.traverse((object) => {
+      if (object instanceof Mesh) object.geometry.dispose();
+    });
+
+    material?.dispose();
+    renderer?.dispose();
+    renderer?.forceContextLoss();
+
+    renderer = null;
+    material = null;
+    scene = null;
+    camera = null;
+  };
+
+  window.addEventListener("pagehide", dispose, { once: true });
+
   const ensure = (): boolean => {
     if (renderer && material) return true;
 

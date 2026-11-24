@@ -18,7 +18,7 @@ import {
   routesWeightOf,
   stormWeightOf,
 } from "../lib/choreography";
-import { reducedMotion } from "../lib/motion";
+import { reducedMotion, isCoarsePointer } from "../lib/motion";
 
 interface CameraKey {
   position: Vector3;
@@ -40,6 +40,7 @@ export class MeridianScene {
   private readonly bloom: UnrealBloomPass;
   private readonly grade: ShaderPass;
   private readonly renderPass: RenderPass;
+  private readonly output: OutputPass;
   private readonly globe = new Globe();
   private readonly storm = new Storm();
   private readonly routes = new Routes();
@@ -85,6 +86,15 @@ export class MeridianScene {
   private running = false;
   private manualStop = false;
   private pixelRatio = 1;
+  private mobileQuality = false;
+
+  private qualityPixelRatio(): number {
+    this.mobileQuality = isCoarsePointer || window.innerWidth < 720;
+    return Math.min(
+      window.devicePixelRatio,
+      this.mobileQuality ? 1.5 : 2,
+    );
+  }
 
   private readonly onResize = () => this.resize();
   private readonly onVisibility = () => {
@@ -111,7 +121,7 @@ export class MeridianScene {
       powerPreference: "high-performance",
     });
 
-    this.pixelRatio = Math.min(window.devicePixelRatio, 2);
+    this.pixelRatio = this.qualityPixelRatio();
     this.renderer.setPixelRatio(this.pixelRatio);
     this.renderer.setSize(width, height);
     this.renderer.toneMapping = ACESFilmicToneMapping;
@@ -139,7 +149,7 @@ export class MeridianScene {
 
     this.bloom = new UnrealBloomPass(
       new Vector2(width, height),
-      0.62,
+      this.mobileQuality ? 0.5 : 0.62,
       0.5,
       0.6,
     );
@@ -152,7 +162,8 @@ export class MeridianScene {
     );
     this.composer.addPass(this.grade);
 
-    this.composer.addPass(new OutputPass());
+    this.output = new OutputPass();
+    this.composer.addPass(this.output);
     this.composer.setSize(width, height);
 
     this.timer.connect(document);
@@ -229,9 +240,10 @@ export class MeridianScene {
   resize(): void {
     const width = window.innerWidth;
     const height = window.innerHeight;
-    const nextRatio = Math.min(window.devicePixelRatio, 2);
+    const nextRatio = this.qualityPixelRatio();
 
     this.pixelRatio = nextRatio;
+    this.bloom.strength = this.mobileQuality ? 0.5 : 0.62;
 
     this.renderer.setPixelRatio(nextRatio);
     this.renderer.setSize(width, height);
@@ -277,8 +289,12 @@ export class MeridianScene {
     this.storm.dispose();
     this.globe.dispose();
     this.pricing.dispose();
+    this.bloom.dispose();
+    this.grade.dispose();
+    this.output.dispose();
     this.composer.dispose();
     this.renderer.dispose();
+    this.renderer.forceContextLoss();
   }
 
   private layout(width: number, height: number): void {
