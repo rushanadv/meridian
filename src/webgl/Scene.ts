@@ -1,6 +1,6 @@
 import {
   ACESFilmicToneMapping, Color, MathUtils, PerspectiveCamera, Plane, Raycaster,
-  Scene as ThreeScene, Timer, Vector2, Vector3, WebGLRenderer,
+  Scene as ThreeScene, Sphere, Timer, Vector2, Vector3, WebGLRenderer,
 } from "three";
 import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
@@ -74,6 +74,9 @@ export class MeridianScene {
 
   private readonly raycaster = new Raycaster();
   private readonly plane = new Plane();
+  private readonly surfaceSphere = new Sphere();
+  private readonly surfaceHit = new Vector3();
+  private readonly surfaceLocal = new Vector3();
 
   private rigFov = 42;
   private poseFov = 42;
@@ -296,6 +299,40 @@ export class MeridianScene {
     const radius = Math.min(window.innerWidth, window.innerHeight) * 0.34;
 
     return Math.hypot(clientX - screenX, clientY - screenY) < radius;
+  }
+
+  getSurfaceCoordinate(
+    clientX: number,
+    clientY: number,
+  ): { lat: number; lon: number } | null {
+    this.rayNdc.set(
+      (clientX / window.innerWidth) * 2 - 1,
+      -(clientY / window.innerHeight) * 2 + 1,
+    );
+    this.raycaster.setFromCamera(this.rayNdc, this.camera);
+
+    this.globe.getWorldCenter(this.globeCenter);
+    this.surfaceSphere.set(this.globeCenter, this.globe.radius);
+
+    const hit = this.raycaster.ray.intersectSphere(
+      this.surfaceSphere,
+      this.surfaceHit,
+    );
+
+    if (!hit) return null;
+
+    this.globe.group.updateMatrixWorld(true);
+    this.surfaceLocal.copy(this.surfaceHit);
+    this.globe.group.worldToLocal(this.surfaceLocal).normalize();
+
+    return {
+      lat: MathUtils.radToDeg(
+        Math.asin(MathUtils.clamp(this.surfaceLocal.y, -1, 1)),
+      ),
+      lon: MathUtils.radToDeg(
+        Math.atan2(this.surfaceLocal.z, this.surfaceLocal.x),
+      ),
+    };
   }
 
   dispose(): void {

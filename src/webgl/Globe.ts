@@ -36,6 +36,7 @@ const seededRandom = (seed: number) => {
 export class Globe {
   readonly root = new Group();
   readonly group = new Group();
+  readonly radius = RADIUS;
 
   private readonly pointsMaterial: ShaderMaterial;
   private readonly streamMaterial: ShaderMaterial;

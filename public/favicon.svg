@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Meridian">
+  <rect width="64" height="64" rx="14" fill="#05070d"/>
+  <circle cx="32" cy="32" r="20.5" fill="none" stroke="#f2eee6" stroke-width="2"/>
+  <path d="M11.5 32h41M32 11.5v41" stroke="#f2eee6" stroke-width="1" opacity="0.42"/>
+  <ellipse cx="32" cy="32" rx="20.5" ry="8" fill="none" stroke="#7fe7ff" stroke-width="0.8" opacity="0.5"/>
+  <path d="M18 42c5-7 9-9 14-9s9 2 14 9" fill="none" stroke="#7fe7ff" stroke-width="1.1" opacity="0.8"/>
+  <circle cx="32" cy="32" r="3.6" fill="#7fe7ff"/>
+</svg>

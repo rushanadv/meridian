@@ -10,6 +10,35 @@
     <meta name="theme-color" content="#05070D" />
     <title>Meridian — Atmospheric Intelligence</title>
 
+    <link rel="canonical" href="https://meridian-nine-eosin.vercel.app/" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+    <link rel="icon" href="/favicon-192.png" sizes="192x192" type="image/png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Meridian" />
+    <meta property="og:title" content="Meridian — Atmospheric Intelligence" />
+    <meta
+      property="og:description"
+      content="Meridian predicts how storms, wind and ocean conditions disrupt global shipping and flight routes fourteen days ahead."
+    />
+    <meta property="og:url" content="https://meridian-nine-eosin.vercel.app/" />
+    <meta property="og:image" content="https://meridian-nine-eosin.vercel.app/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta
+      property="og:image:alt"
+      content="Meridian forecast globe with fifty-one ensemble tracks crossing the Atlantic."
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Meridian — Atmospheric Intelligence" />
+    <meta
+      name="twitter:description"
+      content="Meridian predicts how storms, wind and ocean conditions disrupt global shipping and flight routes fourteen days ahead."
+    />
+    <meta name="twitter:image" content="https://meridian-nine-eosin.vercel.app/og-image.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -33,11 +62,11 @@
     <canvas id="dissolve" class="dissolve" aria-hidden="true"></canvas>
 
     <div class="preloader" id="preloader" role="status" aria-label="Loading Meridian planetary model">
-      <div class="preloader__head mono">
+      <div class="preloader__head mono" aria-hidden="true">
         <span>MERIDIAN / ATMOSPHERIC INTELLIGENCE</span>
-        <span>51.5074°N&nbsp;&nbsp;0.1278°W</span>
+        <span data-coord-origin>34.20°N&nbsp;&nbsp;38.70°W</span>
       </div>
-      <div class="preloader__body">
+      <div class="preloader__body" aria-hidden="true">
         <span class="preloader__label mono">ASSEMBLING TERRAIN</span>
         <span class="preloader__meter" aria-hidden="true">
           <span class="preloader__count" id="load-count">000</span>
@@ -47,7 +76,7 @@
       <div class="preloader__bar" aria-hidden="true">
         <span id="load-bar"></span>
       </div>
-      <div class="preloader__foot mono">
+      <div class="preloader__foot mono" aria-hidden="true">
         <span>DOT MATRIX / 38° PARALLEL</span>
         <span>ENV — LIVE MODEL</span>
       </div>
@@ -98,7 +127,7 @@
 
         <aside class="menu__aside mono">
           <p>14-DAY HORIZON<br />51 ENSEMBLE MEMBERS</p>
-          <p class="menu__coords">51.5074°N 0.1278°W</p>
+          <p class="menu__coords" data-coord-origin>34.20°N 38.70°W</p>
         </aside>
       </div>
     </div>
@@ -108,8 +137,8 @@
 
       <section class="hero" id="hero" aria-labelledby="hero-headline">
         <div class="hero__top mono">
-          <span class="hero__run">Model run / 06:00 UTC / 51 members</span>
-          <span class="hero__coords" id="coords" aria-live="off">51.5074°N 0.1278°W</span>
+          <span class="hero__run" data-model-run>Model run / 06:00 UTC / 51 members</span>
+          <span class="hero__coords" id="coords" aria-live="off" data-coord-origin>34.20°N 38.70°W</span>
         </div>
 
         <div class="hero__statement">
@@ -198,7 +227,7 @@
             <div class="problem__meta mono" aria-label="Storm cell data">
               <div class="problem__meta-head">
                 <span class="accent">SYSTEM SNAPSHOT</span>
-                <span>34.2°N 38.7°W</span>
+                <span data-coord-origin>34.20°N 38.70°W</span>
               </div>
               <div class="problem__meta-row">
                 <span>FORECAST</span>
@@ -240,142 +269,7 @@
         </div>
       </section>
 
-      <section class="routes" id="routes" aria-labelledby="routes-title">
-        <div class="routes__grid">
-          <div class="routes__copy">
-            <h2 class="routes__title" id="routes-title">
-              Every lane has a<br />
-              weather price.
-            </h2>
-            <p class="routes__lede">
-              Meridian lays a fourteen-day ensemble over the network itself —
-              lane by lane, leg by leg. When probability moves, the route
-              re-prices before the vessel does.
-            </p>
-            <p class="routes__note mono">
-              RISK SCORES UPDATE EVERY 6 HOURS / ENSEMBLE 51
-            </p>
-          </div>
 
-          <div class="routes__rail">
-            <div class="routes__rail-head mono">
-              <span>LANE SELECTOR</span>
-              <span>51 MEMBERS</span>
-            </div>
-
-            <div class="routes__legend" role="group" aria-label="Choose a shipping lane">
-              <button
-                class="routes__row is-active"
-                type="button"
-                aria-pressed="true"
-                data-route="0"
-              >
-                <span class="mono">R1</span>
-                <span class="routes__ports">Shanghai → Rotterdam</span>
-                <span class="mono routes__risk">Risk 34%</span>
-              </button>
-              <button
-                class="routes__row"
-                type="button"
-                aria-pressed="false"
-                data-route="1"
-              >
-                <span class="mono">R2</span>
-                <span class="routes__ports">Singapore → Los Angeles</span>
-                <span class="mono routes__risk">Risk 61%</span>
-              </button>
-              <button
-                class="routes__row"
-                type="button"
-                aria-pressed="false"
-                data-route="2"
-              >
-                <span class="mono">R3</span>
-                <span class="routes__ports">Santos → Shanghai</span>
-                <span class="mono routes__risk">Risk 52%</span>
-              </button>
-            </div>
-
-            <div
-              class="routes__chart mono"
-              data-cursor-probe="8 DAYS TO IMPACT|MEMBER 17"
-            >
-              <div class="routes__chart-head">
-                <span class="accent">RISK / 14 DAYS</span>
-                <span id="chart-route">Shanghai → Rotterdam</span>
-              </div>
-
-              <div class="routes__chart-meter">
-                <span class="routes__chart-value" aria-hidden="true">
-                  <span id="chart-risk">34</span><span class="routes__chart-unit">%</span>
-                </span>
-                <span class="routes__chart-when" id="chart-when">NOW / DAY 05</span>
-              </div>
-
-              <svg
-                class="routes__chart-svg"
-                id="risk-chart"
-                viewBox="0 0 300 132"
-                role="img"
-                aria-labelledby="risk-chart-title"
-              >
-                <title id="risk-chart-title">
-                  Shanghai to Rotterdam risk rises to 58 percent by day eight.
-                </title>
-                <defs>
-                  <linearGradient id="chart-area" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#7fe7ff" stop-opacity="0.2" />
-                    <stop offset="100%" stop-color="#7fe7ff" stop-opacity="0.01" />
-                  </linearGradient>
-                  <clipPath id="chart-reveal">
-                    <rect id="chart-clip" x="0" y="0" width="300" height="132" />
-                  </clipPath>
-                </defs>
-                <g id="chart-grid" aria-hidden="true"></g>
-                <g clip-path="url(#chart-reveal)">
-                  <path id="chart-area-path" fill="url(#chart-area)" d="" />
-                  <path
-                    id="chart-line"
-                    fill="none"
-                    stroke="#7fe7ff"
-                    stroke-width="1.35"
-                    vector-effect="non-scaling-stroke"
-                    d=""
-                  />
-                </g>
-                <line
-                  id="chart-now-line"
-                  x1="0"
-                  y1="12"
-                  x2="0"
-                  y2="112"
-                  stroke="#f2eee6"
-                  stroke-width="1"
-                  stroke-dasharray="2 4"
-                  opacity="0.42"
-                />
-                <circle id="chart-now" cx="10" cy="112" r="2.7" fill="#7fe7ff" />
-                <circle
-                  id="chart-peak"
-                  cx="10"
-                  cy="12"
-                  r="2.4"
-                  fill="none"
-                  stroke="#f2eee6"
-                  stroke-width="1"
-                  opacity="0.7"
-                />
-              </svg>
-
-              <p class="routes__chart-foot">
-                PEAK <span id="chart-peak-value" class="accent">58%</span>
-                <span id="chart-peak-day">/ DAY 08</span>
-              </p>
-              <p class="sr-only" id="chart-announce" aria-live="polite"></p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <section class="method" id="method" aria-labelledby="method-title">
         <div class="method__inner">
@@ -397,7 +291,7 @@
                 <h3 class="method__step-title">Read the whole atmosphere.</h3>
                 <p class="method__step-body">
                   Four decades of reanalysis, live buoy telemetry and 38,412
-                  tracked assets fold into one field every six hours. Ships
+                  tracked assets feed one field every six hours. Ships
                   report the weather they meet; the model reports the weather
                   they should expect.
                 </p>
@@ -568,7 +462,7 @@
           <div class="signals__foot">
             <p class="signals__note mono">
               <span class="live-dot" aria-hidden="true"></span>
-              NEXT RUN IN 03 H 12 M / 51 MEMBERS READY
+              <span data-next-run>NEXT RUN IN 00 H 00 M 00 S / 51 MEMBERS READY</span>
             </p>
             <button class="signals__replay mono" type="button" data-magnetic data-replay>
               <span class="signals__replay-mark" aria-hidden="true">
@@ -579,6 +473,143 @@
               </span>
               Replay the ensemble run
             </button>
+          </div>
+        </div>
+      </section>
+
+      <section class="routes" id="routes" aria-labelledby="routes-title">
+        <div class="routes__grid">
+          <div class="routes__copy">
+            <h2 class="routes__title" id="routes-title">
+              Every lane has a<br />
+              weather price.
+            </h2>
+            <p class="routes__lede">
+              Meridian lays a fourteen-day ensemble over the network itself —
+              lane by lane, leg by leg. When probability moves, the route
+              re-prices before the vessel does.
+            </p>
+            <p class="routes__note mono">
+              RISK SCORES UPDATE EVERY 6 HOURS / 51 MEMBERS
+            </p>
+          </div>
+
+          <div class="routes__rail">
+            <div class="routes__rail-head mono">
+              <span>LANE SELECTOR</span>
+              <span>51 MEMBERS</span>
+            </div>
+
+            <div class="routes__legend" role="group" aria-label="Choose a shipping lane">
+              <button
+                class="routes__row is-active"
+                type="button"
+                aria-pressed="true"
+                data-route="0"
+              >
+                <span class="mono">R1</span>
+                <span class="routes__ports">Shanghai → Rotterdam</span>
+                <span class="mono routes__risk">Now 34% · peak 58%</span>
+              </button>
+              <button
+                class="routes__row"
+                type="button"
+                aria-pressed="false"
+                data-route="1"
+              >
+                <span class="mono">R2</span>
+                <span class="routes__ports">Singapore → Los Angeles</span>
+                <span class="mono routes__risk">Now 61% · peak 72%</span>
+              </button>
+              <button
+                class="routes__row"
+                type="button"
+                aria-pressed="false"
+                data-route="2"
+              >
+                <span class="mono">R3</span>
+                <span class="routes__ports">Santos → Shanghai</span>
+                <span class="mono routes__risk">Now 52% · peak 61%</span>
+              </button>
+            </div>
+
+            <div
+              class="routes__chart mono"
+              data-cursor-probe="8 DAYS TO IMPACT|MEMBER 17"
+            >
+              <div class="routes__chart-head">
+                <span class="accent">RISK / 14 DAYS</span>
+                <span id="chart-route">Shanghai → Rotterdam</span>
+              </div>
+
+              <div class="routes__chart-meter">
+                <span class="routes__chart-value" aria-hidden="true">
+                  <span id="chart-risk">34</span><span class="routes__chart-unit">%</span>
+                </span>
+                <span class="routes__chart-when" id="chart-when">NOW · DAY 05</span>
+              </div>
+
+              <svg
+                class="routes__chart-svg"
+                id="risk-chart"
+                viewBox="0 0 300 132"
+                role="img"
+                aria-labelledby="risk-chart-title"
+              >
+                <title id="risk-chart-title">
+                  Shanghai to Rotterdam risk is 34 percent now and peaks at 58 percent on day eight.
+                </title>
+                <defs>
+                  <linearGradient id="chart-area" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="#7fe7ff" stop-opacity="0.2" />
+                    <stop offset="100%" stop-color="#7fe7ff" stop-opacity="0.01" />
+                  </linearGradient>
+                  <clipPath id="chart-reveal">
+                    <rect id="chart-clip" x="0" y="0" width="300" height="132" />
+                  </clipPath>
+                </defs>
+                <g id="chart-grid" aria-hidden="true"></g>
+                <g clip-path="url(#chart-reveal)">
+                  <path id="chart-area-path" fill="url(#chart-area)" d="" />
+                  <path
+                    id="chart-line"
+                    fill="none"
+                    stroke="#7fe7ff"
+                    stroke-width="1.35"
+                    vector-effect="non-scaling-stroke"
+                    d=""
+                  />
+                </g>
+                <line
+                  id="chart-now-line"
+                  x1="0"
+                  y1="12"
+                  x2="0"
+                  y2="112"
+                  stroke="#f2eee6"
+                  stroke-width="1"
+                  stroke-dasharray="2 4"
+                  opacity="0.42"
+                />
+                <circle id="chart-now" cx="10" cy="112" r="2.7" fill="#7fe7ff" />
+                <circle
+                  id="chart-peak"
+                  cx="10"
+                  cy="12"
+                  r="2.4"
+                  fill="none"
+                  stroke="#f2eee6"
+                  stroke-width="1"
+                  opacity="0.7"
+                />
+              </svg>
+
+              <p class="routes__chart-foot">
+                PEAK <span id="chart-peak-value" class="accent">58%</span>
+                <span id="chart-peak-day">/ DAY 08</span>
+              </p>
+              <p class="sr-only" id="chart-announce" aria-live="polite"></p>
+            </div>
           </div>
         </div>
       </section>
@@ -798,7 +829,7 @@
           </div>
 
           <div class="gallery__foot mono">
-            <span>Side to scroll / four plates</span>
+            <span>Scroll sideways / four plates</span>
             <span class="gallery__progress">
               <span class="gallery__progress-fill" id="gallery-progress"></span>
             </span>
@@ -915,7 +946,6 @@
               </div>
               <div class="pricing__price">
                 <span class="pricing__amount">0</span>
-                <span class="pricing__currency mono">USD</span>
                 <span class="pricing__period mono">/ seat / month</span>
               </div>
               <p class="pricing__pitch">
@@ -942,14 +972,13 @@
               </div>
               <div class="pricing__price">
                 <span class="pricing__amount">1,900</span>
-                <span class="pricing__currency mono">USD</span>
                 <span class="pricing__period mono">/ fleet / month</span>
               </div>
               <p class="pricing__pitch">
                 For fleets that re-price the network every morning.
               </p>
               <ul class="pricing__features mono">
-                <li>All 3,842 active lanes</li>
+                <li>All 9,204 active lanes</li>
                 <li>Per-leg risk timeline</li>
                 <li>API and webhook push</li>
                 <li>Weather desk on call</li>
@@ -970,7 +999,7 @@
               </div>
               <div class="pricing__price">
                 <span class="pricing__amount pricing__amount--word">Custom</span>
-                <span class="pricing__period mono">/ annual</span>
+                <span class="pricing__period mono">/ month</span>
               </div>
               <p class="pricing__pitch">
                 For operators whose weather is also a regulatory question.
@@ -992,8 +1021,9 @@
           </div>
 
           <p class="pricing__foot mono">
-            Prices in USD. Every plan includes the 06:00 UTC run and the full
-            51-member ensemble.
+            Prices in USD, billed monthly. Watch is per seat, Route per fleet,
+            and Command is a custom monthly quote. Every plan includes the
+            06:00 UTC run and the full 51-member ensemble.
           </p>
         </div>
       </section>
@@ -1028,7 +1058,7 @@
         </div>
 
         <div class="footer__meta mono">
-          <span>51.5074°N 0.1278°W</span>
+          <span data-coord-origin>34.20°N 38.70°W</span>
           <span>14-day horizon / 51 members</span>
           <span>© 2026 Meridian Systems</span>
         </div>

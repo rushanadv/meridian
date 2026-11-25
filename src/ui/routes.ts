@@ -134,6 +134,19 @@ export function initRoutesPanel({ onSelect }: RoutesPanelOptions): void {
 
   buildGrid();
 
+  rows.forEach((row, index) => {
+    const datum = ROUTES[index];
+    if (!datum) return;
+
+    const currentRisk = datum.values[datum.current] ?? 0;
+    const peak = Math.max(...datum.values);
+    const risk = row.querySelector<HTMLElement>(".routes__risk");
+
+    if (risk) {
+      risk.textContent = `Now ${currentRisk}% · peak ${peak}%`;
+    }
+  });
+
   const animate = !reducedMotion.matches;
   let selected = -1;
   const riskProxy = { value: 0 };
@@ -177,8 +190,8 @@ export function initRoutesPanel({ onSelect }: RoutesPanelOptions): void {
     routeOut.textContent = datum.name;
     peakOut.textContent = `${peak}%`;
     peakDayOut.textContent = `/ DAY ${dayLabel(peakIndex)}`;
-    whenOut.textContent = `NOW / DAY ${dayLabel(datum.current)}`;
-    title.textContent = `${datum.spoken} risk peaks at ${peak} percent on day ${peakIndex}.`;
+    whenOut.textContent = `NOW · DAY ${dayLabel(datum.current)}`;
+    title.textContent = `${datum.spoken} risk is ${currentRisk} percent now and peaks at ${peak} percent on day ${peakIndex}.`;
     announce.textContent = `${datum.spoken}: ${currentRisk} percent risk now, peaking at ${peak} percent on day ${peakIndex} of fourteen.`;
 
     const fromRisk = previous

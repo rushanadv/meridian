@@ -1,4 +1,4 @@
-import { initPointer, pointer } from "./lib/pointer";
+import { initPointer } from "./lib/pointer";
 import { initSections } from "./lib/sections";
 import { initScroll } from "./lib/scroll";
 import { choreo } from "./lib/choreography";
@@ -6,8 +6,10 @@ import { initMagnetic } from "./lib/magnetic";
 import { initScramble } from "./lib/scramble";
 import { reducedMotion, ScrollTrigger } from "./lib/motion";
 import { initContent } from "./ui/content";
+import { initCoordinates } from "./ui/coordinates";
 import { initCursor } from "./ui/cursor";
 import { initDayRail } from "./ui/dayRail";
+import { initForecastClock } from "./ui/forecastClock";
 import { initFooter } from "./ui/footer";
 import { initGallery } from "./ui/gallery";
 import { initHud } from "./ui/hud";
@@ -41,31 +43,8 @@ if (canvas instanceof HTMLCanvasElement) {
   }
 }
 
-const coords = document.getElementById("coords");
-
-if (coords) {
-  let lastLabel = "";
-
-  const formatCoordinate = (value: number, positive: string, negative: string) => {
-    const hemisphere = value >= 0 ? positive : negative;
-    return `${Math.abs(value).toFixed(2)}°${hemisphere}`;
-  };
-
-  window.addEventListener(
-    "pointermove",
-    () => {
-      const latitude = 90 - pointer.py * 180;
-      const longitude = pointer.px * 360 - 180;
-      const label = `${formatCoordinate(latitude, "N", "S")} ${formatCoordinate(longitude, "E", "W")}`;
-
-      if (label !== lastLabel) {
-        coords.textContent = label;
-        lastLabel = label;
-      }
-    },
-    { passive: true },
-  );
-}
+initCoordinates(scene);
+initForecastClock();
 
 initCursor({
   isOverGlobe: (clientX, clientY) =>

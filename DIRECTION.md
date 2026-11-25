@@ -186,3 +186,73 @@ At the end of U5, the following should be true:
 3. A captured frame at T−14, midpoint, and T−0 looks like three states of the same run, not three unrelated marketing pages.
 4. Mobile at 390px has no overlay covering copy or controls, no horizontal page overflow, and the rail still communicates the current day.
 5. With reduced motion on, every section is readable, every control works, and the forecast remains legible without scrub animation.
+
+---
+
+# Part B — Production review additions
+
+**Date:** 2026-11-25
+**Status:** direction only; not implemented in the Part A pass.
+**Rule:** these additions extend the existing forecast model. They do not add another narrative layer, another visual system, or a runtime dependency.
+
+## 9. Preloader: assembling the ensemble, not terrain
+
+The current preloader is a timer wearing a percentage. Replace it with the first forecast frame.
+
+- Count `MEMBER 01 / 51` to `MEMBER 51 / 51`. The number is the member being resolved, not a synthetic loading percentage.
+- As members resolve, draw their tracks onto the globe. The last frame of the preloader should already show the ensemble fan at `T−14`; the hero reveal continues that state rather than cutting to a new one.
+- Keep the copy readable if WebGL fails or is still warming. The preloader must complete on a fixed fallback timeline, not wait indefinitely for the scene.
+- Under `prefers-reduced-motion`, jump to `51 / 51`, remove the node immediately, and preserve the hero’s static forecast state.
+- Acceptance: no fake percent, 51 members visibly accounted for, no layout shift when the preloader is removed, and no additional draw calls.
+
+## 10. Seed a storm
+
+Make the globe an input, not only a backdrop.
+
+- Clicking or tapping open ocean sets a provisional genesis point. Show a small coordinate stamp and convert the click with the same ray-sphere method used by the coordinate readout.
+- Once seeded, release 51 member tracks from that point. The live spread and risk readout update from the same ensemble data used elsewhere on the page; do not invent a second storm model.
+- Provide a keyboard alternative: focus the globe, move the genesis crosshair with arrow keys, confirm with Enter, cancel with Escape.
+- Show a short “Reset to Atlantic” control after seeding. Reset returns to `ENSEMBLE_ORIGIN`.
+- Acceptance: works with mouse, touch, and keyboard; no new libraries; the 51-member draw-call budget is unchanged; the action is announced once, not continuously.
+
+## 11. Member 17 bends — replayable proof
+
+The lane view already explains that a route can move. Make the realised member prove it.
+
+- Selecting “member 17” (or scrubbing the forecast) draws the old passage as a dashed ghost and builds the new passage around the storm.
+- ETA, cost, and risk resolve from the same route data and show the delta: `+2 days`, `−$..., ...% risk`. No decorative numbers.
+- Add an explicit replay control; replaying resets the two paths, not the whole page.
+- Keep the route selection keyboard-preserving and announce the changed outcome in the existing live region.
+- Acceptance: one understandable cause-and-effect sequence, replayable without reload, and legible when animation is disabled.
+
+## 12. Time controls
+
+The rail is the page’s clock; it should also be operable without a mouse.
+
+- `←` / `→` scrub one forecast day at a time when the rail or globe has focus.
+- Hold `Space` to fast-forward the remaining countdown; release to stop at the current day.
+- `R` replays the current chapter’s authored sequence (hero fan, route bend, or gallery scrub) without resetting scroll.
+- Show a one-time keyboard hint near the rail, then dismiss it permanently for the session. Do not cover copy or controls.
+- Do not steal arrow keys from route buttons; the controls remain scoped to the focused component.
+- Acceptance: rail, globe, risk values, and section state stay in sync; all controls have visible focus; reduced motion jumps between states instead of scrubbing.
+
+## 13. Request a forecast, in place
+
+Replace the remaining `mailto:` CTAs with an in-site request flow.
+
+- Open a focused overlay from any plan or footer CTA, carrying the chosen plan and horizon into the form.
+- Collect only what the desk needs: name, work email, company, route or basin, and decision lead. Validate inline; never clear the form on error.
+- Trap focus, restore it to the invoking CTA on close, and announce the outcome.
+- On success, show an issued-forecast receipt: forecast ID, chosen lead, desk time, and a human response window. The receipt should feel like the D0 document the page has been building toward.
+- Keep a graceful fallback if the submit endpoint is unavailable; do not silently fail or fall back to a bare mail client.
+- Acceptance: no `mailto:` in primary CTAs, keyboard-only completion works, and the chosen plan survives the round trip.
+
+## Build order and constraints
+
+1. Item 9 first: it establishes the ensemble as the opening state.
+2. Item 10 next: it creates the interaction the hero has promised.
+3. Item 11 then: the seeded storm gives the route bend something to resolve.
+4. Item 12 is global and can ship alongside 10–11, but must not conflict with route arrow keys.
+5. Item 13 lands last and replaces the final transactional gap.
+
+No new runtime libraries. Keep all 51 members on every tier, keep the existing accessibility shell, and preserve the current URL anchors. These are additions to the run, not a second site.

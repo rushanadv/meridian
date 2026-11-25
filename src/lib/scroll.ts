@@ -111,9 +111,9 @@ export function initScroll(): ScrollController {
         veil: 1,
         ease: "none",
         scrollTrigger: {
-          trigger: "#method",
-          start: "top 32%",
-          end: "top top",
+          trigger: "#gallery",
+          start: "top 85%",
+          end: "top 35%",
           scrub: 0.6,
           invalidateOnRefresh: true,
         },
