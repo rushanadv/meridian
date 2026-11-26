@@ -61,24 +61,33 @@
     <canvas id="webgl" aria-hidden="true"></canvas>
     <canvas id="dissolve" class="dissolve" aria-hidden="true"></canvas>
 
-    <div class="preloader" id="preloader" role="status" aria-label="Loading Meridian planetary model">
-      <div class="preloader__head mono" aria-hidden="true">
-        <span>MERIDIAN / ATMOSPHERIC INTELLIGENCE</span>
-        <span data-coord-origin>34.20°N&nbsp;&nbsp;38.70°W</span>
-      </div>
-      <div class="preloader__body" aria-hidden="true">
-        <span class="preloader__label mono">ASSEMBLING TERRAIN</span>
-        <span class="preloader__meter" aria-hidden="true">
-          <span class="preloader__count" id="load-count">000</span>
-          <span class="preloader__unit mono">%</span>
-        </span>
-      </div>
-      <div class="preloader__bar" aria-hidden="true">
-        <span id="load-bar"></span>
-      </div>
-      <div class="preloader__foot mono" aria-hidden="true">
-        <span>DOT MATRIX / 38° PARALLEL</span>
-        <span>ENV — LIVE MODEL</span>
+    <div
+      class="preloader"
+      id="preloader"
+      role="status"
+      aria-label="Assembling the fifty-one member ensemble"
+    >
+      <div class="preloader__scrim" aria-hidden="true"></div>
+      <div class="preloader__frame">
+        <div class="preloader__head mono" aria-hidden="true">
+          <span>MERIDIAN / ATMOSPHERIC INTELLIGENCE</span>
+          <span id="load-compact">MEMBER 01 / 51</span>
+        </div>
+
+        <div class="preloader__member" aria-hidden="true">
+          <span class="preloader__member-kicker mono">Member</span>
+          <span class="preloader__member-count" id="load-count">01</span>
+          <span class="preloader__member-total mono">/ 51</span>
+        </div>
+
+        <div class="preloader__bar" aria-hidden="true">
+          <span id="load-bar"></span>
+        </div>
+
+        <div class="preloader__foot mono" aria-hidden="true">
+          <span>ASSEMBLING ENSEMBLE</span>
+          <span>DOT MATRIX / 06:00 UTC RUN</span>
+        </div>
       </div>
     </div>
 
@@ -120,14 +129,13 @@
       <div class="menu__inner">
         <div class="menu__head mono">
           <span>FORECAST PROGRAM / MERIDIAN</span>
-          <span data-section-count>09 Chapters</span>
+          <span data-section-count>05 Chapters</span>
         </div>
 
         <nav class="menu__nav" aria-label="Site index"></nav>
 
         <aside class="menu__aside mono">
           <p>14-DAY HORIZON<br />51 ENSEMBLE MEMBERS</p>
-          <p class="menu__coords" data-coord-origin>34.20°N 38.70°W</p>
         </aside>
       </div>
     </div>
@@ -138,7 +146,13 @@
       <section class="hero" id="hero" aria-labelledby="hero-headline">
         <div class="hero__top mono">
           <span class="hero__run" data-model-run>Model run / 06:00 UTC / 51 members</span>
-          <span class="hero__coords" id="coords" aria-live="off" data-coord-origin>34.20°N 38.70°W</span>
+          <span
+            class="hero__coords"
+            id="coords"
+            data-probe
+            data-probe-idle="PROBE / MOVE OVER GLOBE"
+            aria-live="off"
+          >PROBE / MOVE OVER GLOBE</span>
         </div>
 
         <div class="hero__statement">
@@ -162,8 +176,8 @@
         <div class="hero__horizon">
           <span class="hero__horizon-kicker mono">Days to impact</span>
           <div class="hero__horizon-figure">
-            <span class="hero__horizon-value">14</span>
-            <span class="hero__horizon-unit mono">Days</span>
+            <span class="hero__horizon-value" id="hero-day">14</span>
+            <span class="hero__horizon-unit mono" id="hero-day-unit">Days</span>
           </div>
           <p class="hero__horizon-meta mono">
             <span class="accent">51</span> possible futures<br />
@@ -184,302 +198,98 @@
         </div>
       </section>
 
-      <section class="problem" id="problem" aria-labelledby="problem-title">
+<section class="problem" id="problem" aria-labelledby="problem-title">
         <div class="problem__inner">
-          <div class="problem__lead">
-            <h2 class="problem__statement" id="problem-title">
-              <span class="problem__word">Wind</span>
-              <span class="problem__word">does</span>
-              <span class="problem__word">not</span>
-              <span class="problem__word">care</span>
-              <span class="problem__word">about</span>
-              <span class="problem__word">your</span>
-              <span class="problem__word">schedule.</span>
-              <span class="problem__word">A</span>
-              <span class="problem__word problem__word--key">forty-knot</span>
-              <span class="problem__word">crosswind</span>
-              <span class="problem__word">closes</span>
-              <span class="problem__word">a</span>
-              <span class="problem__word">port.</span>
-              <span class="problem__word">A</span>
-              <span class="problem__word">swell</span>
-              <span class="problem__word problem__word--key">two</span>
-              <span class="problem__word">oceans</span>
-              <span class="problem__word problem__word--key">away</span>
-              <span class="problem__word">rewrites</span>
-              <span class="problem__word">a</span>
-              <span class="problem__word">delivery</span>
-              <span class="problem__word">window.</span>
-              <span class="problem__word">By</span>
-              <span class="problem__word">the</span>
-              <span class="problem__word">time</span>
-              <span class="problem__word">the</span>
-              <span class="problem__word">forecast</span>
-              <span class="problem__word">is</span>
-              <span class="problem__word">obvious,</span>
-              <span class="problem__word">the</span>
-              <span class="problem__word">cost</span>
-              <span class="problem__word">is</span>
-              <span class="problem__word problem__word--key">already</span>
-              <span class="problem__word">booked.</span>
-            </h2>
+          <div class="problem__stage" aria-hidden="true"></div>
 
-            <div class="problem__meta mono" aria-label="Storm cell data">
-              <div class="problem__meta-head">
-                <span class="accent">SYSTEM SNAPSHOT</span>
-                <span data-coord-origin>34.20°N 38.70°W</span>
-              </div>
-              <div class="problem__meta-row">
-                <span>FORECAST</span>
-                <span>14 DAYS</span>
-              </div>
-              <div class="problem__meta-row">
-                <span>ENSEMBLE</span>
-                <span>51 MEMBERS</span>
-              </div>
-              <div class="problem__meta-row">
-                <span>LANE IMPACT</span>
-                <span>3 ROUTES</span>
-              </div>
-              <div class="problem__meta-row">
-                <span>CONFIDENCE</span>
-                <span class="accent">82%</span>
-              </div>
-            </div>
+          <div class="problem__lead">
+            <p class="problem__index mono">
+              <span class="problem__rule" aria-hidden="true"></span>
+              02 / Storm · D11–D08
+            </p>
+
+            <h2 class="problem__statement" id="problem-title">
+              <span class="problem__sentence" data-sentence="0"
+                >A forty-knot crosswind closes a port.</span
+              >
+              <span class="problem__sentence" data-sentence="1"
+                >A swell two oceans away rewrites a delivery.</span
+              >
+              <span class="problem__sentence" data-sentence="2"
+                >By the time it is obvious, the cost is booked.</span
+              >
+            </h2>
 
             <p class="problem__note mono">
               Forecasts arrive as probabilities. Losses arrive as invoices.
             </p>
-
-            <ol class="problem__states mono">
-              <li class="is-active" data-hud-state>
-                <span>01</span>
-                Orbit
-              </li>
-              <li data-hud-state>
-                <span>02</span>
-                Storm
-              </li>
-              <li data-hud-state>
-                <span>03</span>
-                Lanes
-              </li>
-            </ol>
-          </div>
-        </div>
-      </section>
-
-
-
-      <section class="method" id="method" aria-labelledby="method-title">
-        <div class="method__inner">
-          <div class="method__head">
-            <h2 class="method__title" id="method-title">
-              Weather becomes a decision in three moves.
-            </h2>
           </div>
 
-          <p class="method__lede">
-            No black box. Meridian ingests the atmosphere, resolves fifty-one
-            plausible futures, then re-prices the lanes those futures touch.
-          </p>
+          <aside class="storm-hud" aria-labelledby="storm-hud-title">
+            <div class="storm-hud__head">
+              <h3 class="storm-hud__title mono" id="storm-hud-title">
+                <span class="accent">LIVE SYSTEM / ADA-07</span>
+              </h3>
+              <p class="storm-hud__stamp mono">
+                <span data-hud="day">D11</span>
+                <span>LIVE FIELD</span>
+              </p>
+            </div>
 
-          <ol class="method__steps">
-            <li class="method__step">
-              <span class="method__num mono" data-scramble>01 / Ingest</span>
-              <div class="method__copy">
-                <h3 class="method__step-title">Read the whole atmosphere.</h3>
-                <p class="method__step-body">
-                  Four decades of reanalysis, live buoy telemetry and 38,412
-                  tracked assets feed one field every six hours. Ships
-                  report the weather they meet; the model reports the weather
-                  they should expect.
-                </p>
+            <div class="storm-hud__grid">
+              <div class="storm-hud__cell">
+                <span class="storm-hud__label mono">Lead time</span>
+                <span class="storm-hud__value">
+                  <span data-hud="lead">11</span>
+                  <span class="storm-hud__unit">days</span>
+                </span>
+                <span class="storm-hud__bar" aria-hidden="true"><i data-hud-bar-lead></i></span>
               </div>
-              <figure class="method__viz" aria-hidden="true">
-                <svg viewBox="0 0 320 200" fill="none">
-                  <g class="viz-grid" stroke="currentColor">
-                    <line x1="30" y1="40" x2="290" y2="40" />
-                    <line x1="30" y1="100" x2="290" y2="100" />
-                    <line x1="30" y1="160" x2="290" y2="160" />
-                    <line x1="80" y1="24" x2="80" y2="176" />
-                    <line x1="160" y1="24" x2="160" y2="176" />
-                    <line x1="240" y1="24" x2="240" y2="176" />
-                  </g>
-                  <g class="viz-radar" stroke="#7fe7ff">
-                    <circle cx="160" cy="100" r="74" opacity="0.42" />
-                    <circle cx="160" cy="100" r="47" opacity="0.3" />
-                    <circle cx="160" cy="100" r="19" opacity="0.65" />
-                    <line class="viz-sweep" x1="160" y1="100" x2="160" y2="26" />
-                  </g>
-                  <g fill="#7fe7ff" class="viz-blips">
-                    <circle cx="112" cy="66" r="1.6" style="--d: 0s" />
-                    <circle cx="204" cy="58" r="2.2" style="--d: 1.1s" />
-                    <circle cx="232" cy="124" r="1.5" style="--d: 2.2s" />
-                    <circle cx="120" cy="142" r="1.9" style="--d: 0.7s" />
-                    <circle cx="184" cy="108" r="1.4" style="--d: 1.8s" />
-                  </g>
-                  <path
-                    class="viz-draw viz-horizon"
-                    d="M22 158 Q160 82 298 158"
-                    stroke="#f2eee6"
-                    stroke-opacity="0.36"
-                    stroke-dasharray="3 6"
-                  />
-                </svg>
-                <figcaption class="method__viz-caption mono">
-                  REANALYSIS · BUOY · AIS
-                </figcaption>
-              </figure>
-            </li>
-
-            <li class="method__step">
-              <span class="method__num mono" data-scramble>02 / Resolve</span>
-              <div class="method__copy">
-                <h3 class="method__step-title">Run the ensemble, not the guess.</h3>
-                <p class="method__step-body">
-                  Fifty-one members diverge on purpose. The spread shows where
-                  confidence ends and where a thirty-knot crosswind begins,
-                  turning one forecast into a field of honest probabilities.
-                </p>
+              <div class="storm-hud__cell">
+                <span class="storm-hud__label mono">Ensemble</span>
+                <span class="storm-hud__value">
+                  <span data-hud="members">51</span>
+                  <span class="storm-hud__unit">members</span>
+                </span>
+                <span class="storm-hud__sub mono" data-hud="spread-label">Spread 0.75</span>
               </div>
-              <figure
-                class="method__viz"
-                aria-hidden="true"
-                data-cursor-probe="14 DAYS TO IMPACT|51 MEMBERS"
-              >
-                <svg viewBox="0 0 320 200" fill="none" id="viz-fan-svg">
-                  <g class="viz-grid" stroke="currentColor">
-                    <line x1="24" y1="100" x2="300" y2="100" />
-                    <line x1="24" y1="36" x2="24" y2="164" />
-                  </g>
-                  <g id="viz-fan" stroke="#7fe7ff"></g>
-                  <path
-                    id="viz-fan-core"
-                    d="M24 100 C 120 100 190 88 300 72"
-                    stroke="#f2eee6"
-                    stroke-width="1.2"
-                    fill="none"
-                    opacity="0.8"
-                  />
-                  <circle cx="24" cy="100" r="2.4" fill="#7fe7ff" />
-                </svg>
-                <figcaption class="method__viz-caption mono">
-                  51 MEMBERS · 14 DAYS · 6 HOURS
-                </figcaption>
-              </figure>
-            </li>
-
-            <li class="method__step">
-              <span class="method__num mono" data-scramble>03 / Reroute</span>
-              <div class="method__copy">
-                <h3 class="method__step-title">Price the lane before the vessel.</h3>
-                <p class="method__step-body">
-                  Every probability maps to a lane, a leg and a delivery window.
-                  The route bends before the port closes — and the invoice
-                  arrives with a number attached to the weather.
-                </p>
+              <div class="storm-hud__cell">
+                <span class="storm-hud__label mono">Assets exposed</span>
+                <span class="storm-hud__value">
+                  <span data-hud="exposed">14,477</span>
+                  <span class="storm-hud__unit">/ 38,412</span>
+                </span>
+                <span class="storm-hud__bar" aria-hidden="true"><i data-hud-bar-assets></i></span>
               </div>
-              <figure class="method__viz" aria-hidden="true">
-                <svg viewBox="0 0 320 200" fill="none">
-                  <g class="viz-grid" stroke="currentColor">
-                    <line x1="28" y1="46" x2="292" y2="46" />
-                    <line x1="28" y1="154" x2="292" y2="154" />
-                  </g>
-                  <g class="viz-vortex" stroke="#7fe7ff">
-                    <ellipse cx="224" cy="96" rx="66" ry="26" transform="rotate(-16 224 96)" opacity="0.42" />
-                    <ellipse cx="224" cy="96" rx="44" ry="16" transform="rotate(-16 224 96)" opacity="0.3" />
-                    <ellipse cx="224" cy="96" rx="22" ry="8" transform="rotate(-16 224 96)" opacity="0.55" />
-                  </g>
-                  <path
-                    class="viz-draw viz-old"
-                    d="M18 128 L302 84"
-                    stroke="#f2eee6"
-                    stroke-opacity="0.3"
-                    stroke-dasharray="4 7"
-                  />
-                  <path
-                    class="viz-draw viz-new"
-                    d="M18 128 C 84 128 96 48 176 42 S 276 48 302 84"
-                    stroke="#7fe7ff"
-                    stroke-width="1.4"
-                  />
-                  <circle class="viz-end" cx="302" cy="84" r="2.6" fill="#7fe7ff" />
-                  <circle class="viz-end-pulse" cx="302" cy="84" r="6" stroke="#7fe7ff" opacity="0.4" />
-                </svg>
-                <figcaption class="method__viz-caption mono">
-                  OLD LANE · NEW LANE · STORM
-                </figcaption>
-              </figure>
-            </li>
-          </ol>
-
-          <p class="method__foot mono">
-            <span>PIPELINE / 6 HOURS</span>
-            <span>NO BLACK BOX · EVERY MEMBER AUDITABLE</span>
-          </p>
-        </div>
-      </section>
-
-      <section class="signals" id="signals" aria-labelledby="signals-title">
-        <div class="signals__inner">
-          <div class="signals__head">
-            <h2 class="signals__title" id="signals-title">
-              The model, in four numbers.
-            </h2>
-            <p class="signals__lede">
-              Updated 06:00 UTC. Every figure below is a probability, not a
-              promise — refreshed with the next ensemble run.
+              <div class="storm-hud__cell">
+                <span class="storm-hud__label mono">Disruption recall</span>
+                <span class="storm-hud__value">
+                  <span data-hud="recall">88</span>
+                  <span class="storm-hud__unit">%</span>
+                </span>
+                <span class="storm-hud__bar" aria-hidden="true"><i data-hud-bar-recall></i></span>
+              </div>
+            </div>
+            <p class="storm-hud__caption mono">
+              <span>Storm field <span data-hud="risk">38%</span></span>
+              <span>142 kt / 921 hPa</span>
             </p>
-          </div>
-
-          <div class="signals__grid">
-            <article class="signals__item signals__item--wide" aria-label="14 days ahead">
-              <span class="signals__value" data-count="14" aria-hidden="true">14</span>
-              <span class="signals__unit mono" aria-hidden="true">DAYS</span>
-              <p class="signals__label mono" data-scramble>Ahead of the weather</p>
-            </article>
-
-            <article class="signals__item" aria-label="51 ensemble members">
-              <span class="signals__value" data-count="51" aria-hidden="true">51</span>
-              <span class="signals__unit mono" aria-hidden="true">MEMBERS</span>
-              <p class="signals__label mono" data-scramble>Per ensemble run</p>
-            </article>
-
-            <article class="signals__item" aria-label="38,412 assets tracked">
-              <span class="signals__value" data-count="38412" data-format="comma" aria-hidden="true">38,412</span>
-              <span class="signals__unit mono" aria-hidden="true">ASSETS</span>
-              <p class="signals__label mono" data-scramble>Tracked right now</p>
-            </article>
-
-            <article class="signals__item signals__item--wide" aria-label="92 percent disruption recall">
-              <span class="signals__value" data-count="92" aria-hidden="true">92</span>
-              <span class="signals__unit mono" aria-hidden="true">PERCENT</span>
-              <p class="signals__label mono" data-scramble>Disruption recall</p>
-            </article>
-          </div>
-
-          <div class="signals__foot">
-            <p class="signals__note mono">
+            <p class="storm-hud__foot mono">
               <span class="live-dot" aria-hidden="true"></span>
               <span data-next-run>NEXT RUN IN 00 H 00 M 00 S / 51 MEMBERS READY</span>
             </p>
-            <button class="signals__replay mono" type="button" data-magnetic data-replay>
-              <span class="signals__replay-mark" aria-hidden="true">
-                <svg viewBox="0 0 20 20" fill="none">
-                  <path d="M16 10a6 6 0 1 1-1.8-4.3" stroke="currentColor" stroke-width="1.2" />
-                  <path d="M16 4v3.6h-3.6" stroke="currentColor" stroke-width="1.2" />
-                </svg>
-              </span>
-              Replay the ensemble run
-            </button>
-          </div>
+            <p class="storm-hud__hint mono">Hover / tap the cyclone to perturb</p>
+          </aside>
         </div>
       </section>
 
       <section class="routes" id="routes" aria-labelledby="routes-title">
         <div class="routes__grid">
-          <div class="routes__copy">
+          <div class="routes__head">
+            <p class="routes__index mono">
+              <span class="routes__rule" aria-hidden="true"></span>
+              03 / Lanes · D07–D03
+            </p>
             <h2 class="routes__title" id="routes-title">
               Every lane has a<br />
               weather price.
@@ -489,452 +299,245 @@
               lane by lane, leg by leg. When probability moves, the route
               re-prices before the vessel does.
             </p>
-            <p class="routes__note mono">
-              RISK SCORES UPDATE EVERY 6 HOURS / 51 MEMBERS
-            </p>
           </div>
 
-          <div class="routes__rail">
-            <div class="routes__rail-head mono">
-              <span>LANE SELECTOR</span>
-              <span>51 MEMBERS</span>
+          <div class="routes__instrument">
+            <div class="routes__captions" role="group" aria-label="Lane process">
+              <article class="routes__caption is-active" data-caption="0">
+                <p class="routes__caption-num mono">01 / Ingest</p>
+                <h3 class="routes__caption-title">
+                  Read the whole atmosphere.
+                </h3>
+                <p class="routes__caption-body">
+                  Four decades of reanalysis, live buoy telemetry and 38,412
+                  tracked assets feed one field every six hours. Ships report
+                  the weather they meet; the model reports the weather they
+                  should expect.
+                </p>
+              </article>
+
+              <article class="routes__caption" data-caption="1">
+                <p class="routes__caption-num mono">02 / Resolve</p>
+                <h3 class="routes__caption-title">
+                  Run the ensemble, not the guess.
+                </h3>
+                <p class="routes__caption-body">
+                  Fifty-one members diverge on purpose. The spread shows where
+                  confidence ends and where a thirty-knot crosswind begins,
+                  turning one forecast into a field of honest probabilities.
+                </p>
+              </article>
+
+              <article class="routes__caption" data-caption="2">
+                <p class="routes__caption-num mono">03 / Reroute</p>
+                <h3 class="routes__caption-title">
+                  Price the lane before the vessel.
+                </h3>
+                <p class="routes__caption-body">
+                  Every probability maps to a lane, a leg and a delivery window.
+                  The route bends before the port closes — and the invoice
+                  arrives with a number attached to the weather.
+                </p>
+              </article>
+
+              <p class="sr-only" id="routes-caption-status" aria-live="polite"></p>
             </div>
 
-            <div class="routes__legend" role="group" aria-label="Choose a shipping lane">
-              <button
-                class="routes__row is-active"
-                type="button"
-                aria-pressed="true"
-                data-route="0"
-              >
-                <span class="mono">R1</span>
-                <span class="routes__ports">Shanghai → Rotterdam</span>
-                <span class="mono routes__risk">Now 34% · peak 58%</span>
-              </button>
-              <button
-                class="routes__row"
-                type="button"
-                aria-pressed="false"
-                data-route="1"
-              >
-                <span class="mono">R2</span>
-                <span class="routes__ports">Singapore → Los Angeles</span>
-                <span class="mono routes__risk">Now 61% · peak 72%</span>
-              </button>
-              <button
-                class="routes__row"
-                type="button"
-                aria-pressed="false"
-                data-route="2"
-              >
-                <span class="mono">R3</span>
-                <span class="routes__ports">Santos → Shanghai</span>
-                <span class="mono routes__risk">Now 52% · peak 61%</span>
-              </button>
-            </div>
-
-            <div
-              class="routes__chart mono"
-              data-cursor-probe="8 DAYS TO IMPACT|MEMBER 17"
-            >
-              <div class="routes__chart-head">
-                <span class="accent">RISK / 14 DAYS</span>
-                <span id="chart-route">Shanghai → Rotterdam</span>
+            <div class="routes__rail">
+              <div class="routes__rail-head mono">
+                <span>LANE SELECTOR</span>
+                <span>51 MEMBERS</span>
               </div>
 
-              <div class="routes__chart-meter">
-                <span class="routes__chart-value" aria-hidden="true">
-                  <span id="chart-risk">34</span><span class="routes__chart-unit">%</span>
-                </span>
-                <span class="routes__chart-when" id="chart-when">NOW · DAY 05</span>
+              <div class="routes__legend" role="group" aria-label="Choose a shipping lane">
+                <button
+                  class="routes__row is-active"
+                  type="button"
+                  aria-pressed="true"
+                  data-route="0"
+                >
+                  <span class="mono">R1</span>
+                  <span class="routes__ports">Shanghai → Rotterdam</span>
+                  <span class="mono routes__risk">Now 34% · peak 58%</span>
+                </button>
+                <button
+                  class="routes__row"
+                  type="button"
+                  aria-pressed="false"
+                  data-route="1"
+                >
+                  <span class="mono">R2</span>
+                  <span class="routes__ports">Singapore → Los Angeles</span>
+                  <span class="mono routes__risk">Now 61% · peak 72%</span>
+                </button>
+                <button
+                  class="routes__row"
+                  type="button"
+                  aria-pressed="false"
+                  data-route="2"
+                >
+                  <span class="mono">R3</span>
+                  <span class="routes__ports">Santos → Shanghai</span>
+                  <span class="mono routes__risk">Now 52% · peak 61%</span>
+                </button>
               </div>
 
-              <svg
-                class="routes__chart-svg"
-                id="risk-chart"
-                viewBox="0 0 300 132"
-                role="img"
-                aria-labelledby="risk-chart-title"
+              <div
+                class="routes__chart mono"
+                data-cursor-probe="8 DAYS TO IMPACT|MEMBER 17"
               >
-                <title id="risk-chart-title">
-                  Shanghai to Rotterdam risk is 34 percent now and peaks at 58 percent on day eight.
-                </title>
-                <defs>
-                  <linearGradient id="chart-area" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stop-color="#7fe7ff" stop-opacity="0.2" />
-                    <stop offset="100%" stop-color="#7fe7ff" stop-opacity="0.01" />
-                  </linearGradient>
-                  <clipPath id="chart-reveal">
-                    <rect id="chart-clip" x="0" y="0" width="300" height="132" />
-                  </clipPath>
-                </defs>
-                <g id="chart-grid" aria-hidden="true"></g>
-                <g clip-path="url(#chart-reveal)">
-                  <path id="chart-area-path" fill="url(#chart-area)" d="" />
-                  <path
-                    id="chart-line"
-                    fill="none"
-                    stroke="#7fe7ff"
-                    stroke-width="1.35"
-                    vector-effect="non-scaling-stroke"
-                    d=""
+                <div class="routes__chart-head">
+                  <span class="accent">RISK / 14 DAYS</span>
+                  <span id="chart-route">Shanghai → Rotterdam</span>
+                </div>
+
+                <div class="routes__chart-meter">
+                  <span class="routes__chart-value" aria-hidden="true">
+                    <span id="chart-risk">34</span><span class="routes__chart-unit">%</span>
+                  </span>
+                  <span class="routes__chart-when" id="chart-when">NOW · DAY 05</span>
+                </div>
+
+                <svg
+                  class="routes__chart-svg"
+                  id="risk-chart"
+                  viewBox="0 0 300 132"
+                  role="img"
+                  aria-labelledby="risk-chart-title"
+                >
+                  <title id="risk-chart-title">
+                    Shanghai to Rotterdam risk is 34 percent now and peaks at 58 percent on day eight.
+                  </title>
+                  <defs>
+                    <linearGradient id="chart-area" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#7fe7ff" stop-opacity="0.2" />
+                      <stop offset="100%" stop-color="#7fe7ff" stop-opacity="0.01" />
+                    </linearGradient>
+                    <clipPath id="chart-reveal">
+                      <rect id="chart-clip" x="0" y="0" width="300" height="132" />
+                    </clipPath>
+                  </defs>
+                  <g id="chart-grid" aria-hidden="true"></g>
+                  <g clip-path="url(#chart-reveal)">
+                    <path id="chart-area-path" fill="url(#chart-area)" d="" />
+                    <path
+                      id="chart-line"
+                      fill="none"
+                      stroke="#7fe7ff"
+                      stroke-width="1.35"
+                      vector-effect="non-scaling-stroke"
+                      d=""
+                    />
+                  </g>
+                  <line
+                    id="chart-now-line"
+                    x1="0"
+                    y1="12"
+                    x2="0"
+                    y2="112"
+                    stroke="#f2eee6"
+                    stroke-width="1"
+                    stroke-dasharray="2 4"
+                    opacity="0.42"
                   />
-                </g>
-                <line
-                  id="chart-now-line"
-                  x1="0"
-                  y1="12"
-                  x2="0"
-                  y2="112"
-                  stroke="#f2eee6"
-                  stroke-width="1"
-                  stroke-dasharray="2 4"
-                  opacity="0.42"
-                />
-                <circle id="chart-now" cx="10" cy="112" r="2.7" fill="#7fe7ff" />
-                <circle
-                  id="chart-peak"
-                  cx="10"
-                  cy="12"
-                  r="2.4"
-                  fill="none"
-                  stroke="#f2eee6"
-                  stroke-width="1"
-                  opacity="0.7"
-                />
-              </svg>
+                  <circle id="chart-now" cx="10" cy="112" r="2.7" fill="#7fe7ff" />
+                  <circle
+                    id="chart-peak"
+                    cx="10"
+                    cy="12"
+                    r="2.4"
+                    fill="none"
+                    stroke="#f2eee6"
+                    stroke-width="1"
+                    opacity="0.7"
+                  />
+                </svg>
 
-              <p class="routes__chart-foot">
-                PEAK <span id="chart-peak-value" class="accent">58%</span>
-                <span id="chart-peak-day">/ DAY 08</span>
-              </p>
-              <p class="sr-only" id="chart-announce" aria-live="polite"></p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="gallery" id="gallery" aria-labelledby="gallery-title">
-        <div class="gallery__inner">
-          <div class="gallery__head">
-            <h2 class="gallery__title" id="gallery-title">
-              Four ways weather becomes a number.
-            </h2>
-            <p class="gallery__lede">
-              Plates from the model room. Each one turns an atmospheric
-              probability into something a fleet can act on before the weather
-              arrives.
-            </p>
-          </div>
-
-          <div
-            class="gallery__viewport"
-            id="gallery-viewport"
-            role="region"
-            tabindex="0"
-            aria-label="Field notes feature gallery"
-          >
-            <div class="gallery__track" id="gallery-track">
-              <article class="gallery__card" data-tilt aria-labelledby="plate-storm">
-                <div class="gallery__plate" aria-hidden="true">
-                  <svg viewBox="0 0 400 300" fill="none">
-                    <g class="gallery__grid" stroke="currentColor">
-                      <line x1="26" y1="66" x2="374" y2="66" />
-                      <line x1="26" y1="134" x2="374" y2="134" />
-                      <line x1="26" y1="202" x2="374" y2="202" />
-                      <line x1="118" y1="30" x2="118" y2="270" />
-                      <line x1="202" y1="30" x2="202" y2="270" />
-                      <line x1="286" y1="30" x2="286" y2="270" />
-                    </g>
-                    <path
-                      d="M22 156 C 88 118 150 198 214 150 S 338 104 378 138"
-                      stroke="#7fe7ff"
-                      stroke-width="1.6"
-                    />
-                    <path
-                      d="M22 170 C 88 132 150 212 214 164 S 338 118 378 152"
-                      stroke="#7fe7ff"
-                      stroke-opacity="0.55"
-                      stroke-width="1"
-                    />
-                    <path
-                      d="M22 184 C 88 146 150 226 214 178 S 338 132 378 166"
-                      stroke="#7fe7ff"
-                      stroke-opacity="0.3"
-                      stroke-width="0.8"
-                    />
-                    <circle
-                      cx="268"
-                      cy="150"
-                      r="46"
-                      stroke="#f2eee6"
-                      stroke-opacity="0.28"
-                      stroke-dasharray="3 6"
-                    />
-                    <path d="M268 150 L268 104" stroke="#7fe7ff" stroke-opacity="0.6" />
-                    <circle cx="268" cy="150" r="5" fill="#7fe7ff" />
-                  </svg>
-                </div>
-                <div class="gallery__body">
-                  <div class="gallery__meta mono">
-                    <span>Plate 01</span>
-                    <span>Storm</span>
-                  </div>
-                  <h3 class="gallery__card-title" id="plate-storm">The edge, not the eye.</h3>
-                  <p class="gallery__copy">
-                    A cyclone's dangerous quadrant is a moving band. Meridian
-                    prices the edge hour by hour, so a route can widen before
-                    it has to divert.
-                  </p>
-                  <p class="gallery__note mono">North Atlantic / 14 days / 51 members</p>
-                </div>
-                <span class="gallery__glare" aria-hidden="true"></span>
-              </article>
-
-              <article class="gallery__card" data-tilt aria-labelledby="plate-ports">
-                <div class="gallery__plate" aria-hidden="true">
-                  <svg viewBox="0 0 400 300" fill="none">
-                    <g class="gallery__grid" stroke="currentColor">
-                      <line x1="26" y1="70" x2="374" y2="70" />
-                      <line x1="26" y1="150" x2="374" y2="150" />
-                      <line x1="26" y1="230" x2="374" y2="230" />
-                    </g>
-                    <path
-                      d="M36 238 A 164 164 0 0 1 364 238"
-                      stroke="#7fe7ff"
-                      stroke-opacity="0.45"
-                    />
-                    <path
-                      d="M78 238 A 122 122 0 0 1 322 238"
-                      stroke="#7fe7ff"
-                      stroke-opacity="0.24"
-                    />
-                    <g stroke="#7fe7ff" stroke-opacity="0.5">
-                      <line x1="76" y1="238" x2="76" y2="184" />
-                      <line x1="112" y1="238" x2="112" y2="158" />
-                      <line x1="148" y1="238" x2="148" y2="196" />
-                      <line x1="184" y1="238" x2="184" y2="128" />
-                      <line x1="220" y1="238" x2="220" y2="104" />
-                      <line x1="256" y1="238" x2="256" y2="142" />
-                      <line x1="292" y1="238" x2="292" y2="170" />
-                      <line x1="328" y1="238" x2="328" y2="198" />
-                    </g>
-                    <path d="M200 238 L200 76" stroke="#f2eee6" stroke-opacity="0.34" stroke-dasharray="2 5" />
-                    <circle cx="200" cy="238" r="5" fill="#7fe7ff" />
-                    <circle cx="184" cy="128" r="3" fill="#7fe7ff" />
-                  </svg>
-                </div>
-                <div class="gallery__body">
-                  <div class="gallery__meta mono">
-                    <span>Plate 02</span>
-                    <span>Ports</span>
-                  </div>
-                  <h3 class="gallery__card-title" id="plate-ports">Berth queues cast a shadow.</h3>
-                  <p class="gallery__copy">
-                    Port pressure builds days before congestion appears. The
-                    model reads pilot boards, swell and berth depth together,
-                    then puts a number on the wait.
-                  </p>
-                  <p class="gallery__note mono">Rotterdam / pressure 0.81 / 6-hour refresh</p>
-                </div>
-                <span class="gallery__glare" aria-hidden="true"></span>
-              </article>
-
-              <article class="gallery__card" data-tilt aria-labelledby="plate-drift">
-                <div class="gallery__plate" aria-hidden="true">
-                  <svg viewBox="0 0 400 300" fill="none">
-                    <g class="gallery__grid" stroke="currentColor">
-                      <line x1="26" y1="84" x2="374" y2="84" />
-                      <line x1="26" y1="216" x2="374" y2="216" />
-                      <line x1="200" y1="30" x2="200" y2="270" />
-                    </g>
-                    <path
-                      d="M24 220 L376 118"
-                      stroke="#f2eee6"
-                      stroke-opacity="0.28"
-                      stroke-dasharray="4 7"
-                    />
-                    <path
-                      d="M24 220 C 120 214 150 112 228 104 S 330 96 376 118"
-                      stroke="#7fe7ff"
-                      stroke-width="1.5"
-                    />
-                    <circle cx="24" cy="220" r="4.5" fill="#7fe7ff" />
-                    <circle cx="376" cy="118" r="4.5" fill="#f2eee6" />
-                    <circle cx="228" cy="104" r="2.5" fill="#7fe7ff" />
-                    <path d="M228 104 L228 84" stroke="#7fe7ff" stroke-opacity="0.55" />
-                  </svg>
-                </div>
-                <div class="gallery__body">
-                  <div class="gallery__meta mono">
-                    <span>Plate 03</span>
-                    <span>Drift</span>
-                  </div>
-                  <h3 class="gallery__card-title" id="plate-drift">One degree is a delivery window.</h3>
-                  <p class="gallery__copy">
-                    Small course errors compound. A five-degree lane drift can
-                    add two days and a demurrage claim; the model prices both
-                    before the master signs the passage plan.
-                  </p>
-                  <p class="gallery__note mono">North Pacific / drift −4.8° / margin 38 hours</p>
-                </div>
-                <span class="gallery__glare" aria-hidden="true"></span>
-              </article>
-
-              <article class="gallery__card" data-tilt aria-labelledby="plate-fleet">
-                <div class="gallery__plate" aria-hidden="true">
-                  <svg viewBox="0 0 400 300" fill="none">
-                    <g class="gallery__grid" stroke="currentColor">
-                      <line x1="26" y1="64" x2="374" y2="64" />
-                      <line x1="26" y1="150" x2="374" y2="150" />
-                      <line x1="26" y1="236" x2="374" y2="236" />
-                      <line x1="100" y1="30" x2="100" y2="270" />
-                      <line x1="200" y1="30" x2="200" y2="270" />
-                      <line x1="300" y1="30" x2="300" y2="270" />
-                    </g>
-                    <g fill="#7fe7ff">
-                      <circle cx="76" cy="94" r="1.8" opacity="0.4" />
-                      <circle cx="126" cy="118" r="1.6" opacity="0.7" />
-                      <circle cx="168" cy="82" r="2.2" />
-                      <circle cx="218" cy="128" r="1.7" opacity="0.5" />
-                      <circle cx="264" cy="96" r="2.8" />
-                      <circle cx="318" cy="134" r="1.6" opacity="0.6" />
-                      <circle cx="92" cy="188" r="2.4" />
-                      <circle cx="148" cy="212" r="1.5" opacity="0.5" />
-                      <circle cx="206" cy="184" r="2.1" />
-                      <circle cx="268" cy="206" r="1.8" opacity="0.7" />
-                      <circle cx="332" cy="188" r="2.5" />
-                    </g>
-                    <path d="M52 246 C 144 196 246 216 348 152" stroke="#7fe7ff" stroke-opacity="0.45" />
-                    <path d="M52 256 L348 162" stroke="#f2eee6" stroke-opacity="0.3" stroke-dasharray="2 6" />
-                    <circle cx="264" cy="96" r="10" stroke="#7fe7ff" stroke-opacity="0.4" />
-                  </svg>
-                </div>
-                <div class="gallery__body">
-                  <div class="gallery__meta mono">
-                    <span>Plate 04</span>
-                    <span>Fleet</span>
-                  </div>
-                  <h3 class="gallery__card-title" id="plate-fleet">Every hull on one clock.</h3>
-                  <p class="gallery__copy">
-                    38,412 assets, one weather clock. Re-price an entire fleet
-                    against the same fourteen-day field and see which departures
-                    stop being worth the fuel.
-                  </p>
-                  <p class="gallery__note mono">Global / 38,412 assets / 14-day horizon</p>
-                </div>
-                <span class="gallery__glare" aria-hidden="true"></span>
-              </article>
+                <p class="routes__chart-foot">
+                  PEAK <span id="chart-peak-value" class="accent">58%</span>
+                  <span id="chart-peak-day">/ DAY 08</span>
+                </p>
+                <p class="sr-only" id="chart-announce" aria-live="polite"></p>
+              </div>
             </div>
           </div>
 
-          <div class="gallery__foot mono">
-            <span>Scroll sideways / four plates</span>
-            <span class="gallery__progress">
-              <span class="gallery__progress-fill" id="gallery-progress"></span>
-            </span>
-            <span class="gallery__count" id="gallery-count">01 / 04</span>
-          </div>
-        </div>
-      </section>
-
-      <section class="voices" id="voices" aria-labelledby="voices-title">
-        <div class="voices__inner">
-          <div class="voices__head">
-            <h2 class="voices__title" id="voices-title">
-              The desk hears it first.
-            </h2>
-            <p class="voices__lede">
-              Four notes from the people who move cargo through weather for a
-              living. Nothing is promised; everything is priced.
-            </p>
-          </div>
-
-          <div
-            class="voices__viewport"
-            id="voices-viewport"
-            data-cursor="drag"
-            role="group"
-            tabindex="0"
-            aria-roledescription="carousel"
-            aria-label="Notes from the forecast desk"
-          >
-            <div class="voices__track" id="voices-track">
-              <figure class="voices__card">
-                <span class="voices__mark" aria-hidden="true">“</span>
-                <blockquote class="voices__quote">
-                  We stopped arguing about the forecast and started arguing
-                  about the margin. Meridian put a number on the weather and
-                  the meeting got shorter.
-                </blockquote>
-                <figcaption class="voices__by">
-                  <span class="voices__name">Mara Voss</span>
-                  <span class="voices__role mono">Operations director / Northline Shipping</span>
-                </figcaption>
-              </figure>
-
-              <figure class="voices__card">
-                <span class="voices__mark" aria-hidden="true">“</span>
-                <blockquote class="voices__quote">
-                  The ensemble spread is the first thing I open. It tells me
-                  which ports are about to lie to me, and which route can
-                  absorb the lie.
-                </blockquote>
-                <figcaption class="voices__by">
-                  <span class="voices__name">Elias Rook</span>
-                  <span class="voices__role mono">Route planner / Kestrel Freight</span>
-                </figcaption>
-              </figure>
-
-              <figure class="voices__card">
-                <span class="voices__mark" aria-hidden="true">“</span>
-                <blockquote class="voices__quote">
-                  Ten days before a berth closure the lane had already moved.
-                  Our client never saw the scramble — only the revised
-                  delivery window.
-                </blockquote>
-                <figcaption class="voices__by">
-                  <span class="voices__name">Ines Calder</span>
-                  <span class="voices__role mono">Chartering desk / Atlas Air Cargo</span>
-                </figcaption>
-              </figure>
-
-              <figure class="voices__card">
-                <span class="voices__mark" aria-hidden="true">“</span>
-                <blockquote class="voices__quote">
-                  The model does not replace the forecast desk. It gives the
-                  desk a longer memory and a cleaner argument.
-                </blockquote>
-                <figcaption class="voices__by">
-                  <span class="voices__name">Tomas Iyer</span>
-                  <span class="voices__role mono">Chief meteorologist / Harbor &amp; Co.</span>
-                </figcaption>
-              </figure>
-            </div>
-          </div>
-
-          <div class="voices__controls mono">
-            <button class="voices__btn" type="button" data-voice-prev aria-label="Previous note">
-              Prev
-            </button>
-            <span class="voices__count" id="voices-count" aria-hidden="true">01 / 04</span>
-            <button class="voices__btn" type="button" data-voice-next aria-label="Next note">
-              Next
-            </button>
-            <p class="sr-only" id="voices-announce" aria-live="polite"></p>
-          </div>
+          <p class="routes__foot mono">
+            <span>PIPELINE / 6 HOURS</span>
+            <span>NO BLACK BOX · EVERY MEMBER AUDITABLE</span>
+          </p>
         </div>
       </section>
 
       <section class="pricing" id="pricing" aria-labelledby="pricing-title">
         <div class="pricing__inner">
           <div class="pricing__head">
+            <p class="pricing__index mono">
+              <span class="pricing__rule" aria-hidden="true"></span>
+              04 / Horizon · D02–D01
+            </p>
             <h2 class="pricing__title" id="pricing-title">
               Pay for the horizon you need.
             </h2>
             <p class="pricing__lede">
               Every plan reads the same ensemble. The difference is how far the
               decision reaches — and who answers when the weather changes.
+            </p>
+          </div>
+
+          <div class="horizon-quote" role="group" aria-label="Notes from the forecast desk">
+            <span class="horizon-quote__mark" aria-hidden="true">“</span>
+            <div class="horizon-quote__stack">
+              <figure class="horizon-quote__item is-active" data-quote>
+                <blockquote class="horizon-quote__text">
+                  We stopped arguing about the forecast and started arguing
+                  about the margin. Meridian put a number on the weather and
+                  the meeting got shorter.
+                </blockquote>
+                <figcaption class="horizon-quote__by">
+                  <span class="horizon-quote__name">Mara Voss</span>
+                  <span class="horizon-quote__role mono">Operations director / Northline Shipping</span>
+                </figcaption>
+              </figure>
+
+              <figure class="horizon-quote__item" data-quote>
+                <blockquote class="horizon-quote__text">
+                  The ensemble spread is the first thing I open. It tells me
+                  which ports are about to lie to me, and which route can
+                  absorb the lie.
+                </blockquote>
+                <figcaption class="horizon-quote__by">
+                  <span class="horizon-quote__name">Elias Rook</span>
+                  <span class="horizon-quote__role mono">Route planner / Kestrel Freight</span>
+                </figcaption>
+              </figure>
+
+              <figure class="horizon-quote__item" data-quote>
+                <blockquote class="horizon-quote__text">
+                  Ten days before a berth closure the lane had already moved.
+                  Our client never saw the scramble — only the revised
+                  delivery window.
+                </blockquote>
+                <figcaption class="horizon-quote__by">
+                  <span class="horizon-quote__name">Ines Calder</span>
+                  <span class="horizon-quote__role mono">Chartering desk / Atlas Air Cargo</span>
+                </figcaption>
+              </figure>
+
+              <figure class="horizon-quote__item" data-quote>
+                <blockquote class="horizon-quote__text">
+                  The model does not replace the forecast desk. It gives the
+                  desk a longer memory and a cleaner argument.
+                </blockquote>
+                <figcaption class="horizon-quote__by">
+                  <span class="horizon-quote__name">Tomas Iyer</span>
+                  <span class="horizon-quote__role mono">Chief meteorologist / Harbor &amp; Co.</span>
+                </figcaption>
+              </figure>
+            </div>
+            <p class="horizon-quote__foot mono">
+              <span id="horizon-quote-count" aria-hidden="true">01 / 04</span>
+              <span>Forecast desk / Four notes</span>
             </p>
           </div>
 
@@ -1027,15 +630,13 @@
           </p>
         </div>
       </section>
-
-
     </main>
 
-    <footer class="footer" id="footer" aria-labelledby="footer-headline">
+    <footer class="footer" id="issued" aria-labelledby="footer-headline">
       <div class="footer__inner">
         <p class="footer__index mono">
           <span class="footer__rule" aria-hidden="true"></span>
-          Meridian / Forecast desk
+          05 / Issued · D00
         </p>
 
         <div class="footer__cta">
@@ -1058,16 +659,16 @@
         </div>
 
         <div class="footer__meta mono">
-          <span data-coord-origin>34.20°N 38.70°W</span>
           <span>14-day horizon / 51 members</span>
           <span>© 2026 Meridian Systems</span>
         </div>
 
         <nav class="footer__nav mono" aria-label="Footer">
           <a data-cursor="link" href="#hero">Top</a>
+          <a data-cursor="link" href="#problem">Storm</a>
           <a data-cursor="link" href="#routes">Lanes</a>
-          <a data-cursor="link" href="#method">Method</a>
-          <a data-cursor="link" href="#pricing">Plans</a>
+          <a data-cursor="link" href="#pricing">Horizon</a>
+          <a data-cursor="link" href="#issued">Issued</a>
           <a data-cursor="link" href="mailto:desk@meridian.systems">Forecast desk</a>
         </nav>
 
@@ -1076,34 +677,6 @@
         </div>
       </div>
     </footer>
-
-    <aside class="storm-label mono" id="storm-label" aria-hidden="true">
-      <div class="storm-label__head">
-        <span class="accent">CYCLONE / ADA-07</span>
-        <span class="storm-label__cross">+</span>
-      </div>
-      <p class="storm-label__name">North Atlantic cyclone</p>
-      <div class="storm-label__row">
-        <span>Wind</span>
-        <span>142 kt</span>
-      </div>
-      <div class="storm-label__row">
-        <span>Pressure</span>
-        <span>921 hpa</span>
-      </div>
-      <div class="storm-label__row">
-        <span>Spread</span>
-        <span id="storm-spread">1.00</span>
-      </div>
-      <div class="storm-label__row">
-        <span>Route risk</span>
-        <span class="accent">68%</span>
-      </div>
-      <div class="storm-label__bar">
-        <span style="width: 68%"></span>
-      </div>
-      <p class="storm-label__hint">Hover / tap to perturb</p>
-    </aside>
 
     <div class="cursor" id="cursor" aria-hidden="true">
       <span class="cursor__dot" id="cursor-dot"></span>

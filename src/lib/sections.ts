@@ -1,201 +1,244 @@
-export interface SectionMeta {
+import type { ScrollController } from "./scroll";
+
+export interface ChapterConfig {
   id: string;
   label: string;
-  navLabel?: string;
+  navLabel: string;
   tag: string;
   dayStart: number;
   dayEnd: number;
+  ariaLabel: string;
   primaryNav: boolean;
 }
 
 /**
- * Single source for chapter order, days-to-impact ranges, nav labels and
- * menu order. Order is descending in forecast time: T-14 to T-0.
+ * The one source of truth for chapter order and the day rail mapping.
+ * Day ranges are inclusive: the rail resolves a day to the first chapter
+ * whose range contains it.
  */
-export const SECTIONS: SectionMeta[] = [
+export const CHAPTERS: ChapterConfig[] = [
   {
     id: "hero",
-    label: "The futures open",
+    label: "Hero",
     navLabel: "Overview",
     tag: "Futures",
     dayStart: 14,
     dayEnd: 12,
+    ariaLabel: "Forecast overview, days fourteen through twelve to impact",
     primaryNav: true,
   },
   {
     id: "problem",
-    label: "Uncertainty becomes cost",
-    navLabel: "Problem",
-    tag: "Storm",
+    label: "Storm",
+    navLabel: "Storm",
+    tag: "Signals",
     dayStart: 11,
-    dayEnd: 10,
-    primaryNav: true,
-  },
-  {
-    id: "method",
-    label: "Resolve the ensemble",
-    navLabel: "Method",
-    tag: "Model",
-    dayStart: 9,
     dayEnd: 8,
-    primaryNav: true,
-  },
-  {
-    id: "signals",
-    label: "Calibration check",
-    navLabel: "Signals",
-    tag: "Calibration",
-    dayStart: 7,
-    dayEnd: 6,
+    ariaLabel: "Storm outlook and live readouts bound to the day, days eleven through eight",
     primaryNav: true,
   },
   {
     id: "routes",
-    label: "One lane bends",
+    label: "Lanes",
     navLabel: "Lanes",
-    tag: "Reroute",
-    dayStart: 5,
-    dayEnd: 4,
-    primaryNav: true,
-  },
-  {
-    id: "gallery",
-    label: "Evidence plates",
-    navLabel: "Field",
-    tag: "Plates",
-    dayStart: 3,
+    tag: "Decisions",
+    dayStart: 7,
     dayEnd: 3,
-    primaryNav: true,
-  },
-  {
-    id: "voices",
-    label: "Desk transmissions",
-    navLabel: "Desk",
-    tag: "Voices",
-    dayStart: 2,
-    dayEnd: 2,
+    ariaLabel: "Ingest, resolve and reroute shipping lanes, days seven through three",
     primaryNav: true,
   },
   {
     id: "pricing",
-    label: "Choose the lead",
-    navLabel: "Plans",
-    tag: "Lead",
-    dayStart: 1,
+    label: "Horizon",
+    navLabel: "Horizon",
+    tag: "Desk",
+    dayStart: 2,
     dayEnd: 1,
+    ariaLabel: "Forecast desk testimony and plan horizons, days two through one",
     primaryNav: true,
   },
   {
-    id: "footer",
-    label: "Forecast issued",
+    id: "issued",
+    label: "Issued",
     navLabel: "Issued",
-    tag: "Issued",
+    tag: "Impact",
     dayStart: 0,
     dayEnd: 0,
-    primaryNav: false,
+    ariaLabel: "Forecast issued at impact, day zero",
+    primaryNav: true,
   },
 ];
 
-export const CHAPTERS = SECTIONS.filter((section) => section.id !== "footer");
+const LEGACY_ANCHORS: Record<string, string> = {
+  method: "routes",
+  signals: "problem",
+  gallery: "routes",
+  voices: "pricing",
+  footer: "issued",
+};
+
+export interface HashResolution {
+  target: string;
+  legacy: boolean;
+}
+
+export function resolveChapterHash(hash: string): HashResolution | null {
+  const id = hash.replace(/^#/, "");
+  if (!id) return null;
+
+  const mapped = LEGACY_ANCHORS[id];
+  const target = mapped ?? id;
+
+  if (!CHAPTERS.some((chapter) => chapter.id === target)) return null;
+  return { target: `#${target}`, legacy: Boolean(mapped) };
+}
 
 export function initSections(): void {
   const navLinks = document.querySelector(".nav__links");
   const menuLinks = document.querySelector(".menu__nav");
-  const sectionCount = document.querySelector<HTMLElement>(
-    "[data-section-count]",
-  );
+  const footerNav = document.querySelector(".footer__nav");
+  const sectionCount =
+    document.querySelector<HTMLElement>("[data-section-count]");
   const main = document.querySelector("main");
+
+  if (!main) return;
 
   const roots = CHAPTERS.map(({ id }) => document.getElementById(id)).filter(
     (root): root is HTMLElement => root !== null,
   );
 
-  if (main && roots.length > 0) {
-    for (const root of roots) {
-      main.append(root);
-    }
+  for (const root of roots) {
+    if (root.parentElement === main) main.append(root);
   }
 
   if (sectionCount) {
-    sectionCount.textContent = `${String(SECTIONS.length).padStart(2, "0")} Chapters`;
+    sectionCount.textContent = `${String(CHAPTERS.length).padStart(2, "0")} Chapters`;
   }
 
   if (navLinks) {
     navLinks.replaceChildren(
-      ...CHAPTERS.filter(({ primaryNav }) => primaryNav).map(
-        ({ id, navLabel, label, dayStart }) => {
-          const link = document.createElement("a");
-          link.className = "nav__link mono";
-          link.href = `#${id}`;
-          link.dataset.cursor = "link";
-          link.dataset.section = id;
-
-          const text = document.createElement("span");
-          text.textContent = navLabel ?? label;
-
-          const day = document.createElement("span");
-          day.className = "nav__link-day";
-          day.setAttribute("aria-hidden", "true");
-          day.textContent = `T−${dayStart}`;
-
-          link.append(text, day);
-          return link;
-        },
+      ...CHAPTERS.filter((chapter) => chapter.primaryNav).map((chapter) =>
+        makeLink(chapter, "nav"),
       ),
     );
   }
 
   if (menuLinks) {
     menuLinks.replaceChildren(
-      ...SECTIONS.map(({ id, label, tag, dayStart }) => {
-        const link = document.createElement("a");
-        link.className = "menu__link";
-        link.href = `#${id}`;
-        link.dataset.cursor = "link";
-
-        const day = document.createElement("span");
-        day.className = "menu__num mono";
-        day.textContent = `T−${dayStart}`;
-
-        const text = document.createElement("span");
-        text.className = "menu__text";
-        text.textContent = label;
-
-        const note = document.createElement("span");
-        note.className = "menu__tag mono";
-        note.textContent = tag;
-
-        link.append(day, text, note);
-        return link;
-      }),
+      ...CHAPTERS.filter((chapter) => chapter.primaryNav).map((chapter) =>
+        makeLink(chapter, "menu"),
+      ),
     );
   }
 
-  for (const section of SECTIONS) {
-    const root = document.getElementById(section.id);
+  if (footerNav) {
+    const footerLinks = CHAPTERS.filter((chapter) => chapter.primaryNav).map(
+      (chapter) => {
+        const link = document.createElement("a");
+        link.href = `#${chapter.id}`;
+        link.dataset.cursor = "link";
+        link.textContent = chapter.id === "hero" ? "Top" : chapter.navLabel;
+        link.setAttribute(
+          "aria-label",
+          `${chapter.label}, ${chapter.ariaLabel}`,
+        );
+        return link;
+      },
+    );
+
+    const desk = document.createElement("a");
+    desk.href = "mailto:desk@meridian.systems";
+    desk.dataset.cursor = "link";
+    desk.textContent = "Forecast desk";
+
+    footerNav.replaceChildren(...footerLinks, desk);
+  }
+
+  for (const chapter of CHAPTERS) {
+    const root = document.getElementById(chapter.id);
     if (!root) continue;
-
-    for (const element of root.querySelectorAll<HTMLElement>(
-      "[data-section-day]",
-    )) {
-      element.textContent = dayLabel(section);
-    }
-
-    for (const element of root.querySelectorAll<HTMLElement>(
-      "[data-section-label]",
-    )) {
-      element.textContent = section.label;
-    }
+    root.setAttribute("aria-label", chapter.ariaLabel);
+    root.dataset.dayStart = String(chapter.dayStart);
+    root.dataset.dayEnd = String(chapter.dayEnd);
   }
 }
 
-export function dayLabel(section: SectionMeta): string {
-  if (section.dayStart === 0) return "Impact";
+/** Resolve an old hash to its nearest surviving chapter and scroll there. */
+export function applyHashRoute(scroll: ScrollController): void {
+  const resolved = resolveChapterHash(location.hash);
+  if (!resolved) return;
 
-  const span =
-    section.dayStart === section.dayEnd
-      ? `${section.dayStart}`
-      : `${section.dayStart}–${section.dayEnd}`;
+  if (resolved.legacy) {
+    history.replaceState(null, "", resolved.target);
+  }
 
-  return `${span} ${section.dayStart === 1 ? "day" : "days"} to impact`;
+  requestAnimationFrame(() => {
+    if (document.querySelector(resolved.target)) {
+      scroll.scrollTo(resolved.target, true);
+    }
+  });
+}
+
+function makeLink(
+  chapter: ChapterConfig,
+  variant: "nav" | "menu",
+): HTMLAnchorElement {
+  const link = document.createElement("a");
+  link.href = `#${chapter.id}`;
+  link.dataset.cursor = "link";
+  link.dataset.section = chapter.id;
+
+  if (variant === "nav") {
+    link.className = "nav__link mono";
+    const text = document.createElement("span");
+    text.textContent = chapter.navLabel;
+    const day = document.createElement("span");
+    day.className = "nav__link-day";
+    day.setAttribute("aria-hidden", "true");
+    day.textContent = `D${String(chapter.dayStart).padStart(2, "0")}`;
+    link.setAttribute(
+      "aria-label",
+      `${chapter.navLabel}, ${chapter.ariaLabel}`,
+    );
+    link.append(text, day);
+    return link;
+  }
+
+  link.className = "menu__link";
+  link.setAttribute(
+    "aria-label",
+    `${chapter.label}, ${dayLabel(chapter)}, ${chapter.ariaLabel}`,
+  );
+
+  const index = CHAPTERS.indexOf(chapter) + 1;
+  const num = document.createElement("span");
+  num.className = "menu__num mono";
+  num.setAttribute("aria-hidden", "true");
+  num.textContent = String(index).padStart(2, "0");
+
+  const text = document.createElement("span");
+  text.className = "menu__text";
+  text.textContent = chapter.label;
+
+  const tag = document.createElement("span");
+  tag.className = "menu__tag mono";
+  tag.setAttribute("aria-hidden", "true");
+  tag.textContent = dayLabel(chapter);
+
+  link.append(num, text, tag);
+  return link;
+}
+
+export function chapterForDay(day: number): ChapterConfig {
+  return (
+    CHAPTERS.find(
+      (chapter) => day >= chapter.dayEnd && day <= chapter.dayStart,
+    ) ?? CHAPTERS[CHAPTERS.length - 1]
+  );
+}
+
+export function dayLabel(chapter: ChapterConfig): string {
+  const start = `D${String(chapter.dayStart).padStart(2, "0")}`;
+  if (chapter.dayStart === chapter.dayEnd) return start;
+  return `${start}–D${String(chapter.dayEnd).padStart(2, "0")}`;
 }

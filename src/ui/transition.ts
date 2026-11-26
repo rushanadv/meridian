@@ -246,7 +246,13 @@ export function initViewTransition(scroll: ScrollController): void {
       const target = event.target as Element | null;
       const link = target?.closest<HTMLAnchorElement>('a[href^="#"]');
       if (!link) return;
-      if (link.classList.contains("skip-link") || link.closest("#menu")) return;
+      if (
+        link.classList.contains("skip-link") ||
+        link.closest("#menu") ||
+        link.closest(".day-rail")
+      ) {
+        return;
+      }
 
       const href = link.getAttribute("href");
       if (!href || href === "#") return;

@@ -27,12 +27,6 @@ interface CameraKey {
   fov: number;
 }
 
-export interface StormHud {
-  x: number;
-  y: number;
-  weight: number;
-}
-
 export class MeridianScene {
   private readonly renderer: WebGLRenderer;
   private readonly camera: PerspectiveCamera;
@@ -190,19 +184,43 @@ export class MeridianScene {
     this.globe.setAssemble(value);
   }
 
+  get ensembleSize(): number {
+    return this.ensemble.members;
+  }
+
+  /**
+   * Builds ensemble members up to `target`, doing the actual control-point
+   * and spline work for each. Returns the number now built; the preloader
+   * reads this as real initialization progress.
+   */
+  assembleMembers(target: number): number {
+    const built = this.ensemble.buildNext(
+      Math.max(0, target - this.ensemble.builtCount),
+    );
+    this.ensemble.setReady(built);
+    if (this.reduced) this.renderOnce();
+    return built;
+  }
+
+  /** Reports how many ensemble members have finished initializing. */
+  setEnsembleReady(count: number): void {
+    this.ensemble.setReady(count);
+    if (this.reduced) this.renderOnce();
+  }
+
   playEnsembleIntro(): void {
     if (this.reduced) {
-      this.ensemble.setIntro(1);
+      this.ensemble.setFan(1);
       this.renderOnce();
       return;
     }
 
     gsap.to(this.intro, {
       value: 1,
-      duration: 1.6,
+      duration: 1.35,
       ease: "power4InOut",
       overwrite: true,
-      onUpdate: () => this.ensemble.setIntro(this.intro.value),
+      onUpdate: () => this.ensemble.setFan(this.intro.value),
     });
   }
 
@@ -222,13 +240,6 @@ export class MeridianScene {
     if (this.reduced) this.renderOnce();
   }
 
-  getStormHud(out: StormHud): void {
-    this.hudProjection.copy(this.stormWorld).project(this.camera);
-    out.x = (this.hudProjection.x * 0.5 + 0.5) * window.innerWidth;
-    out.y = (-this.hudProjection.y * 0.5 + 0.5) * window.innerHeight;
-    out.weight = stormWeightOf(choreo.state);
-  }
-
   isPointerNearStorm(clientX: number, clientY: number): boolean {
     const weight = stormWeightOf(choreo.state);
     if (weight < 0.06) return false;
@@ -244,6 +255,16 @@ export class MeridianScene {
       18;
 
     return Math.hypot(clientX - screenX, clientY - screenY) < radius;
+  }
+
+  /** Returns the normalized screen position (0..1) of the storm center, or null if offscreen/behind. */
+  getStormScreenPoint(): { x: number; y: number } | null {
+    this.hudProjection.copy(this.stormWorld).project(this.camera);
+    if (this.hudProjection.z > 1) return null;
+    return {
+      x: this.hudProjection.x * 0.5 + 0.5,
+      y: -this.hudProjection.y * 0.5 + 0.5,
+    };
   }
 
   start(): void {
@@ -381,10 +402,13 @@ export class MeridianScene {
 
     const direction = this.stormWorld.clone().sub(center).normalize();
 
+    // Portrait frames a smaller planet low in the frame so the headline and
+    // lede keep the upper band, and the ensemble fan resolves beneath them.
+    // Only the hero orbit uses this key.
     const orbit: CameraKey = portrait
       ? {
-          position: new Vector3(0, 0.4, 13.2),
-          look: new Vector3(0, 0.45, 0),
+          position: new Vector3(0, 3.27, 17.6),
+          look: new Vector3(0, 3.27, 0),
           fov: 42,
         }
       : {

@@ -1,7 +1,7 @@
 import { finePointer, reducedMotion } from "../lib/motion";
 
 export function initFooter(): void {
-  const footer = document.getElementById("footer");
+  const footer = document.getElementById("issued");
   const wordmark = document.getElementById("footer-wordmark");
 
   if (!footer || !wordmark || !finePointer.matches || reducedMotion.matches) {

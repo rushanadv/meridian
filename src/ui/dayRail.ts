@@ -1,10 +1,10 @@
 import { choreo, dayToProgress, FORECAST_DAYS } from "../lib/choreography";
-import { SECTIONS, type SectionMeta } from "../lib/sections";
+import { CHAPTERS, chapterForDay, type ChapterConfig } from "../lib/sections";
 import { reducedMotion, ScrollTrigger } from "../lib/motion";
 import type { ScrollController } from "../lib/scroll";
 
 interface TimelineSection {
-  meta: SectionMeta;
+  meta: ChapterConfig;
   element: HTMLElement;
   top: number;
   nextTop: number;
@@ -23,13 +23,7 @@ function formatDay(day: number): string {
   return `${day} ${day === 1 ? "day" : "days"} to impact`;
 }
 
-function chapterForDay(day: number): SectionMeta {
-  return (
-    SECTIONS.find(
-      (section) => day >= section.dayEnd && day <= section.dayStart,
-    ) ?? SECTIONS[SECTIONS.length - 1]
-  );
-}
+
 
 export function initDayRail(
   scroll: ScrollController,
@@ -67,7 +61,10 @@ export function initDayRail(
     link.dataset.day = String(day);
     link.dataset.section = section.id;
     link.dataset.cursor = "link";
-    link.setAttribute("aria-label", `${label}, ${section.label}`);
+    link.setAttribute(
+      "aria-label",
+      `${label}, ${section.label} chapter, days ${section.dayStart} to ${section.dayEnd}`,
+    );
 
     if (day === section.dayStart) link.classList.add("is-chapter");
 
@@ -112,15 +109,22 @@ export function initDayRail(
     return navHeight + railHeight + 4;
   };
 
+  const topOf = (element: HTMLElement): number => {
+    const spacer = element.parentElement?.classList.contains("pin-spacer")
+      ? element.parentElement
+      : null;
+    return (spacer ?? element).getBoundingClientRect().top + window.scrollY;
+  };
+
   const measure = (): void => {
-    timeline = SECTIONS.map((meta) => {
+    timeline = CHAPTERS.map((meta) => {
       const element = document.getElementById(meta.id);
       if (!element) return null;
 
       return {
         meta,
         element,
-        top: element.getBoundingClientRect().top + window.scrollY,
+        top: topOf(element),
         nextTop: 0,
       };
     }).filter((entry): entry is TimelineSection => entry !== null);

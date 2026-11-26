@@ -1,25 +1,21 @@
 import { initPointer } from "./lib/pointer";
-import { initSections } from "./lib/sections";
+import { applyHashRoute, initSections } from "./lib/sections";
 import { initScroll } from "./lib/scroll";
 import { choreo } from "./lib/choreography";
 import { initMagnetic } from "./lib/magnetic";
-import { initScramble } from "./lib/scramble";
 import { reducedMotion, ScrollTrigger } from "./lib/motion";
-import { initContent } from "./ui/content";
-import { initCoordinates } from "./ui/coordinates";
+import { initProbe } from "./ui/coordinates";
 import { initCursor } from "./ui/cursor";
 import { initDayRail } from "./ui/dayRail";
 import { initForecastClock } from "./ui/forecastClock";
 import { initFooter } from "./ui/footer";
-import { initGallery } from "./ui/gallery";
+import { initHorizon } from "./ui/horizon";
 import { initHud } from "./ui/hud";
 import { initNav } from "./ui/nav";
-import { initPricing } from "./ui/pricing";
 import { runPreloader } from "./ui/preloader";
-import { revealHero } from "./ui/reveal";
+import { revealHero, revealHeroChrome } from "./ui/reveal";
 import { initRoutesPanel } from "./ui/routes";
 import { initViewTransition } from "./ui/transition";
-import { initVoices } from "./ui/voices";
 import { MeridianScene } from "./webgl/Scene";
 
 document.documentElement.classList.remove("no-js");
@@ -43,12 +39,13 @@ if (canvas instanceof HTMLCanvasElement) {
   }
 }
 
-initCoordinates(scene);
+const probe = initProbe(scene);
 initForecastClock();
 
 initCursor({
   isOverGlobe: (clientX, clientY) =>
     scene?.isPointerOverGlobe(clientX, clientY) ?? false,
+  probeLabel: (clientX, clientY) => probe.textAt(clientX, clientY),
 });
 
 initHud({ scene });
@@ -56,16 +53,14 @@ initHud({ scene });
 initRoutesPanel({
   onSelect: (index) => scene?.setRouteFocus(index),
 });
-initContent();
-initScramble();
 initMagnetic();
-initGallery();
-initVoices(scroll);
-initPricing({
+initHorizon({
   onHover: (active) => scene?.setPricingHover(active),
 });
 initFooter();
 initViewTransition(scroll);
+
+window.addEventListener("hashchange", () => applyHashRoute(scroll));
 
 requestAnimationFrame(() => {
   ScrollTrigger.sort();
@@ -90,13 +85,12 @@ if (import.meta.env.DEV) {
 }
 
 runPreloader({
-  onProgress: (value) => {
-    scene?.setAssemble(value);
-  },
+  scene,
+  onReveal: revealHero,
   onDone: () => {
     document.body.classList.remove("is-loading");
-    scene?.playEnsembleIntro();
-    revealHero();
+    revealHeroChrome();
+    applyHashRoute(scroll);
 
     if (reducedMotion.matches) {
       scene?.stop();

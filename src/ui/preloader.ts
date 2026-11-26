@@ -1,70 +1,161 @@
-import { gsap, reducedMotion } from "../lib/motion";
+import { reducedMotion } from "../lib/motion";
+import type { MeridianScene } from "../webgl/Scene";
 
 interface PreloaderOptions {
-  onProgress: (value: number) => void;
+  scene: MeridianScene | null;
+  onReveal: () => void;
   onDone: () => void;
 }
 
-const formatCount = (value: number) =>
-  String(Math.min(100, Math.round(value))).padStart(3, "0");
+/** When the opaque cover lifts to reveal the globe and the hero copy. */
+const FRAME_AT = 900;
+/** Let the first member read as MEMBER 01 / 51 before the build ramps. */
+const BUILD_START = 200;
+/** How long the member build takes from the first to the fifty-first. */
+const BUILD_END = 2350;
+/** Absolute guard so a stalled frame or GPU never traps the page. */
+const FAILSAFE = 6200;
 
-export function runPreloader({ onProgress, onDone }: PreloaderOptions): void {
+const pad2 = (value: number): string => String(value).padStart(2, "0");
+
+/**
+ * The opening sequence. The counter is not a timer: it reports real ensemble
+ * initialization, because each tick builds the actual control points and
+ * spline samples for the members it reports. Each track draws onto the globe
+ * as its data lands; once all fifty-one exist, the fan opens to full spread.
+ * The hero copy reveals on a DOM-only clock, so it never waits on WebGL.
+ */
+export function runPreloader({
+  scene,
+  onReveal,
+  onDone,
+}: PreloaderOptions): void {
   const root = document.getElementById("preloader");
   const count = document.getElementById("load-count");
+  const compact = document.getElementById("load-compact");
   const bar = document.getElementById("load-bar");
 
-  if (!root || !count || !bar) {
-    onProgress(1);
-    onDone();
-    return;
-  }
+  const total = scene?.ensembleSize ?? 51;
+  let done = false;
 
-  let finished = false;
-
-  const commit = (value: number) => {
-    const clamped = Math.min(100, Math.max(0, value));
-    count.textContent = formatCount(clamped);
-    bar.style.transform = `scaleX(${clamped / 100})`;
-    onProgress(clamped / 100);
-  };
-
-  const finish = () => {
-    if (finished) return;
-    finished = true;
-
-    window.setTimeout(() => {
-      if (reducedMotion.matches) {
-        root.remove();
+  const finish = (): void => {
+    if (done) return;
+    done = true;
+    root?.classList.add("is-done");
+    window.setTimeout(
+      () => {
+        root?.remove();
         onDone();
-        return;
-      }
-
-      onDone();
-
-      gsap.to(root, {
-        clipPath: "inset(0 0 100% 0)",
-        duration: 1,
-        ease: "expoOut",
-        onComplete: () => root.remove(),
-      });
-    }, 120);
+      },
+      reducedMotion.matches ? 0 : 560,
+    );
   };
 
-  commit(0);
+  const display = (built: number): void => {
+    const shown = Math.max(1, Math.min(total, built));
+    if (count) count.textContent = pad2(shown);
+    if (compact) compact.textContent = `MEMBER ${pad2(shown)} / ${total}`;
+    if (bar) bar.style.transform = `scaleX(${shown / total})`;
+  };
 
-  if (reducedMotion.matches) {
-    commit(100);
+  if (!root || !count || !bar) {
+    onReveal();
     finish();
     return;
   }
 
-  const progress = { value: 0 };
+  // No WebGL: the copy is the page. Reveal it at once and drop the overlay.
+  if (!scene) {
+    display(total);
+    onReveal();
+    finish();
+    return;
+  }
 
-  gsap.to(progress, {
-    value: 100,
-    duration: 2.25,
-    ease: "power2.inOut",
-    onUpdate: () => commit(progress.value),
-    onComplete: finish,
-  });
+  if (reducedMotion.matches) {
+    scene.setAssemble(1);
+    scene.assembleMembers(total);
+    scene.playEnsembleIntro();
+    display(total);
+    onReveal();
+    finish();
+    return;
+  }
+
+  const start = performance.now();
+  let frame = 0;
+  let revealed = false;
+  let last = 0;
+  let stopped = false;
+
+  const reveal = (): void => {
+    if (revealed) return;
+    revealed = true;
+    onReveal();
+  };
+
+  const settle = (): void => {
+    scene.setAssemble(1);
+    scene.assembleMembers(total);
+    scene.playEnsembleIntro();
+    display(total);
+    reveal();
+    finish();
+    stopped = true;
+  };
+
+  const tick = (now: number): void => {
+    if (stopped) return;
+    const t = now - start;
+
+    // Planet first, over the first beat, then the members draw across it.
+    scene.setAssemble(Math.min(1, t / 780));
+
+    const target = Math.min(
+      total,
+      1 +
+        Math.floor(
+          (Math.max(0, t - BUILD_START) / BUILD_END) * (total - 1),
+        ),
+    );
+    const built = scene.assembleMembers(target);
+
+    if (built !== last) {
+      display(built);
+      last = built;
+    }
+
+    if (!revealed && t >= FRAME_AT) {
+      root.classList.add("is-frame");
+      reveal();
+    }
+
+    if (built >= total) {
+      reveal();
+      scene.playEnsembleIntro();
+      display(total);
+      finish();
+      stopped = true;
+      return;
+    }
+
+    if (t >= FAILSAFE) {
+      settle();
+      return;
+    }
+
+    frame = requestAnimationFrame(tick);
+  };
+
+  display(1);
+  frame = requestAnimationFrame(tick);
+
+  window.addEventListener(
+    "pagehide",
+    () => {
+      stopped = true;
+      cancelAnimationFrame(frame);
+    },
+    { once: true },
+  );
 }

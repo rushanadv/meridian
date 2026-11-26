@@ -1,4 +1,3 @@
-import { ENSEMBLE_ORIGIN } from "../webgl/ensemble";
 import type { MeridianScene } from "../webgl/Scene";
 
 const formatCoordinate = (
@@ -13,41 +12,63 @@ const formatCoordinate = (
 export const formatCoordinatePair = (lat: number, lon: number): string =>
   `${formatCoordinate(lat, "N", "S")} ${formatCoordinate(lon, "E", "W")}`;
 
-export function initCoordinates(scene: MeridianScene | null): void {
-  const origin = formatCoordinatePair(
-    ENSEMBLE_ORIGIN.lat,
-    ENSEMBLE_ORIGIN.lon,
+export interface ProbeReadout {
+  /** Live surface coordinate under a screen point, or null when off-globe. */
+  textAt: (clientX: number, clientY: number) => string | null;
+}
+
+/**
+ * The globe is read as a probe, not an illustration: there are no printed
+ * coordinates anywhere. Every readout shows the live local position under
+ * the cursor and falls back to a non-coordinate idle label.
+ */
+export function initProbe(scene: MeridianScene | null): ProbeReadout {
+  const readouts = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-probe]"),
   );
 
-  document
-    .querySelectorAll<HTMLElement>("[data-coord-origin]")
-    .forEach((element) => {
-      element.textContent = origin;
-    });
+  const idleFor = (element: HTMLElement): string =>
+    element.dataset.probeIdle ?? "MOVE OVER GLOBE";
 
-  const readout = document.getElementById("coords");
-  if (!readout) return;
+  const showIdle = (): void => {
+    for (const element of readouts) {
+      const idle = idleFor(element);
+      if (element.textContent !== idle) element.textContent = idle;
+    }
+  };
 
-  let lastLabel = origin;
-  readout.textContent = lastLabel;
+  const textAt = (clientX: number, clientY: number): string | null => {
+    if (!scene) return null;
+    const coordinate = scene.getSurfaceCoordinate(clientX, clientY);
+    if (!coordinate) return null;
+    return formatCoordinatePair(coordinate.lat, coordinate.lon);
+  };
 
-  if (!scene) return;
+  showIdle();
+
+  if (!scene) return { textAt: () => null };
+
+  let last = "";
 
   window.addEventListener(
     "pointermove",
     (event) => {
-      const coordinate = scene.getSurfaceCoordinate(
-        event.clientX,
-        event.clientY,
-      );
-      if (!coordinate) return;
+      const live = textAt(event.clientX, event.clientY);
 
-      const label = formatCoordinatePair(coordinate.lat, coordinate.lon);
-      if (label === lastLabel) return;
+      if (!live) {
+        if (last !== "") {
+          last = "";
+          showIdle();
+        }
+        return;
+      }
 
-      readout.textContent = label;
-      lastLabel = label;
+      if (live === last) return;
+      last = live;
+      for (const element of readouts) element.textContent = live;
     },
     { passive: true },
   );
+
+  return { textAt };
 }

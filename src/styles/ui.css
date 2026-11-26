@@ -13,8 +13,8 @@
   padding: 0 var(--pad);
   background: linear-gradient(
     to bottom,
-    rgb(5 7 13 / 0.94) 0%,
-    rgb(5 7 13 / 0.7) 45%,
+    rgb(5 7 13 / 1) 0%,
+    rgb(5 7 13 / 0.96) 68%,
     rgb(5 7 13 / 0) 100%
   );
 }
@@ -188,18 +188,39 @@ body.is-menu .nav {
   }
 }
 
-/* PRELOADER */
+/* PRELOADER / ENSEMBLE ASSEMBLY */
 
 .preloader {
   position: fixed;
-  clip-path: inset(0 0 0 0);
   inset: 0;
   z-index: 40;
+  pointer-events: none;
+}
+
+.preloader__scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--bg);
+  transition: opacity 700ms var(--ease-expo);
+}
+
+.preloader.is-frame .preloader__scrim {
+  opacity: 0;
+}
+
+.preloader.is-done {
+  opacity: 0;
+  transition: opacity 560ms var(--ease-expo);
+}
+
+.preloader__frame {
+  position: relative;
   display: grid;
   grid-template-rows: auto minmax(0, 1fr) auto auto;
   gap: clamp(0.8rem, 2vh, 1.6rem);
-  padding: clamp(1rem, 2.4vw, 2.4rem) var(--pad) clamp(1rem, 2.4vh, 1.6rem);
-  background: rgb(5 7 13 / 0.55);
+  height: 100%;
+  padding: calc(var(--chrome-h) + clamp(0.8rem, 2vh, 1.6rem)) var(--pad)
+    clamp(1rem, 2.4vh, 1.6rem);
 }
 
 .preloader__head,
@@ -213,40 +234,54 @@ body.is-menu .nav {
 .preloader__head {
   padding-bottom: clamp(0.7rem, 1.4vh, 1rem);
   border-bottom: 1px solid var(--line);
+  background: linear-gradient(to bottom, rgb(5 7 13 / 0.92), rgb(5 7 13 / 0));
 }
 
-.preloader__body {
+.preloader__foot {
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--line);
+  background: linear-gradient(to top, rgb(5 7 13 / 0.92), rgb(5 7 13 / 0));
+}
+
+.preloader__member {
+  align-self: end;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  justify-content: flex-end;
-  gap: 0.65rem;
+  align-items: baseline;
+  gap: 0.5rem;
+  transition:
+    opacity 520ms var(--ease-expo),
+    transform 520ms var(--ease-expo);
 }
 
-.preloader__label {
-  color: var(--accent);
+.preloader.is-frame .preloader__member {
+  opacity: 0;
+  transform: translateY(14px);
 }
 
-.preloader__meter {
-  display: flex;
-  align-items: flex-end;
-  gap: clamp(0.35rem, 0.8vw, 0.7rem);
-}
-
-.preloader__count {
-  font-size: clamp(3.5rem, 11vw, 9.5rem);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
-  line-height: 0.82;
-  letter-spacing: -0.055em;
-  color: var(--ink);
-}
-
-.preloader__unit {
+.preloader__member-kicker {
   align-self: flex-end;
-  padding-bottom: 0.45rem;
+  padding-bottom: 0.75em;
   color: var(--accent);
-  font-size: var(--text-body);
+  font-size: var(--text-micro);
+  letter-spacing: 0.18em;
+}
+
+.preloader__member-count {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: clamp(4rem, 15vw, 12rem);
+  font-weight: 500;
+  font-variant-numeric: lining-nums tabular-nums;
+  line-height: 0.8;
+  letter-spacing: -0.06em;
+}
+
+.preloader__member-total {
+  align-self: flex-end;
+  padding-bottom: 0.75em;
+  color: var(--ink-dim);
+  font-size: var(--text-small);
+  letter-spacing: 0.1em;
 }
 
 .preloader__bar {
@@ -265,9 +300,20 @@ body.is-menu .nav {
   transform-origin: left;
 }
 
-.preloader__foot {
-  padding-top: 0.7rem;
-  border-top: 1px solid var(--line);
+@media (max-width: 720px) {
+  /* The nav already carries the wordmark; on mobile the frame keeps only
+     the live member count so nothing wraps or meets the day rail. */
+  .preloader__head > :first-child {
+    display: none;
+  }
+
+  .preloader__head {
+    justify-content: flex-end;
+  }
+
+  .preloader__member-count {
+    font-size: clamp(3.2rem, 22vw, 6rem);
+  }
 }
 
 /* CURSOR */
@@ -285,12 +331,6 @@ html.has-cursor .cursor {
 }
 
 body.is-loading .cursor {
-  opacity: 0;
-}
-
-body.is-loading main,
-body.is-loading .nav,
-body.is-loading .day-rail {
   opacity: 0;
 }
 

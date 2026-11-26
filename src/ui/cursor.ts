@@ -2,9 +2,10 @@ import { gsap, finePointer, reducedMotion } from "../lib/motion";
 
 interface CursorOptions {
   isOverGlobe: (clientX: number, clientY: number) => boolean;
+  probeLabel?: (clientX: number, clientY: number) => string | null;
 }
 
-export function initCursor({ isOverGlobe }: CursorOptions): void {
+export function initCursor({ isOverGlobe, probeLabel }: CursorOptions): void {
   if (!finePointer.matches || reducedMotion.matches) return;
 
   const root = document.getElementById("cursor");
@@ -71,7 +72,7 @@ export function initCursor({ isOverGlobe }: CursorOptions): void {
       const copy = probeZone.dataset.cursorProbe?.split("|") ?? [];
       setMode("probe", copy[0] ?? "", copy[1] ?? "");
     } else if (isOverGlobe(mx, my)) {
-      setMode("explore", "EXPLORE");
+      setMode("probe", "PROBE", probeLabel?.(mx, my) ?? "");
     } else {
       setMode(null);
     }

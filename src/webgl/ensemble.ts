@@ -1,7 +1,9 @@
 import {
   AdditiveBlending,
+  BufferAttribute,
   BufferGeometry,
   Color,
+  DynamicDrawUsage,
   Float32BufferAttribute,
   Group,
   LineSegments,
@@ -18,8 +20,11 @@ import { ensembleFragmentShader, ensembleVertexShader } from "./shaders";
 const DEG = Math.PI / 180;
 const RADIUS = 2;
 const MEMBERS = 51;
-const REALISED_MEMBER = 17;
+/** The highlighted member: index 16 is the seventeenth, shown as "Member 17". */
+const BONE_MEMBER = 16;
 const CONTROL_POINTS = 7;
+
+export const ENSEMBLE_MEMBERS = MEMBERS;
 
 export const ENSEMBLE_ORIGIN = { lat: 34.2, lon: -38.7 } as const;
 export const ENSEMBLE_IMPACT = { lat: 10.0, lon: -80.0 } as const;
@@ -104,8 +109,17 @@ function segmentsForViewport(): number {
   return 64;
 }
 
+/**
+ * The 51-member ensemble. Members are constructed one at a time during the
+ * hero's opening sequence: each `buildMember` call does the real control-point
+ * and cubic-spline sampling for one member and writes its offsets, so the
+ * member counter reads actual initialization progress and each track draws
+ * onto the planet only once its data exists. `ready` trails `built` so the
+ * newest track animates across the globe instead of popping in.
+ */
 export class Ensemble {
   readonly group = new Group();
+  readonly members = MEMBERS;
 
   private readonly geometry: BufferGeometry;
   private readonly material: ShaderMaterial;
@@ -113,9 +127,16 @@ export class Ensemble {
   private readonly markerGeometry: BufferGeometry;
   private readonly segments = segmentsForViewport();
 
+  private readonly offsets: Float32Array;
+  private readonly offsetsAttribute: BufferAttribute;
+  private readonly centerSamples: Vector3[];
+  private readonly centerDirections: Vector3[];
+
+  private built = 0;
+  private ready = 0;
   private targetDay = 0;
   private day = 0;
-  private intro = 0;
+  private fan = 0;
 
   constructor() {
     const origin = toDirection(
@@ -129,9 +150,9 @@ export class Ensemble {
       new Vector3(),
     );
 
-    const centerDirections: Vector3[] = [];
+    this.centerDirections = [];
     for (let point = 0; point < CONTROL_POINTS; point += 1) {
-      centerDirections.push(
+      this.centerDirections.push(
         slerpUnit(
           origin,
           impact,
@@ -141,111 +162,53 @@ export class Ensemble {
       );
     }
 
-    const centerSamples: Vector3[] = [];
+    this.centerSamples = [];
     for (let index = 0; index <= this.segments; index += 1) {
       const t = index / this.segments;
-      centerSamples.push(
+      this.centerSamples.push(
         slerpUnit(origin, impact, t, new Vector3()).multiplyScalar(
           RADIUS + liftAt(t),
         ),
       );
     }
 
-    const positions: number[] = [];
-    const offsets: number[] = [];
-    const progresses: number[] = [];
-    const colors: number[] = [];
-    const weights: number[] = [];
-    const seeds: number[] = [];
+    const vertices = MEMBERS * this.segments * 2;
+    const positions = new Float32Array(vertices * 3);
+    const progress = new Float32Array(vertices);
+    const colors = new Float32Array(vertices * 3);
+    const weights = new Float32Array(vertices);
+    const seeds = new Float32Array(vertices);
+    const members = new Float32Array(vertices);
+    this.offsets = new Float32Array(vertices * 3);
 
-    const ghost = new Color("#79eaff");
-    const realised = new Color("#f5f1e8");
-    const frameTangent = new Vector3();
-    const frameLateral = new Vector3();
-    const control = new Vector3();
-    const sample = new Vector3();
+    const bone = new Color("#f5f1e8");
+    const ghost = new Color("#5cc2dd");
 
     for (let member = 0; member < MEMBERS; member += 1) {
-      const isRealised = member === REALISED_MEMBER;
-      const rank = (member / (MEMBERS - 1)) * 2 - 1;
-      const fan = isRealised ? 0 : rank;
-      const amplitude = isRealised
-        ? 0.02
-        : 0.22 + Math.abs(fan) * 0.88 + hash(member, 3) * 0.08;
-      const crossAmplitude = isRealised
-        ? 0.012
-        : 0.08 + hash(member, 4) * 0.16;
+      const isBone = member === BONE_MEMBER;
+      const color = isBone ? bone : ghost;
       const seed = hash(member, 4);
-      const color = isRealised ? realised : ghost;
-      const weight = isRealised ? 1 : 0;
-
-      const controls: Vector3[] = [];
-
-      for (let point = 0; point < CONTROL_POINTS; point += 1) {
-        const t = point / (CONTROL_POINTS - 1);
-        const direction = centerDirections[point];
-        const before =
-          centerDirections[Math.max(0, point - 1)] ?? direction;
-        const after =
-          centerDirections[Math.min(CONTROL_POINTS - 1, point + 1)] ??
-          direction;
-
-        frameTangent.subVectors(after, before).normalize();
-        frameTangent.addScaledVector(
-          direction,
-          -frameTangent.dot(direction),
-        );
-
-        if (frameTangent.lengthSq() < 1e-6) {
-          frameTangent.set(-direction.z, 0, direction.x);
-          frameTangent.addScaledVector(
-            direction,
-            -frameTangent.dot(direction),
-          );
-        }
-
-        frameTangent.normalize();
-        frameLateral.crossVectors(direction, frameTangent).normalize();
-
-        const envelope = Math.sin(Math.PI * t);
-        control
-          .copy(direction)
-          .multiplyScalar(RADIUS + liftAt(t))
-          .addScaledVector(frameLateral, fan * amplitude * envelope)
-          .addScaledVector(
-            frameTangent,
-            (hash(member, 2) - 0.5) * crossAmplitude * envelope * 2,
-          );
-
-        controls.push(control.clone());
-      }
-
-      const memberSamples: Vector3[] = [];
-      const memberOffsets: Vector3[] = [];
-
-      for (let index = 0; index <= this.segments; index += 1) {
-        const t = index / this.segments;
-        cubicSample(controls, t, sample).normalize().multiplyScalar(
-          RADIUS + liftAt(t),
-        );
-
-        memberSamples.push(sample.clone());
-        memberOffsets.push(
-          sample.clone().sub(centerSamples[index] ?? sample),
-        );
-      }
+      const weight = isBone ? 1 : 0;
 
       for (let index = 0; index < this.segments; index += 1) {
         for (const vertex of [index, index + 1]) {
-          const base = centerSamples[vertex] ?? sample;
-          const offset = memberOffsets[vertex] ?? new Vector3();
+          const slot = member * this.segments * 2 + (index * 2 + (vertex - index));
+          const base = this.centerSamples[vertex];
+          const p = slot * 3;
 
-          positions.push(base.x, base.y, base.z);
-          offsets.push(offset.x, offset.y, offset.z);
-          progresses.push(vertex / this.segments);
-          colors.push(color.r, color.g, color.b);
-          weights.push(weight);
-          seeds.push(seed + vertex / this.segments);
+          positions[p] = base.x;
+          positions[p + 1] = base.y;
+          positions[p + 2] = base.z;
+
+          colors[p] = color.r;
+          colors[p + 1] = color.g;
+          colors[p + 2] = color.b;
+
+          const t = vertex / this.segments;
+          progress[slot] = t;
+          weights[slot] = weight;
+          seeds[slot] = seed + t;
+          members[slot] = member;
         }
       }
     }
@@ -255,13 +218,14 @@ export class Ensemble {
       "position",
       new Float32BufferAttribute(positions, 3),
     );
-    this.geometry.setAttribute(
-      "aOffset",
-      new Float32BufferAttribute(offsets, 3),
-    );
+    // BufferAttribute keeps the array by reference (Float32BufferAttribute
+    // would copy it), so the incremental member writes reach the GPU.
+    this.offsetsAttribute = new BufferAttribute(this.offsets, 3);
+    this.offsetsAttribute.setUsage(DynamicDrawUsage);
+    this.geometry.setAttribute("aOffset", this.offsetsAttribute);
     this.geometry.setAttribute(
       "aProgress",
-      new Float32BufferAttribute(progresses, 1),
+      new Float32BufferAttribute(progress, 1),
     );
     this.geometry.setAttribute(
       "aColor",
@@ -275,6 +239,10 @@ export class Ensemble {
       "aSeed",
       new Float32BufferAttribute(seeds, 1),
     );
+    this.geometry.setAttribute(
+      "aMember",
+      new Float32BufferAttribute(members, 1),
+    );
 
     this.material = new ShaderMaterial({
       uniforms: {
@@ -282,6 +250,7 @@ export class Ensemble {
         uDay: { value: 0 },
         uSpread: { value: 0 },
         uLength: { value: 0 },
+        uReady: { value: 0 },
         uOpacity: { value: 1.0 },
       },
       vertexShader: ensembleVertexShader,
@@ -323,12 +292,100 @@ export class Ensemble {
     this.group.add(tracks, marker);
   }
 
-  setDay(day: number): void {
-    this.targetDay = MathUtils.clamp(day, 0, 1);
+  get builtCount(): number {
+    return this.built;
   }
 
-  setIntro(value: number): void {
-    this.intro = MathUtils.clamp(value, 0, 1);
+  /** Real initialization work for one member: control points and samples. */
+  buildMember(member: number): void {
+    if (member < 0 || member >= MEMBERS || member < this.built) return;
+
+    const isBone = member === BONE_MEMBER;
+    const rank = (member / (MEMBERS - 1)) * 2 - 1;
+    const fan = isBone ? 0 : rank;
+    const amplitude = isBone
+      ? 0.02
+      : 0.22 + Math.abs(fan) * 0.88 + hash(member, 3) * 0.08;
+    const crossAmplitude = isBone
+      ? 0.012
+      : 0.08 + hash(member, 4) * 0.16;
+
+    const frameTangent = new Vector3();
+    const frameLateral = new Vector3();
+    const control = new Vector3();
+    const sample = new Vector3();
+    const controls: Vector3[] = [];
+
+    for (let point = 0; point < CONTROL_POINTS; point += 1) {
+      const t = point / (CONTROL_POINTS - 1);
+      const direction = this.centerDirections[point];
+      const before = this.centerDirections[Math.max(0, point - 1)] ?? direction;
+      const after =
+        this.centerDirections[Math.min(CONTROL_POINTS - 1, point + 1)] ??
+        direction;
+
+      frameTangent.subVectors(after, before).normalize();
+      frameTangent.addScaledVector(direction, -frameTangent.dot(direction));
+
+      if (frameTangent.lengthSq() < 1e-6) {
+        frameTangent.set(-direction.z, 0, direction.x);
+        frameTangent.addScaledVector(direction, -frameTangent.dot(direction));
+      }
+
+      frameTangent.normalize();
+      frameLateral.crossVectors(direction, frameTangent).normalize();
+
+      const envelope = Math.sin(Math.PI * t);
+      control
+        .copy(direction)
+        .multiplyScalar(RADIUS + liftAt(t))
+        .addScaledVector(frameLateral, fan * amplitude * envelope)
+        .addScaledVector(
+          frameTangent,
+          (hash(member, 2) - 0.5) * crossAmplitude * envelope * 2,
+        );
+
+      controls.push(control.clone());
+    }
+
+    for (let index = 0; index < this.segments; index += 1) {
+      for (const vertex of [index, index + 1]) {
+        const t = vertex / this.segments;
+        cubicSample(controls, t, sample).normalize().multiplyScalar(
+          RADIUS + liftAt(t),
+        );
+
+        const base = this.centerSamples[vertex];
+        const slot = member * this.segments * 2 + (index * 2 + (vertex - index));
+        const p = slot * 3;
+
+        this.offsets[p] = sample.x - base.x;
+        this.offsets[p + 1] = sample.y - base.y;
+        this.offsets[p + 2] = sample.z - base.z;
+      }
+    }
+
+    this.built = Math.max(this.built, member + 1);
+    this.offsetsAttribute.needsUpdate = true;
+  }
+
+  buildNext(count = 1): number {
+    for (let i = 0; i < count && this.built < MEMBERS; i += 1) {
+      this.buildMember(this.built);
+    }
+    return this.built;
+  }
+
+  setReady(value: number): void {
+    this.ready = MathUtils.clamp(value, 0, MEMBERS);
+  }
+
+  setFan(value: number): void {
+    this.fan = MathUtils.clamp(value, 0, 1);
+  }
+
+  setDay(day: number): void {
+    this.targetDay = MathUtils.clamp(day, 0, 1);
   }
 
   update(time: number, delta: number, reduced: boolean): void {
@@ -336,17 +393,23 @@ export class Ensemble {
       ? this.targetDay
       : MathUtils.damp(this.day, this.targetDay, 5.5, delta);
 
-    const spread =
-      Math.pow(1 - this.day, 1.2) * this.intro;
+    // `ready` trails the members actually built, so a freshly built track
+    // draws across the globe over the following frames.
+    this.ready = reduced
+      ? this.built
+      : MathUtils.damp(this.ready, this.built, 9, delta);
+
+    const fanGate = 0.1 + 0.9 * this.fan;
+    const spread = Math.pow(1 - this.day, 1.2) * fanGate;
     const easedLength = 1 - Math.pow(1 - this.day, 3);
-    const length = (0.55 + 0.45 * easedLength) * this.intro;
+    const length = 0.55 + 0.45 * easedLength;
 
     this.material.uniforms.uTime.value = time;
     this.material.uniforms.uDay.value = this.day;
     this.material.uniforms.uSpread.value = spread;
     this.material.uniforms.uLength.value = length;
-    this.markerMaterial.opacity =
-      this.intro * (0.42 + this.day * 0.58);
+    this.material.uniforms.uReady.value = this.ready;
+    this.markerMaterial.opacity = this.fan * (0.42 + this.day * 0.58);
   }
 
   dispose(): void {

@@ -1,12 +1,19 @@
 import { gsap, reducedMotion } from "../lib/motion";
 
+/**
+ * The hero copy arrives on its own DOM clock, independent of WebGL, so the
+ * headline is readable even when the planet is slow or unavailable. The nav
+ * and day rail are never hidden: the page frame is present from first paint.
+ */
 export function revealHero(): void {
   if (reducedMotion.matches) {
-    gsap.set([".nav", ".day-rail"], { autoAlpha: 1 });
+    gsap.set(
+      ".hero__statement, .hero__horizon, .hero__top, .hero__bottom",
+      { clearProps: "opacity,visibility,transform" },
+    );
     return;
   }
 
-  gsap.set([".nav", ".day-rail"], { autoAlpha: 0 });
   gsap.set(".line", { yPercent: 118 });
   gsap.set(".hero__eyebrow, .hero__lede", { autoAlpha: 0, y: 18 });
   gsap.set(".hero__top, .hero__bottom", { autoAlpha: 0, y: 12 });
@@ -16,7 +23,6 @@ export function revealHero(): void {
   const timeline = gsap.timeline({ defaults: { ease: "expoOut" } });
 
   timeline
-    .to([".nav", ".day-rail"], { autoAlpha: 1, duration: 1 }, 0)
     .to(
       ".hero__horizon",
       {
@@ -24,7 +30,7 @@ export function revealHero(): void {
         yPercent: 0,
         duration: 1.25,
       },
-      0.1,
+      0.05,
     )
     .to(
       ".hero__horizon-value",
@@ -33,7 +39,7 @@ export function revealHero(): void {
         scale: 1,
         duration: 1.4,
       },
-      0.1,
+      0.05,
     )
     .to(
       ".line",
@@ -42,7 +48,7 @@ export function revealHero(): void {
         duration: 1.25,
         stagger: 0.09,
       },
-      0.35,
+      0.3,
     )
     .to(
       ".hero__eyebrow, .hero__lede",
@@ -52,21 +58,33 @@ export function revealHero(): void {
         duration: 1.1,
         stagger: 0.08,
       },
-      0.95,
+      0.9,
     )
-    .to(
-      ".hero__top, .hero__bottom",
-      {
-        autoAlpha: 1,
-        y: 0,
-        duration: 1,
-      },
-      1.1,
-    )
-    .set(".line", { clearProps: "transform", immediateRender: false }, 1.75)
+    .set(".line", { clearProps: "transform", immediateRender: false }, 1.7)
     .set(
       ".hero__horizon-value",
       { clearProps: "transform", immediateRender: false },
-      1.75,
+      1.7,
     );
+}
+
+/**
+ * The top and bottom instrument lines arrive once the assembly overlay has
+ * left, so they never sit under the preloader's own readouts.
+ */
+export function revealHeroChrome(): void {
+  if (reducedMotion.matches) {
+    gsap.set(".hero__top, .hero__bottom", {
+      clearProps: "opacity,visibility,transform",
+    });
+    return;
+  }
+
+  gsap.to(".hero__top, .hero__bottom", {
+    autoAlpha: 1,
+    y: 0,
+    duration: 0.9,
+    ease: "expoOut",
+    overwrite: true,
+  });
 }

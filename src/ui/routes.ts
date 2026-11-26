@@ -1,4 +1,4 @@
-import { gsap, reducedMotion } from "../lib/motion";
+import { gsap, ScrollTrigger, reducedMotion } from "../lib/motion";
 
 interface RouteDatum {
   code: string;
@@ -37,6 +37,15 @@ const ROUTES: RouteDatum[] = [
 ];
 
 const CHART = { left: 10, right: 292, top: 12, bottom: 112 };
+
+export const TRACKED_ASSETS = 38412;
+
+/** Mean lane risk across the three demo lanes on a given forecast day. */
+export function meanRiskAtDay(day: number): number {
+  const index = Math.min(14, Math.max(0, Math.round(day)));
+  const values = ROUTES.map((route) => route.values[index] ?? 0);
+  return values.reduce((sum, value) => sum + value, 0) / values.length;
+}
 
 const dayLabel = (index: number) => String(index).padStart(2, "0");
 
@@ -253,4 +262,66 @@ export function initRoutesPanel({ onSelect }: RoutesPanelOptions): void {
   });
 
   select(0, false);
+  initLanesScroll();
+}
+
+/**
+ * Pin the lane instrument while the three process captions swap with scroll.
+ * The pin is the only place the three moves are read, so the chapter stays
+ * one instrument rather than three stacked cards.
+ */
+function initLanesScroll(): void {
+  const section = document.getElementById("routes");
+  const captions = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-caption]"),
+  );
+  const status = document.getElementById("routes-caption-status");
+
+  if (!section || captions.length === 0) return;
+
+  let current = -1;
+
+  const setCaption = (index: number, announce = false): void => {
+    const clamped = Math.max(0, Math.min(captions.length - 1, index));
+    if (clamped === current) return;
+    current = clamped;
+
+    captions.forEach((caption, captionIndex) => {
+      caption.classList.toggle("is-active", captionIndex === clamped);
+    });
+
+    if (announce && status) {
+      const num = captions[clamped]
+        .querySelector(".routes__caption-num")
+        ?.textContent?.trim();
+      const title = captions[clamped]
+        .querySelector(".routes__caption-title")
+        ?.textContent?.trim();
+      status.textContent = [num, title].filter(Boolean).join(". ");
+    }
+  };
+
+  setCaption(0);
+
+  const mm = gsap.matchMedia();
+
+  mm.add("(prefers-reduced-motion: no-preference)", () => {
+    const trigger = ScrollTrigger.create({
+      trigger: section,
+      start: "top top",
+      end: () => `+=${window.innerHeight * 0.9}`,
+      pin: true,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        const index = self.progress < 0.4 ? 0 : self.progress < 0.73 ? 1 : 2;
+        setCaption(index, true);
+      },
+    });
+
+    return () => {
+      trigger.kill();
+      setCaption(0);
+    };
+  });
 }

@@ -299,7 +299,13 @@
   }
 
   .hero__statement::before {
-    inset: -1rem -1rem -1.4rem;
+    inset: -1.2rem -1.2rem -1.8rem;
+    background: radial-gradient(
+      88% 88% at 36% 50%,
+      rgb(5 7 13 / 0.9) 0%,
+      rgb(5 7 13 / 0.68) 55%,
+      rgb(5 7 13 / 0) 84%
+    );
   }
 
   .hero__headline {
@@ -308,7 +314,9 @@
 
   .hero__lede {
     max-width: 100%;
+    color: rgb(242 238 230 / 0.82);
     font-size: var(--text-small);
+    font-weight: 400;
   }
 
   .hero__horizon {

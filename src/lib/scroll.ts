@@ -60,40 +60,21 @@ export function initScroll(): ScrollController {
       .to(".hero__horizon", { yPercent: -10, ease: "none" }, 0)
       .to(".hero__top, .hero__bottom", { autoAlpha: 0, ease: "none" }, 0.15);
 
-    const words = gsap.utils.toArray<HTMLElement>(".problem__word");
-
-    gsap.set(words, { opacity: 0.2, color: "#f2eee6" });
-
-    const wordsTl = gsap.timeline({
-      scrollTrigger: {
-        trigger: "#problem",
-        start: "top top",
-        end: "+=100%",
-        pin: true,
-        scrub: 0.7,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
-      },
-    });
-
-    words.forEach((word, index) => {
-      wordsTl.to(
-        word,
-        { opacity: 1, duration: 0.5, ease: "none" },
-        index * 0.16,
-      );
-
-      if (word.classList.contains("problem__word--key")) {
-        wordsTl.set(word, { color: "#7fe7ff" }, index * 0.16 + 0.5);
-      }
+    ScrollTrigger.create({
+      trigger: "#problem",
+      start: "top top",
+      end: () => `+=${Math.round(window.innerHeight * 1.8)}`,
+      pin: true,
+      anticipatePin: 1,
+      invalidateOnRefresh: true,
     });
 
     const master = gsap.timeline({
       scrollTrigger: {
         trigger: "#hero",
         start: "top top",
-        endTrigger: "#routes",
-        end: "bottom bottom",
+        endTrigger: "#pricing",
+        end: "top top",
         scrub: 0.9,
         anticipatePin: 1,
         invalidateOnRefresh: true,
@@ -101,7 +82,7 @@ export function initScroll(): ScrollController {
     });
 
     master
-      .to(choreo, { state: 1, duration: 0.27, ease: "none" }, 0.16)
+      .to(choreo, { state: 1, duration: 0.12, ease: "none" }, 0.14)
       .to(choreo, { state: 2, duration: 0.38, ease: "none" }, 0.62);
 
     gsap.fromTo(
@@ -111,9 +92,9 @@ export function initScroll(): ScrollController {
         veil: 1,
         ease: "none",
         scrollTrigger: {
-          trigger: "#gallery",
-          start: "top 85%",
-          end: "top 35%",
+          trigger: "#pricing",
+          start: "top 82%",
+          end: "top 24%",
           scrub: 0.6,
           invalidateOnRefresh: true,
         },
@@ -135,21 +116,6 @@ export function initScroll(): ScrollController {
       .to(choreo, { pricing: 1, duration: 0.15 })
       .to(choreo, { pricing: 0, duration: 0.4, ease: "none" });
 
-    gsap.fromTo(
-      ".routes__copy",
-      { yPercent: 9 },
-      {
-        yPercent: -5,
-        ease: "none",
-        scrollTrigger: {
-          trigger: "#routes",
-          start: "top bottom",
-          end: "bottom top",
-          scrub: 0.8,
-        },
-      },
-    );
-
     gsap.from(".routes__row", {
       opacity: 0,
       y: 26,
@@ -158,14 +124,14 @@ export function initScroll(): ScrollController {
       ease: "expoOut",
       scrollTrigger: {
         trigger: ".routes__legend",
-        start: "top 78%",
+        start: "top 96%",
       },
     });
 
     requestAnimationFrame(() => ScrollTrigger.refresh());
 
     return () => {
-      gsap.set(".problem__word", { clearProps: "opacity,color" });
+      gsap.set(".problem__sentence", { clearProps: "opacity,transform" });
       choreo.state = 0;
       choreo.veil = 0;
       choreo.pricing = 0;
@@ -219,11 +185,14 @@ export function initScroll(): ScrollController {
         typeof target === "string"
           ? document.querySelector<HTMLElement>(target)
           : null;
-      const offset = typeof target === "string"
-        ? target === "#problem"
-          ? 0
-          : -90
-        : 0;
+      // Lenis subtracts the root scroll-padding from anchor targets; adding it
+      // back lands the chapter itself at the top of the viewport, with the
+      // chapter's own chrome padding clearing the nav.
+      const scrollPadding =
+        Number.parseFloat(
+          getComputedStyle(document.documentElement).scrollPaddingTop,
+        ) || 0;
+      const offset = typeof target === "string" ? scrollPadding : 0;
 
       if (lenis) {
         lenis.scrollTo(
