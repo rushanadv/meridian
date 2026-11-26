@@ -1,4 +1,10 @@
 import { gsap, ScrollTrigger, reducedMotion } from "../lib/motion";
+import { choreo } from "../lib/choreography";
+
+interface RouteTiming {
+  etaHours: [number, number];
+  cost: [number, number];
+}
 
 interface RouteDatum {
   code: string;
@@ -6,10 +12,12 @@ interface RouteDatum {
   spoken: string;
   values: number[];
   current: number;
+  timing: RouteTiming;
 }
 
 interface RoutesPanelOptions {
   onSelect: (index: number) => void;
+  onReplay?: () => void;
 }
 
 const ROUTES: RouteDatum[] = [
@@ -19,6 +27,7 @@ const ROUTES: RouteDatum[] = [
     spoken: "Shanghai to Rotterdam",
     values: [18, 21, 24, 27, 30, 34, 42, 51, 58, 49, 39, 31, 27, 24, 22],
     current: 5,
+    timing: { etaHours: [438, 490], cost: [214800, 261600] },
   },
   {
     code: "R2",
@@ -26,6 +35,7 @@ const ROUTES: RouteDatum[] = [
     spoken: "Singapore to Los Angeles",
     values: [44, 48, 55, 61, 66, 72, 68, 61, 55, 52, 48, 44, 41, 39, 37],
     current: 3,
+    timing: { etaHours: [530, 584], cost: [188400, 241900] },
   },
   {
     code: "R3",
@@ -33,10 +43,13 @@ const ROUTES: RouteDatum[] = [
     spoken: "Santos to Shanghai",
     values: [30, 33, 36, 40, 45, 52, 57, 61, 55, 48, 42, 38, 35, 32, 30],
     current: 5,
+    timing: { etaHours: [638, 684], cost: [246100, 289700] },
   },
 ];
 
 const CHART = { left: 10, right: 292, top: 12, bottom: 112 };
+const LANE_DAY_START = 7;
+const LANE_DAY_END = 4;
 
 export const TRACKED_ASSETS = 38412;
 
@@ -55,8 +68,16 @@ const xAt = (point: number) =>
 const yAt = (risk: number) =>
   CHART.bottom - (risk / 100) * (CHART.bottom - CHART.top);
 
+const smoothstep = (edge0: number, edge1: number, value: number) => {
+  const t = Math.min(1, Math.max(0, (value - edge0) / (edge1 - edge0)));
+  return t * t * (3 - 2 * t);
+};
+
+const spreadAt = (index: number) => 4 + 13 * (index / 14);
+
 function buildGrid(): void {
   const grid = document.getElementById("chart-grid");
+  const axis = document.getElementById("chart-axis");
   if (!grid) return;
 
   const namespace = "http://www.w3.org/2000/svg";
@@ -69,7 +90,7 @@ function buildGrid(): void {
     line.setAttribute("y2", String(yAt(risk)));
     line.setAttribute("stroke", "currentColor");
     line.setAttribute("stroke-width", "0.75");
-    line.setAttribute("opacity", "0.65");
+    line.setAttribute("opacity", "0.55");
     grid.append(line);
   }
 
@@ -81,8 +102,20 @@ function buildGrid(): void {
     line.setAttribute("y2", String(CHART.bottom));
     line.setAttribute("stroke", "currentColor");
     line.setAttribute("stroke-width", "0.6");
-    line.setAttribute("opacity", day === 7 ? "0.4" : "0.65");
+    line.setAttribute("opacity", day === 7 ? "0.35" : "0.55");
     grid.append(line);
+  }
+
+  if (!axis) return;
+
+  for (const day of [0, 3, 7, 10, 14]) {
+    const label = document.createElementNS(namespace, "text");
+    label.setAttribute("x", String(xAt(day)));
+    label.setAttribute("y", "126");
+    label.setAttribute("text-anchor", "middle");
+    label.setAttribute("class", "routes__chart-axis-label");
+    label.textContent = `D${dayLabel(day)}`;
+    axis.append(label);
   }
 }
 
@@ -102,17 +135,42 @@ function areaPathFor(values: number[]): string {
     .join(" ")} L${xAt(last)} ${CHART.bottom} Z`;
 }
 
-export function initRoutesPanel({ onSelect }: RoutesPanelOptions): void {
+/** P10–P90 uncertainty ribbon: widens as the horizon reaches out. */
+function bandPathFor(values: number[]): string {
+  const high: string[] = [];
+  const low: string[] = [];
+
+  values.forEach((value, index) => {
+    const spread = spreadAt(index);
+    const upper = Math.min(98, value + spread);
+    const lower = Math.max(2, value - spread);
+    high.push(`${xAt(index).toFixed(2)} ${yAt(upper).toFixed(2)}`);
+    low.push(`${xAt(index).toFixed(2)} ${yAt(lower).toFixed(2)}`);
+  });
+
+  return `M${high[0]} ${high.slice(1).map((p) => `L${p}`).join(" ")} L${
+    low[low.length - 1]
+  } ${low
+    .slice(0, -1)
+    .reverse()
+    .map((p) => `L${p}`)
+    .join(" ")} Z`;
+}
+
+export function initRoutesPanel({ onSelect, onReplay }: RoutesPanelOptions): void {
   const rows = Array.from(
     document.querySelectorAll<HTMLButtonElement>("[data-route]"),
   );
   const chart = document.getElementById("risk-chart");
   const line = document.getElementById("chart-line");
   const area = document.getElementById("chart-area-path");
+  const band = document.getElementById("chart-band");
   const clip = document.getElementById("chart-clip");
   const nowDot = document.getElementById("chart-now");
   const nowLine = document.getElementById("chart-now-line");
+  const nowLabel = document.getElementById("chart-now-label");
   const peakDot = document.getElementById("chart-peak");
+  const peakLabel = document.getElementById("chart-peak-label");
   const riskOut = document.getElementById("chart-risk");
   const whenOut = document.getElementById("chart-when");
   const routeOut = document.getElementById("chart-route");
@@ -121,15 +179,33 @@ export function initRoutesPanel({ onSelect }: RoutesPanelOptions): void {
   const announce = document.getElementById("chart-announce");
   const title = document.getElementById("risk-chart-title");
 
+  const etaValue = document.getElementById("eta-value");
+  const costValue = document.getElementById("cost-value");
+  const etaNote = document.getElementById("eta-note");
+  const costNote = document.getElementById("cost-note");
+  const replay = document.getElementById("lane-replay");
+
+  const scrubTrack = document.getElementById("lane-day");
+  const scrubFill = document.querySelector<HTMLElement>(".routes__scrub-fill");
+  const scrubHandle = document.querySelector<HTMLElement>(".routes__scrub-handle");
+  const dayOut = document.getElementById("lane-day-out");
+
+  const stepButtons = Array.from(
+    document.querySelectorAll<HTMLButtonElement>("[data-step]"),
+  );
+
   if (
     rows.length === 0 ||
     !chart ||
     !line ||
     !area ||
+    !band ||
     !clip ||
     !nowDot ||
     !nowLine ||
+    !nowLabel ||
     !peakDot ||
+    !peakLabel ||
     !riskOut ||
     !whenOut ||
     !routeOut ||
@@ -159,6 +235,37 @@ export function initRoutesPanel({ onSelect }: RoutesPanelOptions): void {
   const animate = !reducedMotion.matches;
   let selected = -1;
   const riskProxy = { value: 0 };
+  let displayBend = 0;
+  let isDragging = false;
+  let replaying = false;
+
+  const formatEta = (hours: number) => {
+    const rounded = Math.round(hours);
+    const days = Math.floor(rounded / 24);
+    const rest = rounded % 24;
+    return `+${days}d ${rest}h`;
+  };
+
+  const paintCounters = () => {
+    const datum = ROUTES[selected];
+    if (!datum) return;
+
+    const etaDelta = (datum.timing.etaHours[1] - datum.timing.etaHours[0]) * displayBend;
+    const costDelta = (datum.timing.cost[1] - datum.timing.cost[0]) * displayBend;
+
+    if (etaValue) etaValue.textContent = formatEta(etaDelta);
+    if (costValue) {
+      costValue.textContent = `+$${Math.round(costDelta).toLocaleString("en-US")}`;
+    }
+    if (etaNote) {
+      etaNote.textContent =
+        displayBend > 0.02 ? "member 17 detour" : "moves with member 17";
+    }
+    if (costNote) {
+      costNote.textContent =
+        displayBend > 0.02 ? "rerouted charter" : "before the bend";
+    }
+  };
 
   const paintRisk = () => {
     riskOut.textContent = String(Math.round(riskProxy.value));
@@ -190,15 +297,30 @@ export function initRoutesPanel({ onSelect }: RoutesPanelOptions): void {
 
     line.setAttribute("d", pathFor(datum.values));
     area.setAttribute("d", areaPathFor(datum.values));
+    band.setAttribute("d", bandPathFor(datum.values));
     peakDot.setAttribute("cx", String(peakX));
     peakDot.setAttribute("cy", String(peakY));
+    peakLabel.setAttribute("x", String(peakX + (peakX > 220 ? -6 : 6)));
+    peakLabel.setAttribute(
+      "y",
+      String(Math.max(10, peakY - 7)),
+    );
+    peakLabel.setAttribute(
+      "text-anchor",
+      peakX > 220 ? "end" : "start",
+    );
 
     nowLine.setAttribute("x1", String(nowX));
     nowLine.setAttribute("x2", String(nowX));
+    nowDot.setAttribute("cx", String(nowX));
+    nowDot.setAttribute("cy", String(nowY));
+    nowLabel.setAttribute("x", String(nowX + 5));
+    nowLabel.setAttribute("y", String(Math.min(CHART.bottom - 2, nowY + 9)));
+    nowLabel.setAttribute("text-anchor", "start");
 
     routeOut.textContent = datum.name;
     peakOut.textContent = `${peak}%`;
-    peakDayOut.textContent = `/ DAY ${dayLabel(peakIndex)}`;
+    peakDayOut.textContent = `· DAY ${dayLabel(peakIndex)}`;
     whenOut.textContent = `NOW · DAY ${dayLabel(datum.current)}`;
     title.textContent = `${datum.spoken} risk is ${currentRisk} percent now and peaks at ${peak} percent on day ${peakIndex}.`;
     announce.textContent = `${datum.spoken}: ${currentRisk} percent risk now, peaking at ${peak} percent on day ${peakIndex} of fourteen.`;
@@ -211,6 +333,8 @@ export function initRoutesPanel({ onSelect }: RoutesPanelOptions): void {
 
     gsap.killTweensOf(riskProxy);
     riskProxy.value = fromRisk;
+
+    paintCounters();
 
     if (animate) {
       gsap.to(riskProxy, {
@@ -233,19 +357,24 @@ export function initRoutesPanel({ onSelect }: RoutesPanelOptions): void {
       );
       gsap.fromTo(
         nowDot,
-        { attr: { cx: previous ? xAt(previous.current) : nowX, cy: previous ? yAt(previous.values[previous.current] ?? 0) : nowY } },
+        {
+          attr: {
+            cx: previous ? xAt(previous.current) : nowX,
+            cy: previous ? yAt(previous.values[previous.current] ?? 0) : nowY,
+          },
+        },
         { attr: { cx: nowX, cy: nowY }, duration: 0.7, ease: "power4.out" },
       );
       gsap.fromTo(
         peakDot,
         { opacity: 0 },
-        { opacity: 0.7, duration: 0.5, delay: 0.35, ease: "power2.out" },
+        { opacity: 0.75, duration: 0.5, delay: 0.35, ease: "power2.out" },
       );
     } else {
       gsap.set(clip, { attr: { width: 300 } });
       nowDot.setAttribute("cx", String(nowX));
       nowDot.setAttribute("cy", String(nowY));
-      peakDot.setAttribute("opacity", "0.7");
+      peakDot.setAttribute("opacity", "0.75");
     }
   };
 
@@ -261,66 +390,199 @@ export function initRoutesPanel({ onSelect }: RoutesPanelOptions): void {
     });
   });
 
-  select(0, false);
-  initLanesScroll();
-}
+  // ---- The pinned lane run: Ingest → Resolve → Reroute -------------------
 
-/**
- * Pin the lane instrument while the three process captions swap with scroll.
- * The pin is the only place the three moves are read, so the chapter stays
- * one instrument rather than three stacked cards.
- */
-function initLanesScroll(): void {
   const section = document.getElementById("routes");
   const captions = Array.from(
     document.querySelectorAll<HTMLElement>("[data-caption]"),
   );
   const status = document.getElementById("routes-caption-status");
 
-  if (!section || captions.length === 0) return;
-
-  let current = -1;
-
   const setCaption = (index: number, announce = false): void => {
     const clamped = Math.max(0, Math.min(captions.length - 1, index));
-    if (clamped === current) return;
-    current = clamped;
 
     captions.forEach((caption, captionIndex) => {
       caption.classList.toggle("is-active", captionIndex === clamped);
+    });
+    stepButtons.forEach((button, buttonIndex) => {
+      const active = buttonIndex === clamped;
+      button.classList.toggle("is-active", active);
+      if (active) button.setAttribute("aria-current", "step");
+      else button.removeAttribute("aria-current");
     });
 
     if (announce && status) {
       const num = captions[clamped]
         .querySelector(".routes__caption-num")
         ?.textContent?.trim();
-      const title = captions[clamped]
+      const titleText = captions[clamped]
         .querySelector(".routes__caption-title")
         ?.textContent?.trim();
-      status.textContent = [num, title].filter(Boolean).join(". ");
+      status.textContent = [num, titleText].filter(Boolean).join(". ");
     }
   };
 
-  setCaption(0);
+  let laneProgress = 0;
+
+  const paintScrub = (progress: number): void => {
+    const clamped = Math.min(1, Math.max(0, progress));
+    const day = LANE_DAY_START - clamped * (LANE_DAY_START - LANE_DAY_END);
+    const rounded = Math.round(day);
+
+    if (scrubFill) scrubFill.style.width = `${clamped * 100}%`;
+    if (scrubHandle) scrubHandle.style.left = `${clamped * 100}%`;
+    if (dayOut) dayOut.textContent = `D${dayLabel(rounded)}`;
+    if (scrubTrack) {
+      scrubTrack.setAttribute("aria-valuenow", String(rounded));
+      scrubTrack.setAttribute(
+        "aria-valuetext",
+        `${rounded} ${rounded === 1 ? "day" : "days"} to impact`,
+      );
+    }
+
+    const step = clamped < 0.34 ? 0 : clamped < 0.67 ? 1 : 2;
+    setCaption(step);
+
+    const reroute = smoothstep(0.64, 0.97, clamped);
+    choreo.lanes = clamped;
+    choreo.reroute = reroute;
+
+    if (!replaying) {
+      displayBend = reroute;
+      paintCounters();
+    }
+  };
+
+  const applyProgress = (progress: number): void => {
+    laneProgress = Math.min(1, Math.max(0, progress));
+    paintScrub(laneProgress);
+  };
+
+  const scrubTo = (progress: number): void => {
+    applyProgress(progress);
+  };
+
+  const progressFromClientX = (clientX: number): number => {
+    if (!scrubTrack) return laneProgress;
+    const rect = scrubTrack.getBoundingClientRect();
+    return Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+  };
+
+  if (scrubTrack) {
+    const onPointerDown = (event: PointerEvent) => {
+      isDragging = true;
+      scrubTrack.setPointerCapture(event.pointerId);
+      scrubTo(progressFromClientX(event.clientX));
+    };
+
+    const onPointerMove = (event: PointerEvent) => {
+      if (!isDragging) return;
+      scrubTo(progressFromClientX(event.clientX));
+    };
+
+    const onPointerUp = (event: PointerEvent) => {
+      isDragging = false;
+      if (scrubTrack.hasPointerCapture(event.pointerId)) {
+        scrubTrack.releasePointerCapture(event.pointerId);
+      }
+    };
+
+    scrubTrack.addEventListener("pointerdown", onPointerDown);
+    scrubTrack.addEventListener("pointermove", onPointerMove);
+    scrubTrack.addEventListener("pointerup", onPointerUp);
+    scrubTrack.addEventListener("pointercancel", onPointerUp);
+
+    scrubTrack.addEventListener("keydown", (event) => {
+      const step = event.key === "ArrowRight" || event.key === "ArrowUp"
+        ? 0.25
+        : event.key === "ArrowLeft" || event.key === "ArrowDown"
+          ? -0.25
+          : 0;
+
+      if (event.key === "Home") {
+        event.preventDefault();
+        scrubTo(0);
+        return;
+      }
+      if (event.key === "End") {
+        event.preventDefault();
+        scrubTo(1);
+        return;
+      }
+      if (step === 0) return;
+
+      event.preventDefault();
+      scrubTo(Math.min(1, Math.max(0, laneProgress + step)));
+    });
+  }
+
+  stepButtons.forEach((button, index) => {
+    button.addEventListener("click", () => {
+      scrubTo(index === 0 ? 0 : index === 1 ? 0.5 : 1);
+    });
+  });
+
+  if (replay) {
+    replay.addEventListener("click", () => {
+      if (!animate) {
+        scrubTo(1);
+        return;
+      }
+
+      replaying = true;
+      // Jump to the full bend so replay ends on the resolved passage rather
+      // than snapping back to a half-scrubbed state.
+      scrubTo(1);
+      displayBend = 0;
+      paintCounters();
+      onReplay?.();
+
+      const proxy = { value: 0 };
+      gsap.to(proxy, {
+        value: 1,
+        duration: 1.6,
+        ease: "power2.inOut",
+        onUpdate: () => {
+          displayBend = proxy.value;
+          paintCounters();
+        },
+        onComplete: () => {
+          replaying = false;
+        },
+      });
+
+      if (status) {
+        status.textContent =
+          "Replaying the member 17 bend: the old passage ghosts and the detour redraws.";
+      }
+    });
+  }
+
+  select(0, false);
+  paintScrub(0);
 
   const mm = gsap.matchMedia();
 
   mm.add("(prefers-reduced-motion: no-preference)", () => {
+    if (!section) return;
+
     const trigger = ScrollTrigger.create({
       trigger: section,
       start: "top top",
-      end: () => `+=${window.innerHeight * 0.9}`,
+      end: () => `+=${Math.round(window.innerHeight * 2.2)}`,
       pin: true,
       anticipatePin: 1,
       invalidateOnRefresh: true,
       onUpdate: (self) => {
-        const index = self.progress < 0.4 ? 0 : self.progress < 0.73 ? 1 : 2;
-        setCaption(index, true);
+        if (isDragging) return;
+        applyProgress(self.progress);
       },
     });
 
     return () => {
       trigger.kill();
+      choreo.lanes = 0;
+      choreo.reroute = 0;
       setCaption(0);
     };
   });

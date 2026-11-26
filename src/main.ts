@@ -52,6 +52,7 @@ initHud({ scene });
 
 initRoutesPanel({
   onSelect: (index) => scene?.setRouteFocus(index),
+  onReplay: () => scene?.replayReroute(),
 });
 initMagnetic();
 initHorizon({
