@@ -16,6 +16,10 @@ export const choreo = {
   pricing: 0,
   day: FORECAST_DAYS,
   uDay: 0,
+  /** 0–2 continuous progress through Ingest → Resolve → Reroute. */
+  lanes: 0,
+  /** 0–1 how far member 17 has peeled around the storm. */
+  reroute: 0,
 };
 
 export const clampState = (value: number) =>

@@ -55,6 +55,8 @@ export class Globe {
   private spin = 0;
   private yaw = HERO_YAW;
   private pitch = -0.08;
+  private veil = 0;
+  private stormFocus = 0;
 
   constructor() {
     const random = seededRandom(20260214);
@@ -458,10 +460,25 @@ export class Globe {
     direction: Vector3,
     amplitude: number,
     dim: number,
+    focus = 0,
   ): void {
     this.pointsMaterial.uniforms.uStormDir.value.copy(direction);
     this.pointsMaterial.uniforms.uStormAmp.value = amplitude;
     this.pointsMaterial.uniforms.uDim.value = dim;
+    this.stormFocus = MathUtils.clamp(focus, 0, 1);
+    this.applyGrade();
+  }
+
+  private applyGrade(): void {
+    const quiet = 1 - this.stormFocus;
+    this.atmosphereMaterial.uniforms.uIntensity.value =
+      0.34 * (1 - this.stormFocus * 0.55) * (1 - this.veil);
+    this.graticuleMaterial.opacity =
+      0.055 * (0.68 + quiet * 0.32) * (1 - this.veil);
+    this.equatorMaterial.opacity =
+      0.16 * (0.78 + quiet * 0.22) * (1 - this.veil);
+    this.streamMaterial.uniforms.uOpacity.value =
+      0.9 * (1 - this.stormFocus * 0.6) * (1 - this.veil);
   }
 
   /**
@@ -470,12 +487,8 @@ export class Globe {
    * a quiet backdrop after the lane view.
    */
   setVeil(value: number): void {
-    const veil = MathUtils.clamp(value, 0, 1);
-
-    this.atmosphereMaterial.uniforms.uIntensity.value = 0.34 * (1 - veil);
-    this.graticuleMaterial.opacity = 0.055 * (1 - veil);
-    this.equatorMaterial.opacity = 0.16 * (1 - veil);
-    this.streamMaterial.uniforms.uOpacity.value = 0.9 * (1 - veil);
+    this.veil = MathUtils.clamp(value, 0, 1);
+    this.applyGrade();
   }
 
   resize(heightCss: number, pixelRatio: number): void {

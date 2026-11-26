@@ -7,24 +7,36 @@
   z-index: 3;
   top: var(--storm-hud-top, 68%);
   right: var(--pad);
-  width: min(25rem, 35vw);
+  width: min(24rem, 33vw);
   padding: 0.85rem 1rem 0.8rem;
   border-block: 1px solid var(--line-strong);
   border-left: 2px solid var(--accent);
-  background: linear-gradient(100deg, rgb(5 7 13 / 0.97), rgb(5 7 13 / 0.88));
+  background: linear-gradient(100deg, rgb(5 7 13 / 0.94), rgb(5 7 13 / 0.8));
   font-family: var(--font-mono);
+  font-variant-numeric: lining-nums tabular-nums;
   transition: border-color 280ms var(--ease-expo), box-shadow 280ms var(--ease-expo);
 }
 
-.storm-hud::before {
+.storm-hud__leader {
+  position: absolute;
+  right: 100%;
+  top: 1.55rem;
+  width: clamp(1.2rem, 4vw, 3.4rem);
+  height: 1px;
+  background: linear-gradient(to left, var(--accent), rgb(127 231 255 / 0));
+  opacity: 0.65;
+}
+
+.storm-hud__leader::after {
   content: "";
   position: absolute;
-  left: 1.1rem;
-  bottom: 100%;
-  width: 1px;
-  height: 2.5rem;
-  background: linear-gradient(to top, var(--accent), transparent);
-  opacity: 0.7;
+  right: -2px;
+  top: -2px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 12px rgb(127 231 255 / 0.6);
 }
 
 .storm-hud__head {
@@ -96,6 +108,12 @@
   color: var(--accent);
   font-size: 0.52rem;
   letter-spacing: 0.08em;
+}
+
+.storm-hud__value,
+.storm-hud__sub,
+.storm-hud__stamp {
+  font-feature-settings: "tnum" 1;
 }
 
 .storm-hud__sub {
@@ -235,11 +253,18 @@
 .routes__instrument {
   display: grid;
   flex: 1;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 27rem);
+  grid-template-columns: minmax(0, 1fr) minmax(330px, 29rem);
   align-items: center;
   gap: clamp(1.5rem, 4vw, 4.5rem);
   min-height: 0;
   margin-top: clamp(1rem, 2.6vh, 2rem);
+}
+
+.routes__left {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(0.9rem, 2.2vh, 1.4rem);
+  min-width: 0;
 }
 
 .routes__captions {
@@ -257,10 +282,10 @@
   z-index: -1;
   pointer-events: none;
   background: radial-gradient(
-    70% 72% at 36% 52%,
-    rgb(5 7 13 / 0.86) 0%,
-    rgb(5 7 13 / 0.58) 52%,
-    rgb(5 7 13 / 0) 78%
+    82% 86% at 38% 50%,
+    rgb(5 7 13 / 0.93) 0%,
+    rgb(5 7 13 / 0.78) 56%,
+    rgb(5 7 13 / 0) 84%
   );
 }
 
@@ -301,11 +326,65 @@
 }
 
 .routes__caption-body {
-  max-width: 39ch;
+  max-width: 33ch;
   color: var(--ink-dim);
   font-size: var(--text-small);
   line-height: 1.55;
+  text-shadow: 0 1px 14px rgb(5 7 13 / 0.9);
   text-wrap: pretty;
+}
+
+.routes__steps {
+  display: flex;
+  gap: 0.35rem;
+  max-width: 36rem;
+}
+
+.routes__step {
+  appearance: none;
+  flex: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  padding: 0.42rem 0.5rem 0.38rem;
+  border: 0;
+  border-top: 1px solid var(--line-strong);
+  background: rgb(5 7 13 / 0.5);
+  color: rgb(242 238 230 / 0.72);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.1em;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    color 240ms var(--ease-expo),
+    border-color 240ms var(--ease-expo),
+    background-color 240ms var(--ease-expo);
+}
+
+.routes__step > span {
+  color: rgb(127 231 255 / 0.55);
+  font-size: 0.5rem;
+}
+
+.routes__step:hover,
+.routes__step:focus-visible {
+  color: var(--ink);
+  background: rgb(127 231 255 / 0.06);
+}
+
+.routes__step:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: -2px;
+}
+
+.routes__step.is-active {
+  border-top-color: var(--accent);
+  color: var(--ink);
+}
+
+.routes__step.is-active > span {
+  color: var(--accent);
 }
 
 .routes__rail {
@@ -314,8 +393,8 @@
   min-width: 0;
   max-width: 27rem;
   border: 1px solid var(--line-strong);
-  background: rgb(5 7 13 / 0.94);
-  box-shadow: 0 24px 90px rgb(0 0 0 / 0.32);
+  background: var(--surface);
+  box-shadow: 0 24px 90px rgb(0 0 0 / 0.42);
 }
 
 .routes__rail-head {
@@ -467,10 +546,213 @@
 .routes__chart-foot {
   display: flex;
   gap: 0.35rem;
-  margin-top: 0.25rem;
+  margin-top: 0.4rem;
   color: var(--ink-dim);
   font-size: 0.5625rem;
   letter-spacing: 0.1em;
+}
+
+.routes__chart-axis-label {
+  fill: rgb(242 238 230 / 0.5);
+  font-family: var(--font-mono);
+  font-size: 7px;
+  letter-spacing: 0.08em;
+}
+
+.routes__chart-label {
+  fill: var(--accent);
+  font-family: var(--font-mono);
+  font-size: 6.5px;
+  letter-spacing: 0.1em;
+}
+
+#chart-peak-label {
+  fill: rgb(242 238 230 / 0.68);
+}
+
+/* ---- day scrubber ---- */
+
+.routes__scrub {
+  border-top: 1px solid var(--line-strong);
+  padding: 0.55rem 0.7rem 0.45rem;
+}
+
+.routes__scrub-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 0.6rem;
+  color: var(--ink-dim);
+  font-size: 0.5625rem;
+  letter-spacing: 0.1em;
+}
+
+.routes__scrub-head > #lane-day-out {
+  color: var(--accent);
+  font-size: 0.625rem;
+}
+
+.routes__scrub-track {
+  position: relative;
+  height: 28px;
+  margin: 0.35rem 6px 0;
+  cursor: grab;
+  touch-action: none;
+}
+
+.routes__scrub-track:active {
+  cursor: grabbing;
+}
+
+.routes__scrub-track:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 4px;
+}
+
+.routes__scrub-rail {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 2px;
+  background: rgb(242 238 230 / 0.18);
+  transform: translateY(-50%);
+}
+
+.routes__scrub-fill {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--accent);
+  transform: translateY(-50%);
+  box-shadow: 0 0 10px rgb(127 231 255 / 0.55);
+}
+
+.routes__scrub-tick {
+  position: absolute;
+  top: 50%;
+  width: 1px;
+  height: 8px;
+  background: rgb(242 238 230 / 0.4);
+  transform: translate(-50%, -50%);
+}
+
+.routes__scrub-tick[data-scrub-tick="7"] {
+  left: 0;
+}
+
+.routes__scrub-tick[data-scrub-tick="5"] {
+  left: 50%;
+}
+
+.routes__scrub-tick[data-scrub-tick="4"] {
+  left: 100%;
+}
+
+.routes__scrub-handle {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--accent);
+  transform: translate(-50%, -50%);
+  box-shadow:
+    0 0 0 3px rgb(5 7 13 / 0.92),
+    0 0 14px rgb(127 231 255 / 0.7);
+}
+
+.routes__scrub-scale {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.05rem;
+  color: rgb(242 238 230 / 0.45);
+  font-size: 0.5rem;
+  letter-spacing: 0.1em;
+}
+
+/* ---- animated deltas + replay ---- */
+
+.routes__deltas {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  gap: 0.6rem;
+  align-items: end;
+  border-top: 1px solid var(--line-strong);
+  padding: 0.6rem 0.7rem 0.62rem;
+}
+
+.routes__delta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.14rem;
+  min-width: 0;
+}
+
+.routes__delta-label {
+  color: var(--ink-dim);
+  font-size: 0.5rem;
+  letter-spacing: 0.12em;
+}
+
+.routes__delta-value {
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-size: 1.3rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.routes__delta-note {
+  overflow: hidden;
+  color: rgb(242 238 230 / 0.46);
+  font-size: 0.5rem;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.routes__replay {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42rem;
+  height: 32px;
+  padding: 0 0.65rem;
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.5625rem;
+  letter-spacing: 0.08em;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 220ms var(--ease-expo),
+    border-color 220ms var(--ease-expo);
+}
+
+.routes__replay:hover,
+.routes__replay:focus-visible {
+  border-color: var(--accent);
+  background: rgb(127 231 255 / 0.1);
+}
+
+.routes__replay:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.routes__replay-icon {
+  width: 0;
+  height: 0;
+  border-left: 7px solid var(--accent);
+  border-block: 4px solid transparent;
 }
 
 .routes__foot {
@@ -611,7 +893,7 @@
   }
 
   .routes {
-    padding-top: calc(var(--chrome-h) + 1.8vh);
+    padding-top: calc(var(--chrome-h) + 1.2vh);
   }
 
   .routes__index {
@@ -619,52 +901,88 @@
   }
 
   .routes__title {
-    margin-top: 0.55rem;
-    font-size: clamp(1.75rem, 7.4vw, 2.3rem);
+    margin-top: 0.45rem;
+    font-size: clamp(1.5rem, 6.4vw, 1.9rem);
   }
 
   .routes__instrument {
     display: flex;
     flex-direction: column;
     flex: 1;
-    justify-content: center;
-    gap: 1rem;
-    margin-top: 0.6rem;
+    justify-content: flex-end;
+    gap: 0.55rem;
+    margin-top: 0.5rem;
+    min-height: 0;
+  }
+
+  .routes__left {
+    flex: 0 0 auto;
+    gap: 0.5rem;
   }
 
   .routes__captions {
     flex: 0 0 auto;
     width: 100%;
-    min-height: 11.4rem;
+    min-height: 0;
     max-width: none;
   }
 
   .routes__captions::before {
-    inset: -12% -14%;
+    inset: -8% -12%;
     background: radial-gradient(
-      78% 78% at 40% 50%,
+      90% 90% at 40% 50%,
       rgb(5 7 13 / 0.9) 0%,
-      rgb(5 7 13 / 0.62) 55%,
-      rgb(5 7 13 / 0) 82%
+      rgb(5 7 13 / 0.55) 60%,
+      rgb(5 7 13 / 0) 85%
     );
   }
 
+  /* Flow layout so the active caption sets its own height and never
+     collides with the step controls. */
   .routes__caption {
-    gap: 0.45rem;
+    position: static;
+    display: none;
+    gap: 0.35rem;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+  }
+
+  .routes__caption.is-active {
+    display: flex;
   }
 
   .routes__caption-title {
-    max-width: 18ch;
-    font-size: 1.45rem;
+    max-width: 22ch;
+    font-size: 1.32rem;
+    line-height: 1.05;
+    text-shadow: 0 2px 16px rgb(5 7 13 / 0.95);
   }
 
   .routes__caption-body {
+    display: -webkit-box;
     max-width: 44ch;
-    font-size: 0.8125rem;
-    line-height: 1.48;
+    overflow: hidden;
+    font-size: 0.78rem;
+    line-height: 1.42;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .routes__steps {
+    gap: 0.3rem;
+  }
+
+  .routes__step {
+    padding: 0.3rem 0.45rem;
+    background: rgb(5 7 13 / 0.64);
+    font-size: 0.5rem;
   }
 
   .routes__rail {
+    position: sticky;
+    bottom: 0.35rem;
+    z-index: 2;
     flex: 0 0 auto;
     justify-self: stretch;
     max-width: none;
@@ -672,28 +990,104 @@
   }
 
   .routes__rail-head {
-    padding: 0.42rem 0.6rem 0.38rem;
-    font-size: 0.5625rem;
+    padding: 0.32rem 0.55rem 0.3rem;
+    font-size: 0.5rem;
   }
 
   .routes__row {
-    padding: 0.44rem 0.6rem;
+    padding: 0.32rem 0.55rem;
   }
 
   .routes__ports {
-    font-size: 0.75rem;
+    font-size: 0.72rem;
+  }
+
+  .routes__scrub {
+    padding: 0.35rem 0.55rem 0.3rem;
+  }
+
+  .routes__scrub-head {
+    font-size: 0.5rem;
+  }
+
+  .routes__scrub-track {
+    height: 26px;
+    margin-top: 0.2rem;
+  }
+
+  .routes__scrub-scale {
+    font-size: 0.46rem;
+  }
+
+  .routes__deltas {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+    gap: 0.35rem 0.5rem;
+    align-items: center;
+    padding: 0.4rem 0.55rem 0.45rem;
+  }
+
+  .routes__delta {
+    gap: 0.1rem;
+  }
+
+  .routes__delta-label {
+    font-size: 0.44rem;
+  }
+
+  .routes__delta-value {
+    font-size: 1.02rem;
+  }
+
+  .routes__delta-note {
+    display: none;
+  }
+
+  .routes__replay {
+    grid-column: auto;
+    justify-content: center;
+    height: 30px;
+    padding: 0 0.45rem;
+    gap: 0.3rem;
+    font-size: 0.48rem;
+  }
+
+  .routes__replay-icon {
+    border-left-width: 6px;
+    border-block-width: 3px;
   }
 
   .routes__chart {
-    padding: 0.45rem 0.6rem 0.4rem;
+    padding: 0.35rem 0.55rem 0.3rem;
   }
 
-  .routes__chart-svg {
-    max-height: 100px;
+  .routes__chart-head {
+    font-size: 0.48rem;
+  }
+
+  .routes__chart-head > #chart-route {
+    font-size: 0.48rem;
+  }
+
+  .routes__chart-meter {
+    margin-top: 0.2rem;
   }
 
   .routes__chart-value {
-    font-size: 1.7rem;
+    font-size: 1.5rem;
+  }
+
+  .routes__chart-when {
+    font-size: 0.46rem;
+  }
+
+  .routes__chart-svg {
+    max-height: 78px;
+    margin-top: 0.3rem;
+  }
+
+  .routes__chart-foot {
+    margin-top: 0.35rem;
+    font-size: 0.46rem;
   }
 
   .routes__foot {
@@ -721,6 +1115,8 @@
 
   .routes__caption {
     position: static;
+    display: flex;
+    flex-direction: column;
     opacity: 1;
     visibility: visible;
     transform: none;

@@ -137,6 +137,7 @@ export class Ensemble {
   private targetDay = 0;
   private day = 0;
   private fan = 0;
+  private focus = 0;
 
   constructor() {
     const origin = toDirection(
@@ -252,6 +253,7 @@ export class Ensemble {
         uLength: { value: 0 },
         uReady: { value: 0 },
         uOpacity: { value: 1.0 },
+        uFocus: { value: 0 },
       },
       vertexShader: ensembleVertexShader,
       fragmentShader: ensembleFragmentShader,
@@ -388,6 +390,12 @@ export class Ensemble {
     this.targetDay = MathUtils.clamp(day, 0, 1);
   }
 
+  /** Fades the fan back while the storm chapter holds the close-up. */
+  setFocus(value: number): void {
+    this.focus = MathUtils.clamp(value, 0, 1);
+    this.material.uniforms.uFocus.value = this.focus;
+  }
+
   update(time: number, delta: number, reduced: boolean): void {
     this.day = reduced
       ? this.targetDay
@@ -409,7 +417,8 @@ export class Ensemble {
     this.material.uniforms.uSpread.value = spread;
     this.material.uniforms.uLength.value = length;
     this.material.uniforms.uReady.value = this.ready;
-    this.markerMaterial.opacity = this.fan * (0.42 + this.day * 0.58);
+    this.markerMaterial.opacity =
+      this.fan * (0.42 + this.day * 0.58) * (1 - this.focus);
   }
 
   dispose(): void {

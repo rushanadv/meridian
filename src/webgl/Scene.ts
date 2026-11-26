@@ -74,7 +74,6 @@ export class MeridianScene {
 
   private rigFov = 42;
   private poseFov = 42;
-  private portrait = false;
   private rigReady = false;
   private hover = 0;
   private hoverTarget = 0;
@@ -234,6 +233,12 @@ export class MeridianScene {
     if (this.reduced) this.renderOnce();
   }
 
+  replayReroute(): void {
+    this.routes.playReroute();
+
+    if (this.reduced) this.renderOnce();
+  }
+
   setPricingHover(active: boolean): void {
     this.pricingHoverTarget = active ? 1 : 0;
 
@@ -304,6 +309,7 @@ export class MeridianScene {
 
     this.globe.resize(height, nextRatio);
     this.storm.resize(height, nextRatio);
+    this.routes.resize(width, height, nextRatio);
     this.layout(width, height);
 
     if (!this.running) this.renderOnce();
@@ -377,7 +383,6 @@ export class MeridianScene {
 
   private layout(width: number, height: number): void {
     const portrait = width / height < 0.9;
-    this.portrait = portrait;
 
     this.globe.group.position.set(
       portrait ? 0 : 1.02,
@@ -417,21 +422,34 @@ export class MeridianScene {
           fov: 42,
         };
 
+    // The storm close-up frames the vortex right of centre on desktop and
+    // above the copy on mobile. The look target is offset in camera space so
+    // the bright eye never drifts under the left-hand copy.
+    const stormFov = portrait ? 44 : 40;
+    const stormDistance = portrait ? 12.6 : 8.4;
+    const stormCamera = this.stormWorld
+      .clone()
+      .addScaledVector(direction, stormDistance);
+    const stormForward = this.stormWorld.clone().sub(stormCamera).normalize();
+    const stormRight = new Vector3()
+      .crossVectors(stormForward, new Vector3(0, 1, 0))
+      .normalize();
+    const stormUp = new Vector3()
+      .crossVectors(stormRight, stormForward)
+      .normalize();
+    const halfHeight = Math.tan((stormFov * Math.PI) / 360) * stormDistance;
+    const halfWidth = halfHeight * (width / height);
+    const frameX = portrait ? 0 : 0.3;
+    const frameY = portrait ? 0.48 : 0.04;
+    const stormLook = this.stormWorld
+      .clone()
+      .addScaledVector(stormRight, -frameX * halfWidth)
+      .addScaledVector(stormUp, -frameY * halfHeight);
+
     const storm: CameraKey = {
-      position: center
-        .clone()
-        .addScaledVector(direction, portrait ? 10 : 9),
-      look: this.stormWorld
-        .clone()
-        .addScaledVector(direction, portrait ? 0 : -0.3)
-        .add(
-          new Vector3(
-            portrait ? 0 : -1,
-            portrait ? -1.2 : 0.4,
-            0,
-          ),
-        ),
-      fov: portrait ? 48 : 42,
+      position: stormCamera,
+      look: stormLook,
+      fov: stormFov,
     };
 
     const routes: CameraKey = {
@@ -439,17 +457,17 @@ export class MeridianScene {
         .clone()
         .add(
           new Vector3(
-            portrait ? 0.4 : 1.5,
-            portrait ? 2.2 : 2.9,
-            portrait ? 6.9 : 7,
+            portrait ? 0.35 : 1.5,
+            portrait ? 1.35 : 2.9,
+            portrait ? 9.6 : 7,
           ),
         ),
       look: center
         .clone()
         .add(
           new Vector3(
-            portrait ? -0.1 : -0.2,
-            portrait ? 2.4 : 0.05,
+            portrait ? -0.05 : -0.2,
+            portrait ? -1.6 : 0.05,
             0,
           ),
         ),
@@ -511,7 +529,10 @@ export class MeridianScene {
     const routesWeight = routesWeightOf(choreo.state);
     const contentFade = 1 - choreo.veil;
 
+    this.updateRig(0);
+
     this.ensemble.setDay(this.reduced ? 0 : choreo.uDay);
+    this.ensemble.setFocus(this.stormWeight);
     this.ensemble.update(time, 0, this.reduced);
 
     this.globe.setVeil(choreo.veil);
@@ -530,14 +551,19 @@ export class MeridianScene {
     this.globe.setStorm(
       this.stormLocalDir,
       this.stormWeight * 0.4,
-      (1 -
-        this.stormWeight * (this.portrait ? 0.68 : 0.5) -
-        routesWeight * (this.portrait ? 0.1 : 0.15)) *
-        (1 - choreo.veil),
+      (1 - this.stormWeight * 0.72 - routesWeight * 0.32) * (1 - choreo.veil),
+      this.stormWeight,
     );
 
+    this.storm.setCamera(this.camera.position);
     this.storm.update(time, this.stormWeight, this.hover, this.stormPointer);
-    this.routes.update(time, routesWeight * contentFade, 0);
+    this.routes.update(
+      time,
+      routesWeight * contentFade,
+      0,
+      choreo.lanes,
+      choreo.reroute,
+    );
     this.pricingHover = this.pricingHoverTarget;
     this.pricing.update(
       time,
@@ -546,7 +572,6 @@ export class MeridianScene {
       this.smoothPointer,
       this.camera.aspect,
     );
-    this.updateRig(0);
     this.composer.render();
   }
 
@@ -575,7 +600,10 @@ export class MeridianScene {
 
     const time = this.reduced ? 0.8 : this.timer.getElapsed();
 
+    this.updateRig(delta);
+
     this.ensemble.setDay(this.reduced ? 0 : choreo.uDay);
+    this.ensemble.setFocus(this.stormWeight);
     this.ensemble.update(time, delta, this.reduced);
 
     this.globe.setVeil(choreo.veil);
@@ -594,14 +622,19 @@ export class MeridianScene {
     this.globe.setStorm(
       this.stormLocalDir,
       this.stormWeight * (0.35 + this.hover * 0.9),
-      (1 -
-        this.stormWeight * (this.portrait ? 0.68 : 0.5) -
-        routesWeight * (this.portrait ? 0.1 : 0.15)) *
-        (1 - choreo.veil),
+      (1 - this.stormWeight * 0.72 - routesWeight * 0.32) * (1 - choreo.veil),
+      this.stormWeight,
     );
 
+    this.storm.setCamera(this.camera.position);
     this.storm.update(time, this.stormWeight, this.hover, this.stormPointer);
-    this.routes.update(time, routesWeight * contentFade, delta);
+    this.routes.update(
+      time,
+      routesWeight * contentFade,
+      delta,
+      choreo.lanes,
+      choreo.reroute,
+    );
 
     this.pricingHover = MathUtils.damp(
       this.pricingHover,
@@ -616,8 +649,6 @@ export class MeridianScene {
       this.smoothPointer,
       this.camera.aspect,
     );
-
-    this.updateRig(delta);
 
     if (this.stormWeight > 0.02) {
       this.trackStormPointer();

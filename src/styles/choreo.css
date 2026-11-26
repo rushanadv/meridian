@@ -40,15 +40,25 @@
 .problem__lead::before {
   content: "";
   position: absolute;
-  inset: -12% -16%;
+  inset: -14% -20%;
   z-index: -1;
   pointer-events: none;
   background: radial-gradient(
-    72% 72% at 42% 48%,
-    rgb(5 7 13 / 0.88) 0%,
-    rgb(5 7 13 / 0.62) 50%,
-    rgb(5 7 13 / 0) 82%
+    120% 132% at 38% 48%,
+    rgb(5 7 13 / 0.95) 0%,
+    rgb(5 7 13 / 0.9) 38%,
+    rgb(5 7 13 / 0.66) 66%,
+    rgb(5 7 13 / 0.24) 86%,
+    rgb(5 7 13 / 0) 100%
   );
+  -webkit-mask-image:
+    linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent),
+    linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  -webkit-mask-composite: source-in;
+  mask-image:
+    linear-gradient(to bottom, transparent, #000 14%, #000 86%, transparent),
+    linear-gradient(to right, transparent, #000 10%, #000 90%, transparent);
+  mask-composite: intersect;
 }
 
 .problem__index {
@@ -81,7 +91,7 @@
 
 .problem__sentence {
   display: block;
-  opacity: 0.12;
+  opacity: 0;
   transform: translateY(8px);
   transition: opacity 180ms linear, transform 240ms var(--ease-expo);
 }
@@ -271,12 +281,13 @@
   }
 
   .problem__lead::before {
-    inset: -0.7rem -1rem;
+    inset: -0.9rem -1.1rem;
     background: radial-gradient(
-      96% 92% at 42% 50%,
-      rgb(5 7 13 / 0.94) 0%,
-      rgb(5 7 13 / 0.72) 62%,
-      rgb(5 7 13 / 0) 92%
+      110% 120% at 42% 44%,
+      rgb(5 7 13 / 0.96) 0%,
+      rgb(5 7 13 / 0.86) 55%,
+      rgb(5 7 13 / 0.4) 84%,
+      rgb(5 7 13 / 0) 100%
     );
   }
 

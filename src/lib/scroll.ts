@@ -60,6 +60,13 @@ export function initScroll(): ScrollController {
       .to(".hero__horizon", { yPercent: -10, ease: "none" }, 0)
       .to(".hero__top, .hero__bottom", { autoAlpha: 0, ease: "none" }, 0.15);
 
+    const smooth = (value: number) => {
+      const t = Math.min(1, Math.max(0, value));
+      return t * t * (3 - 2 * t);
+    };
+
+    // The pin is the dive: hero orbit at entry, cyclone close-up once the
+    // last sentence lands, then hold while the reader finishes the chapter.
     ScrollTrigger.create({
       trigger: "#problem",
       start: "top top",
@@ -67,23 +74,21 @@ export function initScroll(): ScrollController {
       pin: true,
       anticipatePin: 1,
       invalidateOnRefresh: true,
-    });
-
-    const master = gsap.timeline({
-      scrollTrigger: {
-        trigger: "#hero",
-        start: "top top",
-        endTrigger: "#pricing",
-        end: "top top",
-        scrub: 0.9,
-        anticipatePin: 1,
-        invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        choreo.state = smooth((self.progress - 0.04) / 0.58);
       },
     });
 
-    master
-      .to(choreo, { state: 1, duration: 0.12, ease: "none" }, 0.14)
-      .to(choreo, { state: 2, duration: 0.38, ease: "none" }, 0.62);
+    // The camera pulls back out of the cyclone as the lane view arrives.
+    ScrollTrigger.create({
+      trigger: "#routes",
+      start: "top bottom",
+      end: "top top",
+      invalidateOnRefresh: true,
+      onUpdate: (self) => {
+        choreo.state = 1 + smooth(self.progress);
+      },
+    });
 
     gsap.fromTo(
       choreo,
@@ -137,6 +142,8 @@ export function initScroll(): ScrollController {
       choreo.pricing = 0;
       choreo.day = 14;
       choreo.uDay = 0;
+      choreo.lanes = 0;
+      choreo.reroute = 0;
     };
   });
 

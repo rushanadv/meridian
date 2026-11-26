@@ -205,7 +205,7 @@
           <div class="problem__lead">
             <p class="problem__index mono">
               <span class="problem__rule" aria-hidden="true"></span>
-              02 / Storm · D11–D08
+              STORM / D11–D08
             </p>
 
             <h2 class="problem__statement" id="problem-title">
@@ -219,13 +219,10 @@
                 >By the time it is obvious, the cost is booked.</span
               >
             </h2>
-
-            <p class="problem__note mono">
-              Forecasts arrive as probabilities. Losses arrive as invoices.
-            </p>
           </div>
 
           <aside class="storm-hud" aria-labelledby="storm-hud-title">
+            <span class="storm-hud__leader" aria-hidden="true"></span>
             <div class="storm-hud__head">
               <h3 class="storm-hud__title mono" id="storm-hud-title">
                 <span class="accent">LIVE SYSTEM / ADA-07</span>
@@ -238,10 +235,14 @@
 
             <div class="storm-hud__grid">
               <div class="storm-hud__cell">
-                <span class="storm-hud__label mono">Lead time</span>
+                <span class="storm-hud__label mono">Horizon</span>
                 <span class="storm-hud__value">
-                  <span data-hud="lead">11</span>
+                  <span>14</span>
                   <span class="storm-hud__unit">days</span>
+                </span>
+                <span class="storm-hud__sub mono">
+                  <span data-hud="day-sub">D11</span>
+                  · <span data-hud="remaining">11</span> left
                 </span>
                 <span class="storm-hud__bar" aria-hidden="true"><i data-hud-bar-lead></i></span>
               </div>
@@ -251,12 +252,12 @@
                   <span data-hud="members">51</span>
                   <span class="storm-hud__unit">members</span>
                 </span>
-                <span class="storm-hud__sub mono" data-hud="spread-label">Spread 0.75</span>
+                <span class="storm-hud__sub mono" data-hud="spread-label">Spread 0.74</span>
               </div>
               <div class="storm-hud__cell">
                 <span class="storm-hud__label mono">Assets exposed</span>
                 <span class="storm-hud__value">
-                  <span data-hud="exposed">14,477</span>
+                  <span data-hud="exposed">14,469</span>
                   <span class="storm-hud__unit">/ 38,412</span>
                 </span>
                 <span class="storm-hud__bar" aria-hidden="true"><i data-hud-bar-assets></i></span>
@@ -267,6 +268,7 @@
                   <span data-hud="recall">88</span>
                   <span class="storm-hud__unit">%</span>
                 </span>
+                <span class="storm-hud__sub mono">Target 92%</span>
                 <span class="storm-hud__bar" aria-hidden="true"><i data-hud-bar-recall></i></span>
               </div>
             </div>
@@ -302,45 +304,59 @@
           </div>
 
           <div class="routes__instrument">
-            <div class="routes__captions" role="group" aria-label="Lane process">
-              <article class="routes__caption is-active" data-caption="0">
-                <p class="routes__caption-num mono">01 / Ingest</p>
-                <h3 class="routes__caption-title">
-                  Read the whole atmosphere.
-                </h3>
-                <p class="routes__caption-body">
-                  Four decades of reanalysis, live buoy telemetry and 38,412
-                  tracked assets feed one field every six hours. Ships report
-                  the weather they meet; the model reports the weather they
-                  should expect.
-                </p>
-              </article>
+            <div class="routes__left">
+              <div class="routes__captions" role="group" aria-label="Lane process">
+                <article class="routes__caption is-active" data-caption="0">
+                  <p class="routes__caption-num mono">01 / Ingest</p>
+                  <h3 class="routes__caption-title">
+                    Read the whole atmosphere.
+                  </h3>
+                  <p class="routes__caption-body">
+                    Four decades of reanalysis, live buoy telemetry and 38,412
+                    tracked assets feed one field every six hours. Ships report
+                    the weather they meet; the model reports the weather they
+                    should expect.
+                  </p>
+                </article>
 
-              <article class="routes__caption" data-caption="1">
-                <p class="routes__caption-num mono">02 / Resolve</p>
-                <h3 class="routes__caption-title">
-                  Run the ensemble, not the guess.
-                </h3>
-                <p class="routes__caption-body">
-                  Fifty-one members diverge on purpose. The spread shows where
-                  confidence ends and where a thirty-knot crosswind begins,
-                  turning one forecast into a field of honest probabilities.
-                </p>
-              </article>
+                <article class="routes__caption" data-caption="1">
+                  <p class="routes__caption-num mono">02 / Resolve</p>
+                  <h3 class="routes__caption-title">
+                    Run the ensemble, not the guess.
+                  </h3>
+                  <p class="routes__caption-body">
+                    Fifty-one members diverge on purpose. The spread shows where
+                    confidence ends and where a thirty-knot crosswind begins,
+                    turning one forecast into a field of honest probabilities.
+                  </p>
+                </article>
 
-              <article class="routes__caption" data-caption="2">
-                <p class="routes__caption-num mono">03 / Reroute</p>
-                <h3 class="routes__caption-title">
-                  Price the lane before the vessel.
-                </h3>
-                <p class="routes__caption-body">
-                  Every probability maps to a lane, a leg and a delivery window.
-                  The route bends before the port closes — and the invoice
-                  arrives with a number attached to the weather.
-                </p>
-              </article>
+                <article class="routes__caption" data-caption="2">
+                  <p class="routes__caption-num mono">03 / Reroute</p>
+                  <h3 class="routes__caption-title">
+                    Price the lane before the vessel.
+                  </h3>
+                  <p class="routes__caption-body">
+                    Every probability maps to a lane, a leg and a delivery window.
+                    The route bends before the port closes — and the invoice
+                    arrives with a number attached to the weather.
+                  </p>
+                </article>
 
-              <p class="sr-only" id="routes-caption-status" aria-live="polite"></p>
+                <p class="sr-only" id="routes-caption-status" aria-live="polite"></p>
+              </div>
+
+              <nav class="routes__steps" aria-label="Lane steps">
+                <button class="routes__step is-active" type="button" data-step="0" aria-current="step">
+                  <span class="mono">01</span> Ingest
+                </button>
+                <button class="routes__step" type="button" data-step="1">
+                  <span class="mono">02</span> Resolve
+                </button>
+                <button class="routes__step" type="button" data-step="2">
+                  <span class="mono">03</span> Reroute
+                </button>
+              </nav>
             </div>
 
             <div class="routes__rail">
@@ -382,6 +398,34 @@
                 </button>
               </div>
 
+              <div class="routes__scrub">
+                <div class="routes__scrub-head mono">
+                  <span>DAY SCRUBBER</span>
+                  <span id="lane-day-out">D05</span>
+                </div>
+                <div
+                  class="routes__scrub-track"
+                  id="lane-day"
+                  role="slider"
+                  tabindex="0"
+                  aria-label="Forecast day in the lane view"
+                  aria-valuemin="4"
+                  aria-valuemax="7"
+                  aria-valuenow="6"
+                  aria-valuetext="6 days to impact"
+                >
+                  <span class="routes__scrub-rail" aria-hidden="true"></span>
+                  <span class="routes__scrub-fill" aria-hidden="true"></span>
+                  <span class="routes__scrub-tick" data-scrub-tick="7" aria-hidden="true"></span>
+                  <span class="routes__scrub-tick" data-scrub-tick="5" aria-hidden="true"></span>
+                  <span class="routes__scrub-tick" data-scrub-tick="4" aria-hidden="true"></span>
+                  <span class="routes__scrub-handle" aria-hidden="true"></span>
+                </div>
+                <div class="routes__scrub-scale mono" aria-hidden="true">
+                  <span>D07</span><span>D04</span>
+                </div>
+              </div>
+
               <div
                 class="routes__chart mono"
                 data-cursor-probe="8 DAYS TO IMPACT|MEMBER 17"
@@ -410,21 +454,27 @@
                   </title>
                   <defs>
                     <linearGradient id="chart-area" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stop-color="#7fe7ff" stop-opacity="0.2" />
+                      <stop offset="0%" stop-color="#7fe7ff" stop-opacity="0.16" />
                       <stop offset="100%" stop-color="#7fe7ff" stop-opacity="0.01" />
+                    </linearGradient>
+                    <linearGradient id="chart-band-fill" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stop-color="#7fe7ff" stop-opacity="0.2" />
+                      <stop offset="100%" stop-color="#7fe7ff" stop-opacity="0.05" />
                     </linearGradient>
                     <clipPath id="chart-reveal">
                       <rect id="chart-clip" x="0" y="0" width="300" height="132" />
                     </clipPath>
                   </defs>
                   <g id="chart-grid" aria-hidden="true"></g>
+                  <g id="chart-axis" aria-hidden="true"></g>
                   <g clip-path="url(#chart-reveal)">
+                    <path id="chart-band" fill="url(#chart-band-fill)" d="" />
                     <path id="chart-area-path" fill="url(#chart-area)" d="" />
                     <path
                       id="chart-line"
                       fill="none"
                       stroke="#7fe7ff"
-                      stroke-width="1.35"
+                      stroke-width="1.6"
                       vector-effect="non-scaling-stroke"
                       d=""
                     />
@@ -440,24 +490,43 @@
                     stroke-dasharray="2 4"
                     opacity="0.42"
                   />
-                  <circle id="chart-now" cx="10" cy="112" r="2.7" fill="#7fe7ff" />
+                  <circle id="chart-now" cx="10" cy="112" r="2.9" fill="#7fe7ff" />
                   <circle
                     id="chart-peak"
                     cx="10"
                     cy="12"
-                    r="2.4"
+                    r="2.6"
                     fill="none"
                     stroke="#f2eee6"
-                    stroke-width="1"
-                    opacity="0.7"
+                    stroke-width="1.1"
+                    opacity="0.75"
                   />
+                  <text id="chart-now-label" class="routes__chart-label" x="0" y="0">NOW</text>
+                  <text id="chart-peak-label" class="routes__chart-label" x="0" y="0">PEAK</text>
                 </svg>
 
                 <p class="routes__chart-foot">
                   PEAK <span id="chart-peak-value" class="accent">58%</span>
-                  <span id="chart-peak-day">/ DAY 08</span>
+                  <span id="chart-peak-day">· DAY 08</span>
                 </p>
                 <p class="sr-only" id="chart-announce" aria-live="polite"></p>
+              </div>
+
+              <div class="routes__deltas">
+                <div class="routes__delta">
+                  <span class="routes__delta-label mono">ETA DELTA</span>
+                  <span class="routes__delta-value" id="eta-value">+0d 0h</span>
+                  <span class="routes__delta-note mono" id="eta-note">moves with member 17</span>
+                </div>
+                <div class="routes__delta">
+                  <span class="routes__delta-label mono">COST DELTA</span>
+                  <span class="routes__delta-value" id="cost-value">+$0</span>
+                  <span class="routes__delta-note mono" id="cost-note">before the bend</span>
+                </div>
+                <button class="routes__replay" type="button" id="lane-replay">
+                  <span class="routes__replay-icon" aria-hidden="true"></span>
+                  Replay bend
+                </button>
               </div>
             </div>
           </div>

@@ -178,40 +178,55 @@ export const stormVertexShader = /* glsl */ `
   attribute float aHeat;
   attribute float aOpacity;
   attribute float aLayer;
+  attribute float aLift;
 
   varying float vHeat;
   varying float vAlpha;
   varying float vLayer;
+  varying float vSeed;
 
   void main() {
     float r = aRadius;
-    float angularSpeed = 0.13 + 0.57 / (r + 0.28);
+    // Inner rings turn faster: the eye wall shears against the rain bands.
+    float angularSpeed = 0.1 + 0.46 / (r + 0.3);
     float ang = aAngle
       + uTime * angularSpeed
-      + sin(uTime * 0.6 + aSeed * 6.28318) * 0.045;
-    float curl = sin(ang * 2.7 + aSeed * 8.0 + uTime * 0.42)
-      * cos(r * 8.0 - aSeed * 5.0 - uTime * 0.31);
-    float radialSway = curl * (aLayer > 1.5 ? 0.045 : 0.018);
+      + sin(uTime * 0.45 + aSeed * 6.28318) * 0.05;
+
+    // Curl-shaped turbulence bends the arms and widens the outer bands.
+    float curl = sin(ang * 3.0 + aSeed * 9.0 + uTime * 0.34)
+      * cos(r * 7.0 - aSeed * 4.0 - uTime * 0.26);
+    float radialSway = curl * (aLayer > 1.5 ? 0.04 : aLayer > 0.5 ? 0.022 : 0.01);
     float radius = r + radialSway;
-    float lift = sin(aSeed * 9.0 + r * 9.0 - uTime * 1.3) * 0.035 * (1.0 - r * 0.42);
+    float lift = aLift
+      + sin(aSeed * 9.0 + r * 8.0 - uTime * 1.1) * 0.026 * (1.0 - clamp(r * 0.55, 0.0, 0.8));
 
     vec3 pos = vec3(cos(ang) * radius, lift, sin(ang) * radius);
 
+    // Hover / tap ripple: a travelling ring plus a soft inward swell.
     vec2 delta = pos.xz - uPointer;
     float dist = length(delta);
-    float push = uHover * 0.24 * exp(-dist * dist * 5.0);
+    float ripple = sin(dist * 15.0 - uTime * 4.6)
+      * exp(-dist * 2.6)
+      * uHover;
+    pos.xz += normalize(delta + vec2(0.0001)) * ripple * 0.055;
+    pos.y += abs(ripple) * 0.05;
+
+    float push = uHover * 0.1 * exp(-dist * dist * 4.0);
     pos.xz += normalize(delta + vec2(0.0001)) * push;
-    pos.y += push * 0.3;
+    pos.y += push * 0.24;
 
     vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
     gl_Position = projectionMatrix * mvPosition;
 
     float atten = uScale / max(0.35, -mvPosition.z);
-    gl_PointSize = aSize * atten * (1.0 + uHover * 0.4);
+    float layerScale = aLayer > 1.5 ? 0.86 : aLayer > 0.5 ? 1.0 : 1.08;
+    gl_PointSize = aSize * atten * layerScale * (1.0 + uHover * 0.3);
 
     vHeat = aHeat;
     vLayer = aLayer;
-    vAlpha = uIntensity * aOpacity * (0.55 + 0.45 * aSeed);
+    vSeed = aSeed;
+    vAlpha = uIntensity * aOpacity * (0.6 + 0.4 * aSeed);
   }
 `;
 
@@ -219,6 +234,7 @@ export const stormFragmentShader = /* glsl */ `
   varying float vHeat;
   varying float vAlpha;
   varying float vLayer;
+  varying float vSeed;
 
   void main() {
     vec2 c = gl_PointCoord - 0.5;
@@ -226,32 +242,41 @@ export const stormFragmentShader = /* glsl */ `
     if (d2 > 0.25) discard;
 
     float d = sqrt(d2);
-    float point = 1.0 - smoothstep(0.04, 0.5, d);
-    float wall = 1.0 - smoothstep(0.0, 1.0, abs(vLayer));
-    float alpha = point * vAlpha * (1.0 + wall * 0.16);
+    float point = 1.0 - smoothstep(0.02, 0.5, d);
+    float glow = 1.0 - smoothstep(0.0, 0.5, d);
 
-    vec3 rain = vec3(0.10, 0.34, 0.43);
-    vec3 arm = vec3(0.24, 0.66, 0.78);
-    vec3 eyeWall = vec3(0.84, 0.97, 1.0);
-    vec3 color = mix(rain, arm, smoothstep(0.2, 0.62, vHeat));
-    color = mix(color, eyeWall, smoothstep(0.78, 1.0, vHeat));
+    vec3 rainBand = vec3(0.07, 0.26, 0.35);
+    vec3 spiralArm = vec3(0.28, 0.7, 0.84);
+    vec3 eyeWall = vec3(0.86, 0.98, 1.0);
+
+    vec3 color = vLayer < 0.5
+      ? eyeWall
+      : vLayer < 1.5 ? spiralArm : rainBand;
+    color = mix(color, vec3(0.9, 0.99, 1.0), smoothstep(0.72, 1.0, vHeat));
+
+    float layerGain = vLayer < 0.5 ? 1.18 : vLayer < 1.5 ? 0.9 : 0.6;
+    float alpha = point * vAlpha * layerGain;
+    alpha += glow * vAlpha * layerGain * 0.12;
 
     gl_FragColor = vec4(color, alpha);
   }
 `;
 
 export const routeVertexShader = /* glsl */ `
-  attribute float aProgress;
+  attribute float aT;
   attribute float aRoute;
+  attribute float aMember;
   attribute float aSeed;
 
-  varying float vProgress;
+  varying float vT;
   varying float vRoute;
+  varying float vMember;
   varying float vSeed;
 
   void main() {
-    vProgress = aProgress;
+    vT = aT;
     vRoute = aRoute;
+    vMember = aMember;
     vSeed = aSeed;
 
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
@@ -263,37 +288,39 @@ export const routeFragmentShader = /* glsl */ `
   uniform float uReveal;
   uniform float uIntensity;
   uniform float uActive;
-  uniform float uFocus;
+  uniform float uReroute;
 
-  varying float vProgress;
+  varying float vT;
   varying float vRoute;
+  varying float vMember;
   varying float vSeed;
 
-  float head(float phase) {
-    float h = fract(uTime * 0.11 + phase);
-    float d = abs(vProgress - h);
-    d = min(d, 1.0 - d);
-    return 1.0 - smoothstep(0.0, 0.045, d);
-  }
-
   void main() {
-    float draw = smoothstep(0.0, 0.06, uReveal - vProgress * 0.92 + 0.06);
-    float dash = smoothstep(0.32, 0.5, abs(fract(vProgress * 44.0) - 0.5));
+    // Only the selected lane resolves its 51 members; the other two lanes
+    // stay as bare arcs so the selector keeps its spatial context.
+    float routeOn = 1.0 - smoothstep(0.42, 0.5, abs(vRoute - uActive));
+    if (routeOn < 0.01) discard;
 
-    float pulse = head(vRoute * 0.33 + vSeed) * 1.3
-      + head(vRoute * 0.33 + vSeed + 0.5) * 1.0;
+    float isRealised = 1.0 - step(0.5, abs(vMember - 17.0));
+    float draw = 1.0 - smoothstep(uReveal, uReveal + 0.05, vT);
+    float head = 1.0 - smoothstep(0.0, 0.035, abs(vT - uReveal));
 
-    float isActive = 1.0 - step(0.5, abs(vRoute - uActive));
-    float laneGain = mix(1.0, mix(0.42, 1.7, isActive), uFocus);
+    // A comet runs each member so the field reads as live even at rest.
+    float phase = fract(uTime * 0.09 + vSeed);
+    float cometDistance = abs(vT - phase);
+    cometDistance = min(cometDistance, 1.0 - cometDistance);
+    float comet = 1.0 - smoothstep(0.0, 0.045, cometDistance);
 
-    vec3 baseCol = vec3(0.46, 0.9, 1.0);
-    vec3 hotCol = vec3(0.88, 1.0, 1.0);
-    vec3 color = mix(baseCol, hotCol, clamp(pulse + isActive * uFocus * 0.35, 0.0, 1.0));
+    vec3 memberCol = vec3(0.4, 0.86, 0.98);
+    vec3 boneCol = vec3(0.95, 0.99, 1.0);
+    vec3 color = mix(memberCol, boneCol, isRealised);
 
-    gl_FragColor = vec4(
-      color,
-      (0.4 + dash * 0.26 + pulse) * draw * uIntensity * laneGain
-    );
+    float alpha = draw * routeOn * (0.34 + comet * 0.7 + isRealised * 0.55);
+    alpha += head * routeOn * 0.55;
+    alpha *= 1.0 - isRealised * uReroute * 0.88;
+    alpha *= uIntensity;
+
+    gl_FragColor = vec4(color, alpha);
   }
 `;
 
@@ -339,6 +366,7 @@ export const ensembleFragmentShader = /* glsl */ `
   uniform float uLength;
   uniform float uReady;
   uniform float uOpacity;
+  uniform float uFocus;
 
   varying vec3 vColor;
   varying float vProgress;
@@ -370,6 +398,7 @@ export const ensembleFragmentShader = /* glsl */ `
       * vFacing
       * reveal;
     alpha *= uOpacity * (1.0 + resolution * realised * 0.35);
+    alpha *= 1.0 - uFocus * 0.9;
 
     vec3 color = vColor;
     color += realised * head * vec3(0.16, 0.22, 0.24);
